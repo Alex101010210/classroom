@@ -1,0 +1,136 @@
+/* Variables CSS - Classroom Polling & Analytics */
+
+:root {
+  /* Colores Principales */
+  --primary: #4F46E5;           /* Indigo - Color principal */
+  --primary-dark: #4338CA;      /* Indigo oscuro - Hover */
+  --primary-light: #818CF8;     /* Indigo claro */
+  
+  --secondary: #10B981;         /* Green - Éxito */
+  --secondary-dark: #059669;
+  --secondary-light: #34D399;
+  
+  --danger: #EF4444;            /* Red - Error/Peligro */
+  --danger-dark: #DC2626;
+  --danger-light: #F87171;
+  
+  --warning: #F59E0B;           /* Amber - Advertencia */
+  --warning-dark: #D97706;
+  --warning-light: #FBBF24;
+  
+  --info: #3B82F6;              /* Blue - Información */
+  --info-dark: #2563EB;
+  --info-light: #60A5FA;
+  
+  /* Colores de Fondo */
+  --background: #F9FAFB;        /* Gray 50 - Fondo principal */
+  --background-dark: #F3F4F6;   /* Gray 100 */
+  --surface: #FFFFFF;           /* Blanco - Cards, modales */
+  --surface-hover: #F9FAFB;     /* Hover en cards */
+  
+  /* Colores de Texto */
+  --text-primary: #111827;      /* Gray 900 - Texto principal */
+  --text-secondary: #6B7280;    /* Gray 500 - Texto secundario */
+  --text-disabled: #9CA3AF;     /* Gray 400 - Texto deshabilitado */
+  --text-inverse: #FFFFFF;      /* Texto sobre fondos oscuros */
+  
+  /* Bordes */
+  --border-color: #E5E7EB;      /* Gray 200 */
+  --border-color-dark: #D1D5DB; /* Gray 300 */
+  --border-radius-sm: 0.25rem;  /* 4px */
+  --border-radius-md: 0.5rem;   /* 8px */
+  --border-radius-lg: 0.75rem;  /* 12px */
+  --border-radius-xl: 1rem;     /* 16px */
+  --border-radius-full: 9999px; /* Circular */
+  
+  /* Espaciado */
+  --spacing-xs: 0.25rem;        /* 4px */
+  --spacing-sm: 0.5rem;         /* 8px */
+  --spacing-md: 1rem;           /* 16px */
+  --spacing-lg: 1.5rem;         /* 24px */
+  --spacing-xl: 2rem;           /* 32px */
+  --spacing-2xl: 3rem;          /* 48px */
+  --spacing-3xl: 4rem;          /* 64px */
+  
+  /* Tipografía */
+  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  --font-family-mono: 'Courier New', Courier, monospace;
+  
+  --font-size-xs: 0.75rem;      /* 12px */
+  --font-size-sm: 0.875rem;     /* 14px */
+  --font-size-base: 1rem;       /* 16px */
+  --font-size-lg: 1.125rem;     /* 18px */
+  --font-size-xl: 1.25rem;      /* 20px */
+  --font-size-2xl: 1.5rem;      /* 24px */
+  --font-size-3xl: 1.875rem;    /* 30px */
+  --font-size-4xl: 2.25rem;     /* 36px */
+  
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+  
+  /* Sombras */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  
+  /* Transiciones */
+  --transition-fast: 150ms ease-in-out;
+  --transition-base: 200ms ease-in-out;
+  --transition-slow: 300ms ease-in-out;
+  
+  /* Z-index */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  
+  /* Anchos máximos */
+  --max-width-xs: 20rem;        /* 320px */
+  --max-width-sm: 24rem;        /* 384px */
+  --max-width-md: 28rem;        /* 448px */
+  --max-width-lg: 32rem;        /* 512px */
+  --max-width-xl: 36rem;        /* 576px */
+  --max-width-2xl: 42rem;       /* 672px */
+  --max-width-3xl: 48rem;       /* 768px */
+  --max-width-4xl: 56rem;       /* 896px */
+  --max-width-5xl: 64rem;       /* 1024px */
+  --max-width-6xl: 72rem;       /* 1152px */
+  --max-width-7xl: 80rem;       /* 1280px */
+  --max-width-full: 100%;
+  
+  /* Breakpoints (para referencia en media queries) */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+}
+
+/* Modo Oscuro (opcional para futuro) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #111827;
+    --background-dark: #1F2937;
+    --surface: #1F2937;
+    --surface-hover: #374151;
+    --text-primary: #F9FAFB;
+    --text-secondary: #D1D5DB;
+    --text-disabled: #9CA3AF;
+    --border-color: #374151;
+    --border-color-dark: #4B5563;
+  }
+}
+
+/* Made with Bob */
