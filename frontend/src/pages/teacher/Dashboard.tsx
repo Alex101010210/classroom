@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faUser, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faUser, faRightFromBracket, faEllipsisV, faUserPlus, faClipboardList, faTrash, faTimes } from '@fortawesome/free-solid-svg-icons';
 import './Dashboard.css';
 
 interface Subject {
@@ -11,11 +11,35 @@ interface Subject {
   students?: string[];
 }
 
+interface Task {
+  name: string;
+  description: string;
+  deadline: string;
+  attachedFile?: File | null;
+  submissionFile?: File | null;
+}
+
 const TeacherDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [isSubjectsOpen, setIsSubjectsOpen] = useState(false);
   const [teacherName] = useState('Nombre del maestro');
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  
+  // Modal states
+  const [showAddStudentModal, setShowAddStudentModal] = useState(false);
+  const [showAddTaskModal, setShowAddTaskModal] = useState(false);
+  const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
+  
+  // Form states
+  const [studentName, setStudentName] = useState('');
+  const [taskForm, setTaskForm] = useState<Task>({
+    name: '',
+    description: '',
+    deadline: '',
+    attachedFile: null,
+    submissionFile: null
+  });
 
   useEffect(() => {
     const savedSubjects = localStorage.getItem('subjects');
@@ -51,6 +75,72 @@ const TeacherDashboard: React.FC = () => {
     alert('Avisos - Funcionalidad por implementar');
   };
 
+  const toggleMenu = (subjectId: string) => {
+    setOpenMenuId(openMenuId === subjectId ? null : subjectId);
+  };
+
+  const handleAddStudent = (subject: Subject) => {
+    setSelectedSubject(subject);
+    setShowAddStudentModal(true);
+    setOpenMenuId(null);
+  };
+
+  const handleAddTask = (subject: Subject) => {
+    setSelectedSubject(subject);
+    setShowAddTaskModal(true);
+    setOpenMenuId(null);
+  };
+
+  const handleDeleteClass = (subject: Subject) => {
+    if (window.confirm(`¿Está seguro que desea eliminar la clase "${subject.name}"? Esta acción no se puede deshacer.`)) {
+      const updatedSubjects = subjects.filter(s => s.id !== subject.id);
+      setSubjects(updatedSubjects);
+      localStorage.setItem('subjects', JSON.stringify(updatedSubjects));
+      alert('Clase eliminada exitosamente');
+    }
+    setOpenMenuId(null);
+  };
+
+  const submitAddStudent = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (studentName.trim() && selectedSubject) {
+      alert(`Alumno "${studentName}" agregado a la clase "${selectedSubject.name}"`);
+      setStudentName('');
+      setShowAddStudentModal(false);
+      setSelectedSubject(null);
+    }
+  };
+
+  const submitAddTask = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (taskForm.name.trim() && selectedSubject) {
+      alert(`Tarea "${taskForm.name}" creada para la clase "${selectedSubject.name}"`);
+      setTaskForm({
+        name: '',
+        description: '',
+        deadline: '',
+        attachedFile: null,
+        submissionFile: null
+      });
+      setShowAddTaskModal(false);
+      setSelectedSubject(null);
+    }
+  };
+
+  const closeModals = () => {
+    setShowAddStudentModal(false);
+    setShowAddTaskModal(false);
+    setSelectedSubject(null);
+    setStudentName('');
+    setTaskForm({
+      name: '',
+      description: '',
+      deadline: '',
+      attachedFile: null,
+      submissionFile: null
+    });
+  };
+
   return (
     <div className="teacher-dashboard">
       <header className="dashboard-header">
@@ -80,7 +170,43 @@ const TeacherDashboard: React.FC = () => {
                 <div className="classes-preview-list">
                   {subjects.map((subject) => (
                     <div key={subject.id} className="class-preview-card">
-                      <h3>{subject.name}</h3>
+                      <div className="card-header">
+                        <h3>{subject.name}</h3>
+                        <div className="card-menu">
+                          <button
+                            className="menu-button"
+                            onClick={() => toggleMenu(subject.id)}
+                            aria-label="Opciones"
+                          >
+                            <FontAwesomeIcon icon={faEllipsisV} />
+                          </button>
+                          {openMenuId === subject.id && (
+                            <div className="menu-dropdown">
+                              <button
+                                className="menu-item"
+                                onClick={() => handleAddStudent(subject)}
+                              >
+                                <FontAwesomeIcon icon={faUserPlus} />
+                                <span>Agregar Alumno</span>
+                              </button>
+                              <button
+                                className="menu-item"
+                                onClick={() => handleAddTask(subject)}
+                              >
+                                <FontAwesomeIcon icon={faClipboardList} />
+                                <span>Agregar Tarea</span>
+                              </button>
+                              <button
+                                className="menu-item delete"
+                                onClick={() => handleDeleteClass(subject)}
+                              >
+                                <FontAwesomeIcon icon={faTrash} />
+                                <span>Eliminar</span>
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                       {subject.description && <p>{subject.description}</p>}
                       {subject.students && subject.students.length > 0 && (
                         <span>{subject.students.length} alumnos</span>
@@ -139,6 +265,122 @@ const TeacherDashboard: React.FC = () => {
           </nav>
         </aside>
       </div>
+
+      {/* Modal: Agregar Alumno */}
+      {showAddStudentModal && (
+        <div className="modal-overlay" onClick={closeModals}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Agregar Alumno</h2>
+              <button className="close-button" onClick={closeModals}>
+                <FontAwesomeIcon icon={faTimes} />
+              </button>
+            </div>
+            <form onSubmit={submitAddStudent}>
+              <div className="form-group">
+                <label htmlFor="studentName">Nombre del Alumno</label>
+                <input
+                  type="text"
+                  id="studentName"
+                  value={studentName}
+                  onChange={(e) => setStudentName(e.target.value)}
+                  placeholder="Ingrese el nombre completo"
+                  required
+                />
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn-cancel" onClick={closeModals}>
+                  Cancelar
+                </button>
+                <button type="submit" className="btn-submit">
+                  Agregar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Agregar Tarea */}
+      {showAddTaskModal && (
+        <div className="modal-overlay" onClick={closeModals}>
+          <div className="modal-content modal-large" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Agregar Tarea</h2>
+              <button className="close-button" onClick={closeModals}>
+                <FontAwesomeIcon icon={faTimes} />
+              </button>
+            </div>
+            <form onSubmit={submitAddTask}>
+              <div className="form-group">
+                <label htmlFor="taskName">Nombre de la Tarea</label>
+                <input
+                  type="text"
+                  id="taskName"
+                  value={taskForm.name}
+                  onChange={(e) => setTaskForm({...taskForm, name: e.target.value})}
+                  placeholder="Ej: Tarea de Matemáticas"
+                  required
+                />
+              </div>
+              
+              <div className="form-group">
+                <label htmlFor="taskDescription">Descripción</label>
+                <textarea
+                  id="taskDescription"
+                  value={taskForm.description}
+                  onChange={(e) => setTaskForm({...taskForm, description: e.target.value})}
+                  placeholder="Describe la tarea..."
+                  rows={4}
+                  required
+                />
+              </div>
+              
+              <div className="form-group">
+                <label htmlFor="taskDeadline">Tiempo de Entrega</label>
+                <input
+                  type="datetime-local"
+                  id="taskDeadline"
+                  value={taskForm.deadline}
+                  onChange={(e) => setTaskForm({...taskForm, deadline: e.target.value})}
+                  required
+                />
+              </div>
+              
+              <div className="form-group">
+                <label htmlFor="attachedFile">Material Adjunto (Opcional)</label>
+                <input
+                  type="file"
+                  id="attachedFile"
+                  onChange={(e) => setTaskForm({...taskForm, attachedFile: e.target.files?.[0] || null})}
+                  accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.jpg,.jpeg,.png"
+                />
+                <small>Formatos permitidos: PDF, DOC, DOCX, PPT, PPTX, TXT, imágenes</small>
+              </div>
+              
+              <div className="form-group">
+                <label htmlFor="submissionFile">Apartado para Enviar Archivos</label>
+                <input
+                  type="file"
+                  id="submissionFile"
+                  onChange={(e) => setTaskForm({...taskForm, submissionFile: e.target.files?.[0] || null})}
+                  accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.zip"
+                />
+                <small>Los alumnos podrán enviar sus trabajos aquí</small>
+              </div>
+              
+              <div className="modal-footer">
+                <button type="button" className="btn-cancel" onClick={closeModals}>
+                  Cancelar
+                </button>
+                <button type="submit" className="btn-submit">
+                  Guardar Tarea
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

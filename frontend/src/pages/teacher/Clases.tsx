@@ -11,6 +11,10 @@ interface Subject {
   students?: string[];
   createdAt: string;
 }
+const getStudentCount = (subject: Subject):
+number => {
+  return subject.students?.length || 0;
+};
 
 const Clases: React.FC = () => {
   const navigate = useNavigate();
@@ -133,11 +137,16 @@ const Clases: React.FC = () => {
                   {subject.description && (
                     <p className="subject-description">{subject.description}</p>
                   )}
-                  {subject.students && subject.students.length > 0 && (
-                    <p className="subject-students">
-                      Alumnos: {subject.students.join(', ')}
+                  <div className="subject-info">
+                    <p className="total-students">
+                      <strong>Total de alumnos:</strong> {getStudentCount(subject)}
                     </p>
-                  )}
+                    {subject.students && subject.students.length > 0 && (
+                      <p className="subject-students">
+                        Alumnos: {subject.students.join(', ')}
+                      </p>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
