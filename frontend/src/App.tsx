@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import TeacherDashboard from './pages/teacher/Dashboard';
 import Clases from './pages/teacher/Clases';
+import Login from './pages/Login';
 function App() {
   return (
     
@@ -9,6 +10,7 @@ function App() {
         <Route path="/" element={<Navigate to="/teacher/dashboard" replace />} />
         <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
         <Route path="/teacher/clases" element={<Clases />} />
+        <Route path="/login" element={<Login />} />
       </Routes>
     </Router>
   )

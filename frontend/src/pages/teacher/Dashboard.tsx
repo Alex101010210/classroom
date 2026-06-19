@@ -34,7 +34,8 @@ const TeacherDashboard: React.FC = () => {
 
   const handleLogout = () => {
     if (window.confirm('¿Está seguro que desea salir?')) {
-      window.location.href = '/login';
+     localStorage.clear();
+      navigate('/login');
     }
   };
 
@@ -50,7 +51,7 @@ const TeacherDashboard: React.FC = () => {
   const handleAvisos = () => {
     alert('Avisos - Funcionalidad por implementar');
   };
-
+  console.log({subjects});
   return (
     <div className="teacher-dashboard">
       <header className="dashboard-header">
