@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import './Login.css';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -17,50 +18,51 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="container">
-      <div className="flex flex-col items-center justify-center" style={{ minHeight: '100vh' }}>
-        <h1 className="text-4xl font-bold mb-lg">Classroom Polling & Analytics</h1>
-        <p className="text-secondary text-center mb-xl">
-          Sistema de polling en tiempo real para educación
-        </p>
-        
-        <div className="card" style={{ maxWidth: '600px', width: '100%' }}>
-          <h2 className="text-2xl font-semibold mb-md">Bienvenido</h2>
-          <p className="text-secondary mb-lg">
-            Selecciona tu tipo de usuario para continuar
-          </p>
-          
-          <div className="flex gap-md">
-            <button 
-              className="p-md font-medium"
-              style={{
-                backgroundColor: 'var(--primary)',
-                color: 'var(--text-inverse)',
-                borderRadius: 'var(--border-radius-md)',
-                flex: 1
-              }}
-              onClick={handleTeacherLogin}
-            >
-              Login Maestro
-            </button>
-            <button 
-              className="p-md font-medium"
-              style={{
-                backgroundColor: 'var(--secondary)',
-                color: 'var(--text-inverse)',
-                borderRadius: 'var(--border-radius-md)',
-                flex: 1
-              }}
-              onClick={handleStudentLogin}
-            >
-              Login Alumno
-            </button>
-          </div>
+    <div className="login-page">
+      <div className="login-container">
+        {/* Left side - Welcome section */}
+        <div className="login-welcome">
+          <h1 className="login-logo">PollClass</h1>
         </div>
-        
-        <div className="mt-xl">
-          <span className="badge badge-primary">Backend Ready</span>
-          <span className="badge badge-success ml-sm">Styles Ready</span>
+
+        {/* Right side - Login form */}
+        <div className="login-form-container">
+          <div className="login-card">
+            <div className="login-card-header">
+              <h2>Bienvenido</h2>
+              <p>Selecciona tu tipo de usuario para continuar</p>
+            </div>
+
+            <div className="login-options">
+              <div className="login-option">
+                <span className="login-option-label">Registro para Profesores</span>
+                <button 
+                  className="btn-login btn-teacher"
+                  onClick={handleTeacherLogin}
+                >
+                  <span>Acceso Maestro</span>
+                </button>
+              </div>
+
+              <div className="login-divider">
+                <span>o</span>
+              </div>
+
+              <div className="login-option">
+                <span className="login-option-label">Registro para Estudiantes</span>
+                <button 
+                  className="btn-login btn-student"
+                  onClick={handleStudentLogin}>
+                  <span>Acceso Alumno</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="login-footer">
+              <div className="status-badges">
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
