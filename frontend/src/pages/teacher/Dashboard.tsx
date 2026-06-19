@@ -4,19 +4,21 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faUser, faRightFromBracket, faEllipsisV, faUserPlus, faClipboardList, faTrash, faTimes } from '@fortawesome/free-solid-svg-icons';
 import './Dashboard.css';
 
-interface Subject {
-  id: string;
-  name: string;
-  description?: string;
-  students?: string[];
-}
-
 interface Task {
+  id: string;
   name: string;
   description: string;
   deadline: string;
   attachedFile?: File | null;
   submissionFile?: File | null;
+}
+
+interface Subject {
+  id: string;
+  name: string;
+  description?: string;
+  students?: string[];
+  tasks?: Task[];
 }
 
 const TeacherDashboard: React.FC = () => {
@@ -34,6 +36,7 @@ const TeacherDashboard: React.FC = () => {
   // Form states
   const [studentName, setStudentName] = useState('');
   const [taskForm, setTaskForm] = useState<Task>({
+    id: '',
     name: '',
     description: '',
     deadline: '',
@@ -63,7 +66,7 @@ const TeacherDashboard: React.FC = () => {
   };
 
   const handleSubjectClick = (subject: Subject) => {
-    alert(`Seleccionó la materia: ${subject.name}`);
+    navigate(`/teacher/class/${subject.id}`, { state: { subject } });
     setIsSubjectsOpen(false);
   };
 
@@ -104,7 +107,18 @@ const TeacherDashboard: React.FC = () => {
   const submitAddStudent = (e: React.FormEvent) => {
     e.preventDefault();
     if (studentName.trim() && selectedSubject) {
-      alert(`Alumno "${studentName}" agregado a la clase "${selectedSubject.name}"`);
+      const updatedSubjects = subjects.map(subject => {
+        if (subject.id === selectedSubject.id) {
+          return {
+            ...subject,
+            students: [...(subject.students || []), studentName.trim()]
+          };
+        }
+        return subject;
+      });
+      
+      setSubjects(updatedSubjects);
+      localStorage.setItem('subjects', JSON.stringify(updatedSubjects));
       setStudentName('');
       setShowAddStudentModal(false);
       setSelectedSubject(null);
@@ -114,8 +128,29 @@ const TeacherDashboard: React.FC = () => {
   const submitAddTask = (e: React.FormEvent) => {
     e.preventDefault();
     if (taskForm.name.trim() && selectedSubject) {
-      alert(`Tarea "${taskForm.name}" creada para la clase "${selectedSubject.name}"`);
+      const newTask: Task = {
+        id: Date.now().toString(),
+        name: taskForm.name,
+        description: taskForm.description,
+        deadline: taskForm.deadline,
+        attachedFile: taskForm.attachedFile,
+        submissionFile: taskForm.submissionFile
+      };
+
+      const updatedSubjects = subjects.map(subject => {
+        if (subject.id === selectedSubject.id) {
+          return {
+            ...subject,
+            tasks: [...(subject.tasks || []), newTask]
+          };
+        }
+        return subject;
+      });
+      
+      setSubjects(updatedSubjects);
+      localStorage.setItem('subjects', JSON.stringify(updatedSubjects));
       setTaskForm({
+        id: '',
         name: '',
         description: '',
         deadline: '',
@@ -133,6 +168,7 @@ const TeacherDashboard: React.FC = () => {
     setSelectedSubject(null);
     setStudentName('');
     setTaskForm({
+      id: '',
       name: '',
       description: '',
       deadline: '',
