@@ -17,6 +17,10 @@ interface Subject {
   createdAt?: string;
   created_at?: string;
 }
+const getStudentCount = (subject: Subject):
+number => {
+  return subject.students?.length || 0;
+};
 
 const Clases: React.FC = () => {
   const navigate = useNavigate();
@@ -225,6 +229,11 @@ const Clases: React.FC = () => {
                         Alumnos: {subject.students.join(', ')}
                       </p>
                     )}
+                    <div className="subject-info">
+                      <p className="total-students">
+                        <strong>Total de alumnos:</strong> {getStudentCount(subject)}
+                      </p>
+                    </div>
                   </div>
                 );
               })}
