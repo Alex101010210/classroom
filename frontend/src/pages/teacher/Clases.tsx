@@ -2,14 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { classService } from '../../services/api';
 import './Clases.css';
 
 interface Subject {
   id: string;
-  name: string;
+  nombre_class?: string;
+  name?: string;
+  descrip_class?: string;
   description?: string;
+  color_class?: string;
+  color?: string;
   students?: string[];
-  createdAt: string;
+  createdAt?: string;
+  created_at?: string;
 }
 
 const Clases: React.FC = () => {
@@ -17,45 +23,78 @@ const Clases: React.FC = () => {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [className, setClassName] = useState('');
   const [classDescription, setClassDescription] = useState('');
+  const [classColor, setClassColor] = useState('#3b82f6');
   const [studentsInput, setStudentsInput] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
+  // Cargar clases al montar el componente
   useEffect(() => {
-    const savedSubjects = localStorage.getItem('subjects');
-    if (savedSubjects) {
-      setSubjects(JSON.parse(savedSubjects));
-    }
+    loadClasses();
   }, []);
 
-  const handleCreateClass = (e: React.FormEvent) => {
+  // Función para cargar clases desde la API
+  const loadClasses = async () => {
+    try {
+      setIsLoading(true);
+      const response = await classService.getTeacherClasses();
+      setSubjects(response.classes || []);
+      setErrorMessage('');
+    } catch (error: any) {
+      console.error('Error al cargar clases:', error);
+      setErrorMessage('Error al cargar las clases');
+      // Fallback a localStorage si falla la API
+      const savedSubjects = localStorage.getItem('subjects');
+      if (savedSubjects) {
+        setSubjects(JSON.parse(savedSubjects));
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCreateClass = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!className.trim()) {
+      setErrorMessage('El nombre de la clase es requerido');
       return;
     }
 
-    const students = studentsInput
-      .split(',')
-      .map((student) => student.trim())
-      .filter(Boolean);
+    try {
+      setIsLoading(true);
+      setErrorMessage('');
+      
+      // Crear clase en la base de datos
+      await classService.createClass({
+        nombre_class: className.trim(),
+        descrip_class: classDescription.trim() || undefined,
+        color_class: classColor,
+      });
 
-    const newSubject: Subject = {
-      id: Date.now().toString(),
-      name: className.trim(),
-      description: classDescription.trim(),
-      students,
-      createdAt: new Date().toISOString()
-    };
+      setSuccessMessage('Clase creada correctamente');
+      
+      // Limpiar formulario
+      setClassName('');
+      setClassDescription('');
+      setClassColor('#3b82f6');
+      setStudentsInput('');
 
-    const updatedSubjects = [...subjects, newSubject];
-    setSubjects(updatedSubjects);
-    localStorage.setItem('subjects', JSON.stringify(updatedSubjects));
-    setSuccessMessage('Clase creada correctamente');
-    setClassName('');
-    setClassDescription('');
-    setStudentsInput('');
+      // Recargar las clases
+      await loadClasses();
 
-    navigate('/teacher/dashboard');
+      // Navegar al dashboard después de un breve delay
+      setTimeout(() => {
+        navigate('/teacher/dashboard');
+      }, 1500);
+    } catch (error: any) {
+      console.error('Error al crear clase:', error);
+      setErrorMessage(error.response?.data?.message || 'Error al crear la clase');
+      setSuccessMessage('');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleBack = () => {
@@ -99,6 +138,20 @@ const Clases: React.FC = () => {
             </div>
 
             <div className="form-group">
+              <label htmlFor="classColor">Color de la clase</label>
+              <input
+                id="classColor"
+                type="color"
+                value={classColor}
+                onChange={(e) => setClassColor(e.target.value)}
+                style={{ width: '100%', height: '40px', cursor: 'pointer' }}
+              />
+              <small style={{ color: '#666', fontSize: '0.85rem' }}>
+                Selecciona un color para identificar la clase
+              </small>
+            </div>
+
+            <div className="form-group">
               <label htmlFor="studentsInput">Agregar alumnos</label>
               <input
                 id="studentsInput"
@@ -109,37 +162,72 @@ const Clases: React.FC = () => {
               />
             </div>
 
-            <button type="submit" className="btn-primary btn-create-class">
+            <button type="submit" className="btn-primary btn-create-class" disabled={isLoading}>
               <FontAwesomeIcon icon={faPlus} />
-              <span>Crear</span>
+              <span>{isLoading ? 'Creando...' : 'Crear'}</span>
             </button>
           </form>
 
-          {successMessage && <p className="success-message">{successMessage}</p>}
+          {successMessage && (
+            <p className="success-message" style={{ color: 'green', marginTop: '10px' }}>
+              {successMessage}
+            </p>
+          )}
+          {errorMessage && (
+            <p className="error-message" style={{ color: 'red', marginTop: '10px' }}>
+              {errorMessage}
+            </p>
+          )}
         </section>
 
         <section className="subjects-section">
-          {subjects.length === 0 ? (
+          {isLoading ? (
+            <div className="empty-state">
+              <p>Cargando clases...</p>
+            </div>
+          ) : subjects.length === 0 ? (
             <div className="empty-state">
               <p>No hay materias registradas</p>
             </div>
           ) : (
             <div className="subjects-grid">
-              {subjects.map((subject) => (
-                <div key={subject.id} className="subject-card">
-                  <div className="subject-header">
-                    <h3>{subject.name}</h3>
+              {subjects.map((subject) => {
+                const displayName = subject.nombre_class || subject.name || 'Sin nombre';
+                const displayDescription = subject.descrip_class || subject.description;
+                const displayColor = subject.color_class || subject.color || '#3b82f6';
+                
+                return (
+                  <div
+                    key={subject.id}
+                    className="subject-card"
+                    style={{
+                      borderLeft: `4px solid ${displayColor}`
+                    }}
+                  >
+                    <div className="subject-header">
+                      <h3>{displayName}</h3>
+                      <div
+                        style={{
+                          width: '20px',
+                          height: '20px',
+                          borderRadius: '50%',
+                          backgroundColor: displayColor,
+                          border: '2px solid #fff',
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                        }}
+                      />
+                    </div>
+                    {displayDescription && (
+                      <p className="subject-description">{displayDescription}</p>
+                    )}
+                    {subject.students && subject.students.length > 0 && (
+                      <p className="subject-students">
+                        Alumnos: {subject.students.join(', ')}
+                      </p>
+                    )}
                   </div>
-                  {subject.description && (
-                    <p className="subject-description">{subject.description}</p>
-                  )}
-                  {subject.students && subject.students.length > 0 && (
-                    <p className="subject-students">
-                      Alumnos: {subject.students.join(', ')}
-                    </p>
-                  )}
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </section>
