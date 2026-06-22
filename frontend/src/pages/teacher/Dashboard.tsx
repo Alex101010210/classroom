@@ -27,6 +27,7 @@ const TeacherDashboard: React.FC = () => {
   const [isSubjectsOpen, setIsSubjectsOpen] = useState(false);
   const [teacherName] = useState('Nombre del maestro');
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [showUserMenu, setShowUserMenu] = useState(false);
   
   // Modal states
   const [showAddStudentModal, setShowAddStudentModal] = useState(false);
@@ -56,7 +57,12 @@ const TeacherDashboard: React.FC = () => {
   };
 
   const handleUsers = () => {
-    alert('Gestión de usuarios - Funcionalidad por implementar');
+    setShowUserMenu(!showUserMenu);
+  };
+
+  const handleProfile = () => {
+    setShowUserMenu(false);
+    alert('Perfil de usuario - Funcionalidad por implementar');
   };
 
   const handleLogout = () => {
@@ -187,9 +193,23 @@ const TeacherDashboard: React.FC = () => {
           <button className="btn-header btn-add" onClick={handleAddSubject}>
             <FontAwesomeIcon icon={faPlus} />
           </button>
-          <button className="btn-header btn-users" onClick={handleUsers}>
-            <FontAwesomeIcon icon={faUser} />
-          </button>
+          <div className="user-menu-container">
+            <button className="btn-header btn-users" onClick={handleUsers}>
+              <FontAwesomeIcon icon={faUser} />
+            </button>
+            {showUserMenu && (
+              <div className="user-dropdown-menu">
+                <button className="user-menu-item" onClick={handleProfile}>
+                  <FontAwesomeIcon icon={faUser} />
+                  <span>Mi Perfil</span>
+                </button>
+                <button className="user-menu-item logout" onClick={handleLogout}>
+                  <FontAwesomeIcon icon={faRightFromBracket} />
+                  <span>Cerrar Sesión</span>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
@@ -206,47 +226,65 @@ const TeacherDashboard: React.FC = () => {
                 <div className="classes-preview-list">
                   {subjects.map((subject) => (
                     <div key={subject.id} className="class-preview-card">
-                      <div className="card-header">
-                        <h3>{subject.name}</h3>
-                        <div className="card-menu">
-                          <button
-                            className="menu-button"
-                            onClick={() => toggleMenu(subject.id)}
-                            aria-label="Opciones"
-                          >
-                            <FontAwesomeIcon icon={faEllipsisV} />
-                          </button>
-                          {openMenuId === subject.id && (
-                            <div className="menu-dropdown">
-                              <button
-                                className="menu-item"
-                                onClick={() => handleAddStudent(subject)}
-                              >
-                                <FontAwesomeIcon icon={faUserPlus} />
-                                <span>Agregar Alumno</span>
-                              </button>
-                              <button
-                                className="menu-item"
-                                onClick={() => handleAddTask(subject)}
-                              >
-                                <FontAwesomeIcon icon={faClipboardList} />
-                                <span>Agregar Tarea</span>
-                              </button>
-                              <button
-                                className="menu-item delete"
-                                onClick={() => handleDeleteClass(subject)}
-                              >
-                                <FontAwesomeIcon icon={faTrash} />
-                                <span>Eliminar</span>
-                              </button>
-                            </div>
-                          )}
+                      <div
+                        className="card-content-clickable"
+                        onClick={() => handleSubjectClick(subject)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <div className="card-header">
+                          <h3>{subject.name}</h3>
+                          <div className="card-menu">
+                            <button
+                              className="menu-button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleMenu(subject.id);
+                              }}
+                              aria-label="Opciones"
+                            >
+                              <FontAwesomeIcon icon={faEllipsisV} />
+                            </button>
+                            {openMenuId === subject.id && (
+                              <div className="menu-dropdown">
+                                <button
+                                  className="menu-item"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleAddStudent(subject);
+                                  }}
+                                >
+                                  <FontAwesomeIcon icon={faUserPlus} />
+                                  <span>Agregar Alumno</span>
+                                </button>
+                                <button
+                                  className="menu-item"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleAddTask(subject);
+                                  }}
+                                >
+                                  <FontAwesomeIcon icon={faClipboardList} />
+                                  <span>Agregar Tarea</span>
+                                </button>
+                                <button
+                                  className="menu-item delete"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteClass(subject);
+                                  }}
+                                >
+                                  <FontAwesomeIcon icon={faTrash} />
+                                  <span>Eliminar</span>
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </div>
+                        {subject.description && <p>{subject.description}</p>}
+                        {subject.students && subject.students.length > 0 && (
+                          <span>{subject.students.length} alumnos</span>
+                        )}
                       </div>
-                      {subject.description && <p>{subject.description}</p>}
-                      {subject.students && subject.students.length > 0 && (
-                        <span>{subject.students.length} alumnos</span>
-                      )}
                     </div>
                   ))}
                 </div>
@@ -293,11 +331,6 @@ const TeacherDashboard: React.FC = () => {
                 </div>
               )}
             </div>
-
-            <button className="sidebar-btn btn-logout" onClick={handleLogout}>
-              <FontAwesomeIcon icon={faRightFromBracket} />
-              <span>Salir</span>
-            </button>
           </nav>
         </aside>
       </div>

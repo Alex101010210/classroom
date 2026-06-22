@@ -66,6 +66,10 @@ const Clases: React.FC = () => {
     navigate('/teacher/dashboard');
   };
 
+  const handleClassClick = (subject: Subject) => {
+    navigate(`/teacher/class/${subject.id}`, { state: { subject } });
+  };
+
   return (
     <div className="clases-page">
       <header className="clases-header">
@@ -130,7 +134,12 @@ const Clases: React.FC = () => {
           ) : (
             <div className="subjects-grid">
               {subjects.map((subject) => (
-                <div key={subject.id} className="subject-card">
+                <button
+                  key={subject.id}
+                  type="button"
+                  className="subject-card"
+                  onClick={() => handleClassClick(subject)}
+                >
                   <div className="subject-header">
                     <h3>{subject.name}</h3>
                   </div>
@@ -147,7 +156,7 @@ const Clases: React.FC = () => {
                       </p>
                     )}
                   </div>
-                </div>
+                </button>
               ))}
             </div>
           )}
