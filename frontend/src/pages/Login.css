@@ -344,3 +344,106 @@ html, body {
 }
 
 /* Made with Bob */
+/* Login Input Styles */
+.login-input {
+  width: 100%;
+  padding: var(--spacing-md);
+  font-size: var(--font-size-base);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  transition: border-color var(--transition-fast);
+  font-family: inherit;
+  color: var(--text-primary);
+  background-color: var(--surface);
+}
+
+.login-input:focus {
+  outline: none;
+  border-color: #4A7C9E;
+  box-shadow: 0 0 0 3px rgba(74, 124, 158, 0.1);
+}
+
+.login-input::placeholder {
+  color: var(--text-disabled);
+}
+
+/* Error Message */
+.error-message {
+  color: var(--danger);
+  font-size: var(--font-size-sm);
+  margin: var(--spacing-sm) 0;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: rgba(239, 68, 68, 0.1);
+  border-radius: var(--border-radius-sm);
+  border-left: 3px solid var(--danger);
+}
+
+/* Login Footer Link */
+.login-footer a {
+  color: #4A7C9E;
+  text-decoration: none;
+  font-weight: var(--font-weight-semibold);
+  transition: color var(--transition-fast);
+}
+
+.login-footer a:hover {
+  color: #5A8CAE;
+  text-decoration: underline;
+}
+
+/* Button disabled state */
+.btn-login:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-login:disabled:hover {
+  transform: none;
+  box-shadow: 0 4px 15px rgba(74, 124, 158, 0.4);
+}
+
+/* Radio Buttons Styles */
+.radio-group {
+  display: flex;
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-sm);
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex: 1;
+  justify-content: center;
+  background-color: var(--surface);
+}
+
+.radio-label:hover {
+  border-color: #4A7C9E;
+  background-color: rgba(74, 124, 158, 0.05);
+}
+
+.radio-label span {
+  color: var(--text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.radio-label input[type="radio"]:checked ~ span {
+  font-weight: var(--font-weight-semibold);
+}
+
+.radio-label:has(input:checked) {
+  border-color: #4A7C9E;
+  background-color: rgba(74, 124, 158, 0.1);
+}
+
+.radio-input {
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+}

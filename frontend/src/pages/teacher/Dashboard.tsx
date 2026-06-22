@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faUser, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faUser, faRightFromBracket, faBars } from '@fortawesome/free-solid-svg-icons';
 import './Dashboard.css';
 
 interface Subject {
@@ -16,6 +16,7 @@ const TeacherDashboard: React.FC = () => {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [isSubjectsOpen, setIsSubjectsOpen] = useState(false);
   const [teacherName] = useState('Nombre del maestro');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const savedSubjects = localStorage.getItem('subjects');
@@ -42,16 +43,21 @@ const TeacherDashboard: React.FC = () => {
   const handleSubjectClick = (subject: Subject) => {
     alert(`Seleccionó la materia: ${subject.name}`);
     setIsSubjectsOpen(false);
+    setIsMobileMenuOpen(false);
   };
 
   const handleForos = () => {
+    setIsMobileMenuOpen(false);
     alert('Foros - Funcionalidad por implementar');
   };
 
   const handleAvisos = () => {
+    setIsMobileMenuOpen(false);
     alert('Avisos - Funcionalidad por implementar');
   };
+
   console.log({subjects});
+
   return (
     <div className="teacher-dashboard">
       <header className="dashboard-header">
@@ -64,6 +70,9 @@ const TeacherDashboard: React.FC = () => {
           </button>
           <button className="btn-header btn-users" onClick={handleUsers}>
             <FontAwesomeIcon icon={faUser} />
+          </button>
+          <button className="hamburger-btn" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+            <FontAwesomeIcon icon={faBars} />
           </button>
         </div>
       </header>
@@ -94,7 +103,7 @@ const TeacherDashboard: React.FC = () => {
           </div>
         </div>
 
-        <aside className="dashboard-sidebar">
+        <aside className={`dashboard-sidebar ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
           <nav className="sidebar-nav">
             <button className="sidebar-btn" onClick={handleForos}>
               Foros
@@ -139,6 +148,13 @@ const TeacherDashboard: React.FC = () => {
             </button>
           </nav>
         </aside>
+
+        {isMobileMenuOpen && (
+          <div
+            className="sidebar-overlay"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+        )}
       </div>
     </div>
   );

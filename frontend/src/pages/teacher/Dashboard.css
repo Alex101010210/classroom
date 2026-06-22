@@ -75,6 +75,33 @@
   background-color: var(--background-dark);
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
+/* Hamburger Button - Hidden by default, visible on mobile */
+.hamburger-btn {
+  display: none;
+  width: 56px;
+  height: 56px;
+  min-width: 56px;
+  padding: 0;
+  font-size: var(--font-size-xl);
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: none;
+  background-color: var(--surface);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.hamburger-btn:hover {
+  background-color: var(--background-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.hamburger-btn svg {
+  font-size: var(--font-size-lg);
+}
+
 }
 
 /* Main Content Layout */
@@ -275,6 +302,28 @@
   transform: translateX(-5px);
 }
 
+/* Sidebar Overlay - Dark background when mobile menu is open */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
   .dashboard-sidebar {
@@ -291,25 +340,54 @@
 }
 
 @media (max-width: 768px) {
+  /* Show hamburger button on mobile */
+  .hamburger-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Keep all header buttons visible on mobile */
+  .btn-add,
+  .btn-users {
+    display: flex;
+  }
+
   .dashboard-content {
     flex-direction: column;
+    position: relative;
   }
   
+  /* Hide sidebar by default on mobile */
   .dashboard-sidebar {
-    width: 100%;
-    border-left: none;
-    border-top: 3px solid #88B5C2;
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 280px;
+    height: 100vh;
+    z-index: 1000;
+    transition: right 0.3s ease-in-out;
+    border-left: 3px solid #88B5C2;
+    border-top: none;
+  }
+
+  /* Show sidebar when mobile menu is open */
+  .dashboard-sidebar.mobile-open {
+    right: 0;
+  }
+
+  /* Show overlay when mobile menu is open */
+  .sidebar-overlay {
+    display: block;
   }
   
   .dashboard-header {
-    flex-direction: column;
+    flex-direction: row;
     gap: var(--spacing-md);
-    text-align: center;
   }
   
   .header-actions {
-    width: 100%;
-    justify-content: center;
+    gap: var(--spacing-md);
   }
   
   .welcome-section {
