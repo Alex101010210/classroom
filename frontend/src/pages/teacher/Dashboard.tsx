@@ -63,7 +63,9 @@ const TeacherDashboard: React.FC = () => {
 
   const handleProfile = () => {
     setShowUserMenu(false);
-    alert('Perfil de usuario - Funcionalidad por implementar');
+    localStorage.clear();
+    navigate('/teacher/profile');
+
   };
 
   const handleLogout = () => {

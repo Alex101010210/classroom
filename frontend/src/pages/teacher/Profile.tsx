@@ -190,4 +190,4 @@ const TeacherProfile: React.FC = () => {
 
 export default TeacherProfile;
 
-// Made with Bob
+

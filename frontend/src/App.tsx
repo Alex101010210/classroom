@@ -4,6 +4,7 @@ import Clases from './pages/teacher/Clases';
 import ClassDetail from './pages/teacher/ClassDetail';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import TeacherProfile from './pages/teacher/Profile';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
         <Route path="/teacher/clases" element={<Clases />} />
         <Route path="/teacher/class/:classId" element={<ClassDetail />} />
+        <Route path="/teacher/profile" element={<TeacherProfile />} />
       </Routes>
     </Router>
   )
