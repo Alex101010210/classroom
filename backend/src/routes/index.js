@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 // Importar rutas cuando estén listas
-// const authRoutes = require('./auth.routes');
+const authRoutes = require('./auth.routes');
 const classRoutes = require('./class.routes');
 // const pollRoutes = require('./poll.routes');
 // const analyticsRoutes = require('./analytics.routes');
@@ -13,7 +13,7 @@ router.get('/health', (req, res) => {
 });
 
 // Usar rutas cuando estén listas
-// router.use('/auth', authRoutes);
+router.use('/auth', authRoutes);
 router.use('/classes', classRoutes);
 // router.use('/polls', pollRoutes);
 // router.use('/analytics', analyticsRoutes);
