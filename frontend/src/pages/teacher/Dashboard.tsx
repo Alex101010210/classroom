@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faUser, faRightFromBracket, faEllipsisV, faUserPlus, faClipboardList, faTrash, faTimes, faBars } from '@fortawesome/free-solid-svg-icons';
+import { classService } from '../../services/api';
 import './Dashboard.css';
 
 interface Task {
@@ -15,11 +16,21 @@ interface Task {
 
 interface Subject {
   id: string;
-  name: string;
+  nombre_class?: string;
+  name?: string;
+  descrip_class?: string;
   description?: string;
+  color_class?: string;
+  color?: string;
   students?: string[];
   tasks?: Task[];
+  createdAt?: string;
+  created_at?: string;
 }
+
+const getStudentCount = (subject: Subject): number => {
+  return subject.students?.length || 0;
+};
 
 const TeacherDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -29,6 +40,7 @@ const TeacherDashboard: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   
   // Modal states
   const [showAddStudentModal, setShowAddStudentModal] = useState(false);
@@ -47,11 +59,26 @@ const TeacherDashboard: React.FC = () => {
   });
 
   useEffect(() => {
-    const savedSubjects = localStorage.getItem('subjects');
-    if (savedSubjects) {
-      setSubjects(JSON.parse(savedSubjects));
-    }
+    loadClasses();
   }, []);
+
+  // Función para cargar clases desde la API
+  const loadClasses = async () => {
+    try {
+      setIsLoading(true);
+      const response = await classService.getTeacherClasses();
+      setSubjects(response.classes || []);
+    } catch (error: any) {
+      console.error('Error al cargar clases:', error);
+      // Fallback a localStorage si falla la API
+      const savedSubjects = localStorage.getItem('subjects');
+      if (savedSubjects) {
+        setSubjects(JSON.parse(savedSubjects));
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleAddSubject = () => {
     navigate('/teacher/clases');
@@ -230,73 +257,106 @@ const TeacherDashboard: React.FC = () => {
               Bienvenido ({teacherName} que hace el registro)
             </h2>
             <div className="classes-preview-panel">
-              {subjects.length === 0 ? (
+              {isLoading ? (
+                <p className="empty-classes-message">Cargando clases...</p>
+              ) : subjects.length === 0 ? (
                 <p className="empty-classes-message">Aún no hay clases creadas.</p>
               ) : (
                 <div className="classes-preview-list">
-                  {subjects.map((subject) => (
-                    <div key={subject.id} className="class-preview-card">
+                  {subjects.map((subject) => {
+                    const displayName = subject.nombre_class || subject.name || 'Sin nombre';
+                    const displayDescription = subject.descrip_class || subject.description;
+                    const displayColor = subject.color_class || subject.color || '#3b82f6';
+                    
+                    return (
                       <div
-                        className="card-content-clickable"
-                        onClick={() => handleSubjectClick(subject)}
-                        style={{ cursor: 'pointer' }}
+                        key={subject.id}
+                        className="class-preview-card"
+                        style={{
+                          borderLeft: `4px solid ${displayColor}`
+                        }}
                       >
-                        <div className="card-header">
-                          <h3>{subject.name}</h3>
-                          <div className="card-menu">
-                            <button
-                              className="menu-button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleMenu(subject.id);
+                        <div
+                          className="card-content-clickable"
+                          onClick={() => handleSubjectClick(subject)}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          <div className="card-header">
+                            <h3>{displayName}</h3>
+                            <div
+                              style={{
+                                width: '20px',
+                                height: '20px',
+                                borderRadius: '50%',
+                                backgroundColor: displayColor,
+                                border: '2px solid #fff',
+                                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                               }}
-                              aria-label="Opciones"
-                            >
-                              <FontAwesomeIcon icon={faEllipsisV} />
-                            </button>
-                            {openMenuId === subject.id && (
-                              <div className="menu-dropdown">
-                                <button
-                                  className="menu-item"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleAddStudent(subject);
-                                  }}
-                                >
-                                  <FontAwesomeIcon icon={faUserPlus} />
-                                  <span>Agregar Alumno</span>
-                                </button>
-                                <button
-                                  className="menu-item"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleAddTask(subject);
-                                  }}
-                                >
-                                  <FontAwesomeIcon icon={faClipboardList} />
-                                  <span>Agregar Tarea</span>
-                                </button>
-                                <button
-                                  className="menu-item delete"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDeleteClass(subject);
-                                  }}
-                                >
-                                  <FontAwesomeIcon icon={faTrash} />
-                                  <span>Eliminar</span>
-                                </button>
-                              </div>
+                            />
+                            <div className="card-menu">
+                              <button
+                                className="menu-button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleMenu(subject.id);
+                                }}
+                                aria-label="Opciones"
+                              >
+                                <FontAwesomeIcon icon={faEllipsisV} />
+                              </button>
+                              {openMenuId === subject.id && (
+                                <div className="menu-dropdown">
+                                  <button
+                                    className="menu-item"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleAddStudent(subject);
+                                    }}
+                                  >
+                                    <FontAwesomeIcon icon={faUserPlus} />
+                                    <span>Agregar Alumno</span>
+                                  </button>
+                                  <button
+                                    className="menu-item"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleAddTask(subject);
+                                    }}
+                                  >
+                                    <FontAwesomeIcon icon={faClipboardList} />
+                                    <span>Agregar Tarea</span>
+                                  </button>
+                                  <button
+                                    className="menu-item delete"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDeleteClass(subject);
+                                    }}
+                                  >
+                                    <FontAwesomeIcon icon={faTrash} />
+                                    <span>Eliminar</span>
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          {displayDescription && (
+                            <p className="subject-description">{displayDescription}</p>
+                          )}
+                          <div className="subject-info">
+                            <p className="total-students">
+                              <strong>Total de alumnos:</strong> {getStudentCount(subject)}
+                            </p>
+                            {subject.students && subject.students.length > 0 && (
+                              <p className="subject-students">
+                                Alumnos: {subject.students.join(', ')}
+                              </p>
                             )}
                           </div>
                         </div>
-                        {subject.description && <p>{subject.description}</p>}
-                        {subject.students && subject.students.length > 0 && (
-                          <span>{subject.students.length} alumnos</span>
-                        )}
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -328,15 +388,18 @@ const TeacherDashboard: React.FC = () => {
                       No hay materias agregadas
                     </div>
                   ) : (
-                    subjects.map((subject) => (
-                      <button
-                        key={subject.id}
-                        className="dropdown-item"
-                        onClick={() => handleSubjectClick(subject)}
-                      >
-                        {subject.name}
-                      </button>
-                    ))
+                    subjects.map((subject) => {
+                      const displayName = subject.nombre_class || subject.name || 'Sin nombre';
+                      return (
+                        <button
+                          key={subject.id}
+                          className="dropdown-item"
+                          onClick={() => handleSubjectClick(subject)}
+                        >
+                          {displayName}
+                        </button>
+                      );
+                    })
                   )}
                 </div>
               )}
