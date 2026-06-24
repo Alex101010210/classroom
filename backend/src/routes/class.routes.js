@@ -5,7 +5,7 @@ const { authenticateToken } = require('../middleware/auth.middleware');
 
 // NOTA: Temporalmente sin autenticación para pruebas
 // Descomentar la siguiente línea cuando tengas el sistema de login funcionando:
-// router.use(authenticateToken);
+router.use(authenticateToken);    //mover este cunado la autentificación funcionando
 
 // POST /api/classes - Crear nueva clase
 router.post('/', classController.createClass);

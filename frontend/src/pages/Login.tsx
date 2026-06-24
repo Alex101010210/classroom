@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-
+import { authService } from '../services/authService';
 import './Login.css';
 
 const Login: React.FC = () => {
@@ -22,12 +22,17 @@ const Login: React.FC = () => {
       return;
       }
       try {
-        console.log('Login con:', email,password);
-        navigate('/teacher/dashboard/');
-      } catch (error) { setError('Error al incicar sesion'); 
-      } finally { setIsLoading(false);
+        const response = await authService.login({ email, password });
+        if (response.success) {
+          navigate('/teacher/dashboard/');
+        }
+      } catch (error: any) {
+        setError(error.response?.data?.message || 'Error al iniciar sesión');
+      } finally {
+        setIsLoading(false);
       }
-  };
+
+    };
 
   return (
   <div className="login-page">

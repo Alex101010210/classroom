@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import ProtectedRoute from './components/ProtectedRoute';
 import TeacherDashboard from './pages/teacher/Dashboard';
 import Clases from './pages/teacher/Clases';
 import ClassDetail from './pages/teacher/ClassDetail';
@@ -13,15 +14,23 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Navigate to="/teacher/dashboard" replace />} />
-        <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
-        <Route path="/teacher/clases" element={<Clases />} />
-        <Route path="/teacher/class/:classId" element={<ClassDetail />} />
-        <Route path="/teacher/profile" element={<TeacherProfile />} />
+        
+        {/* Rutas protegidas */}
+        <Route path="/teacher/dashboard" element={
+          <ProtectedRoute><TeacherDashboard /></ProtectedRoute>
+        } />
+        <Route path="/teacher/clases" element={
+          <ProtectedRoute><Clases /></ProtectedRoute>
+        } />
+        <Route path="/teacher/class/:classId" element={
+          <ProtectedRoute><ClassDetail /></ProtectedRoute>
+        } />
+        <Route path="/teacher/profile" element={
+          <ProtectedRoute><TeacherProfile /></ProtectedRoute>
+        } />
       </Routes>
     </Router>
   )
 }
 
 export default App
-
-// Made with Bob
