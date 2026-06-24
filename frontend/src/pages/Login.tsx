@@ -15,18 +15,41 @@ const Login: React.FC = () => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
-    if (!email || !password) 
-      {
+    
+    if (!email || !password) {
       setError('Es necesario llenar todos los campos');
       setIsLoading(false);
       return;
+    }
+    
+    try {
+      console.log('Login con:', email, password);
+      
+      // TODO: CONECTAR CON BACKEND
+      // const response = await authService.login({ email, password });
+      // const { token, user } = response.data;
+      // localStorage.setItem('token', token);
+      // localStorage.setItem('user', JSON.stringify(user));
+      
+      // SIMULACIÓN TEMPORAL - Reemplazar con lógica real del backend
+      const mockUser = {
+        rol: email.includes('teacher') ? 'maestro' : 'alumno',
+        nombre: email.split('@')[0]
+      };
+      
+      localStorage.setItem('user', JSON.stringify(mockUser));
+      
+      // Redirigir según rol
+      if (mockUser.rol === 'maestro') {
+        navigate('/teacher/dashboard');
+      } else {
+        navigate('/student/dashboard');
       }
-      try {
-        console.log('Login con:', email,password);
-        navigate('/teacher/dashboard/');
-      } catch (error) { setError('Error al incicar sesion'); 
-      } finally { setIsLoading(false);
-      }
+    } catch (error) {
+      setError('Error al iniciar sesión');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
