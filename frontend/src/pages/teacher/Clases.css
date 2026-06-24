@@ -6,6 +6,27 @@
   flex-direction: column;
   background-color: var(--background);
 }
+.stundet-count-badge {
+  background-color: #4caf50;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-left: 10px;
+}
+
+.subject-info{
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.total-students {
+  color: #555;
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+}
 
 /* Header */
 .clases-header {
@@ -138,6 +159,13 @@
   box-shadow: var(--shadow-sm);
   transition: all var(--transition-fast);
   border: 2px solid var(--border-color);
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  font: inherit;
+  color: inherit;
 }
 
 .subject-card:hover {

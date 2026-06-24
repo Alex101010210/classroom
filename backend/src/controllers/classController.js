@@ -5,7 +5,7 @@ exports.createClass = async (req, res) => {
   try {
     const { nombre_class, descrip_class, color_class } = req.body;
     // TEMPORAL: usar maestro_id = 1 para pruebas sin autenticación
-    const maestro_id = req.user ? req.user.id : 1;
+    const maestro_id = req.user.id;
 
     // Validación básica
     if (!nombre_class || nombre_class.trim() === '') {
@@ -40,7 +40,7 @@ exports.createClass = async (req, res) => {
 exports.getTeacherClasses = async (req, res) => {
   try {
     // TEMPORAL: usar maestro_id = 1 para pruebas sin autenticación
-    const maestro_id = req.user ? req.user.id : 1;
+    const maestro_id = req.user.id;
 
     // Leer de la base de datos
     const classes = await Class.findAll({
@@ -67,7 +67,7 @@ exports.getTeacherClasses = async (req, res) => {
 exports.getClassById = async (req, res) => {
   try {
     const { id } = req.params;
-    const maestro_id = req.user ? req.user.id : 1;
+    const maestro_id =  req.user.id;
 
     const classData = await Class.findOne({
       where: {
@@ -99,7 +99,7 @@ exports.updateClass = async (req, res) => {
   try {
     const { id } = req.params;
     const { nombre_class, descrip_class, color_class } = req.body;
-    const maestro_id = req.user ? req.user.id : 1;
+    const maestro_id = req.user.id;
 
     const classData = await Class.findOne({
       where: { id, maestro_id }

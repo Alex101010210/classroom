@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-
+import { authService } from '../services/authService';
 import './Login.css';
 
 const Login: React.FC = () => {
@@ -25,13 +25,7 @@ const Login: React.FC = () => {
     try {
       console.log('Login con:', email, password);
       
-      // TODO: CONECTAR CON BACKEND
-      // const response = await authService.login({ email, password });
-      // const { token, user } = response.data;
-      // localStorage.setItem('token', token);
-      // localStorage.setItem('user', JSON.stringify(user));
-      
-      // SIMULACIÓN TEMPORAL - Reemplazar con lógica real del backend
+
       const mockUser = {
         rol: email.includes('teacher') ? 'maestro' : 'alumno',
         nombre: email.split('@')[0]
@@ -45,8 +39,8 @@ const Login: React.FC = () => {
       } else {
         navigate('/student/dashboard');
       }
-    } catch (error) {
-      setError('Error al iniciar sesión');
+    } catch (error: any) {
+      setError(error.response?.data?.message || 'Error al iniciar sesión');
     } finally {
       setIsLoading(false);
     }

@@ -18,6 +18,10 @@ interface Subject {
   created_at?: string;
 }
 
+const getStudentCount = (subject: Subject): number => {
+  return subject.students?.length || 0;
+};
+
 const Clases: React.FC = () => {
   const navigate = useNavigate();
   const [subjects, setSubjects] = useState<Subject[]>([]);
@@ -99,6 +103,10 @@ const Clases: React.FC = () => {
 
   const handleBack = () => {
     navigate('/teacher/dashboard');
+  };
+
+  const handleClassClick = (subject: Subject) => {
+    navigate(`/teacher/class/${subject.id}`, { state: { subject } });
   };
 
   return (
@@ -197,9 +205,11 @@ const Clases: React.FC = () => {
                 const displayColor = subject.color_class || subject.color || '#3b82f6';
                 
                 return (
-                  <div
+                  <button
                     key={subject.id}
+                    type="button"
                     className="subject-card"
+                    onClick={() => handleClassClick(subject)}
                     style={{
                       borderLeft: `4px solid ${displayColor}`
                     }}
@@ -220,12 +230,17 @@ const Clases: React.FC = () => {
                     {displayDescription && (
                       <p className="subject-description">{displayDescription}</p>
                     )}
-                    {subject.students && subject.students.length > 0 && (
-                      <p className="subject-students">
-                        Alumnos: {subject.students.join(', ')}
+                    <div className="subject-info">
+                      <p className="total-students">
+                        <strong>Total de alumnos:</strong> {getStudentCount(subject)}
                       </p>
-                    )}
-                  </div>
+                      {subject.students && subject.students.length > 0 && (
+                        <p className="subject-students">
+                          Alumnos: {subject.students.join(', ')}
+                        </p>
+                      )}
+                    </div>
+                  </button>
                 );
               })}
             </div>

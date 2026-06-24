@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { authService } from '../services/authService';
 import './Login.css'; // Reutilizamos los estilos del login
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
   const [nombre, setNombre] = useState('');
+  const [apellido, setApellido] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -18,7 +20,7 @@ const Register: React.FC = () => {
     setIsLoading(true);
 
     // Validaciones
-    if (!nombre || !email || !password || !confirmPassword) {
+    if (!nombre || !apellido || !email || !password || !confirmPassword) {
       setError('Por favor completa todos los campos');
       setIsLoading(false);
       return;
@@ -45,14 +47,23 @@ const Register: React.FC = () => {
     }
 
     try {
-      // Aquí irá la llamada al backend
-      console.log('Registro con:', { nombre, email, password, rol });
-      
-      // Simular registro exitoso
-      alert('¡Registro exitoso! Ahora puedes iniciar sesión');
-      navigate('/login');
-    } catch (err) {
-      setError('Error al registrarse. Intenta de nuevo');
+      // Llamar al servicio de registro
+      const response = await authService.register({
+        email: email.trim(),
+        password,
+        nombre: nombre.trim(),
+        apellido: apellido.trim(),
+        rol
+      });
+
+      if (response.success) {
+        alert('¡Registro exitoso! Ahora puedes iniciar sesión');
+        navigate('/login');
+      }
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || 'Error al registrarse. Intenta de nuevo';
+      setError(errorMessage);
+      console.error('Error en registro:', err);
     } finally {
       setIsLoading(false);
     }
@@ -78,12 +89,23 @@ const Register: React.FC = () => {
             <form onSubmit={handleRegister}>
               <div className="login-options">
                 <div className="login-option">
-                  <label className="login-option-label">Nombre Completo</label>
+                  <label className="login-option-label">Nombre</label>
                   <input
                     type="text"
                     value={nombre}
                     onChange={(e) => setNombre(e.target.value)}
-                    placeholder="Juan Pérez"
+                    placeholder="Juan"
+                    className="login-input"
+                  />
+                </div>
+
+                <div className="login-option">
+                  <label className="login-option-label">Apellido</label>
+                  <input
+                    type="text"
+                    value={apellido}
+                    onChange={(e) => setApellido(e.target.value)}
+                    placeholder="Pérez"
                     className="login-input"
                   />
                 </div>
