@@ -9,8 +9,8 @@ const authenticateToken = (req, res, next) => {
     const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
     if (!token) {
-      return res.status(401).json({ 
-        message: 'Acceso denegado. No se proporcionó token de autenticación.' 
+      return res.status(401).json({
+        message: 'Acceso denegado. No se proporcionó token de autenticación.'
       });
     }
 

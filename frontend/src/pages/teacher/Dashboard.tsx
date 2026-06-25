@@ -90,9 +90,7 @@ const TeacherDashboard: React.FC = () => {
 
   const handleProfile = () => {
     setShowUserMenu(false);
-    localStorage.clear();
     navigate('/teacher/profile');
-
   };
 
   const handleLogout = () => {
