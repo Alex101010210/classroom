@@ -10,6 +10,7 @@ import {
   faChartBar,
   faChevronDown,
   faChevronUp,
+  faUser,
 } from '@fortawesome/free-solid-svg-icons';
 import { authService } from '../../services/authService';
 import { classService } from '../../services/api';
@@ -94,7 +95,7 @@ const StudentDashboard: React.FC = () => {
       </header>
 
       <div className="sd-body">
-        {/* Contenido de main */}
+        {/* Contenido principal */}
         <main className="sd-main">
           <div className="sd-welcome">
             <h2>Bienvenido, <span>{studentName}</span></h2>
@@ -188,9 +189,14 @@ const StudentDashboard: React.FC = () => {
                 </div>
               )}
 
-              <button className="sd-nav-btn" onClick={() => navigate('/student/results')}>
+              <button className="sd-nav-btn" onClick={() => navigate('/student/profile')}>
                 <FontAwesomeIcon icon={faChartBar} />
                 <span>Mis Resultados</span>
+              </button>
+
+              <button className="sd-nav-btn" onClick={() => navigate('/student/profile')}>
+                <FontAwesomeIcon icon={faUser} />
+                <span>Mi Perfil</span>
               </button>
             </div>
 

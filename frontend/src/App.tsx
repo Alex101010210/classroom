@@ -9,6 +9,7 @@ import Register from './pages/Register';
 import PollsList from './pages/student/PollsList';
 import TakePoll from './pages/student/TakePoll';
 import PollResults from './pages/student/PollResults';
+import StudentProfile from './pages/student/StudentProfile';
 import TeacherProfile from './pages/teacher/Profile';
 
 function App() {
@@ -45,6 +46,9 @@ function App() {
         } />
         <Route path="/student/poll/:pollId/results" element={
           <ProtectedRoute><PollResults /></ProtectedRoute>
+        } />
+        <Route path="/student/profile" element={
+          <ProtectedRoute><StudentProfile /></ProtectedRoute>
         } />
       </Routes>
     </Router>

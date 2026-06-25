@@ -153,7 +153,8 @@ const TakePoll: React.FC = () => {
   const handleConfirmSubmit = async () => {
     try {
       // TODO: Enviar respuestas al backend
-
+      // await pollService.submitResponse(pollId, { answers });
+      
       console.log('Respuestas enviadas:', answers);
       alert('¡Encuesta enviada exitosamente!');
       
@@ -208,6 +209,7 @@ const TakePoll: React.FC = () => {
 
   return (
     <div className="take-poll-page">
+      {/* Header */}
       <header className="poll-header">
         <button className="btn-back" onClick={() => navigate(-1)}>
           <FontAwesomeIcon icon={faArrowLeft} />
@@ -224,7 +226,7 @@ const TakePoll: React.FC = () => {
         </div>
       </header>
 
-      {/* Barra de progreso */}
+      {/* Progress Bar */}
       <div className="progress-container">
         <div className="progress-bar">
           <div 
@@ -237,7 +239,7 @@ const TakePoll: React.FC = () => {
         </span>
       </div>
 
-      {/* Preguntas */}
+      {/* Question */}
       <div className="question-container">
         <div className="question-header">
           <span className="question-number">
@@ -253,7 +255,7 @@ const TakePoll: React.FC = () => {
 
         <h2 className="question-text">{currentQuestion.text}</h2>
 
-        {/* Opcion multiple */}
+        {/* Multiple Choice */}
         {currentQuestion.type === 'multiple-choice' && (
           <div className="options-container">
             {currentQuestion.options?.map((option, idx) => (
@@ -271,7 +273,7 @@ const TakePoll: React.FC = () => {
           </div>
         )}
 
-        {/* Verdadero o falso */}
+        {/* True/False */}
         {currentQuestion.type === 'true-false' && (
           <div className="options-container">
             {currentQuestion.options?.map((option, idx) => (
@@ -289,7 +291,7 @@ const TakePoll: React.FC = () => {
           </div>
         )}
 
-        {/* Pregunta corta */}
+        {/* Short Answer */}
         {currentQuestion.type === 'short-answer' && (
           <textarea
             className="answer-textarea"
@@ -301,7 +303,7 @@ const TakePoll: React.FC = () => {
         )}
       </div>
 
-      {/* Navegacion */}
+      {/* Navigation */}
       <div className="navigation-container">
         <button
           className="btn-nav"
@@ -335,7 +337,7 @@ const TakePoll: React.FC = () => {
         )}
       </div>
 
-      {/* Confirmar modal */}
+      {/* Confirmation Modal */}
       {showConfirmation && (
         <div className="modal-overlay" onClick={() => setShowConfirmation(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>

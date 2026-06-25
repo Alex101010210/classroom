@@ -1,6 +1,4 @@
-/* =============================================
-   Poll Results — Student
-   ============================================= */
+/* Poll Results — Student */
 
 .poll-results-page {
   min-height: 100vh;
@@ -8,7 +6,6 @@
   font-family: var(--font-family);
 }
 
-/* ---- Header ---- */
 .pr-header {
   display: flex;
   align-items: center;
@@ -34,7 +31,7 @@
   align-items: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-xs) var(--spacing-md);
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255,255,255,0.15);
   border: none;
   border-radius: var(--border-radius-md);
   color: #ffffff;
@@ -44,12 +41,8 @@
   transition: background var(--transition-fast);
   white-space: nowrap;
 }
+.pr-btn-back:hover { background: rgba(255,255,255,0.25); }
 
-.pr-btn-back:hover {
-  background: rgba(255, 255, 255, 0.25);
-}
-
-/* ---- States ---- */
 .pr-state {
   display: flex;
   flex-direction: column;
@@ -60,9 +53,7 @@
   color: var(--text-secondary);
 }
 
-.pr-state--error {
-  color: var(--danger);
-}
+.pr-state--error { color: var(--danger); }
 
 .pr-state button {
   padding: var(--spacing-sm) var(--spacing-xl);
@@ -75,7 +66,6 @@
   font-weight: var(--font-weight-semibold);
 }
 
-/* ---- Content ---- */
 .pr-content {
   max-width: 680px;
   margin: 0 auto;
@@ -85,7 +75,6 @@
   gap: var(--spacing-2xl);
 }
 
-/* ---- Score card ---- */
 .pr-score-card {
   background: var(--surface);
   border: 1px solid var(--border-color);
@@ -121,11 +110,7 @@
   margin-top: 2px;
 }
 
-.pr-score-meta {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-}
+.pr-score-meta { display: flex; flex-direction: column; gap: var(--spacing-sm); }
 
 .pr-score-date,
 .pr-score-time {
@@ -134,12 +119,7 @@
   color: var(--text-secondary);
 }
 
-/* ---- Answers ---- */
-.pr-answers {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-}
+.pr-answers { display: flex; flex-direction: column; gap: var(--spacing-md); }
 
 .pr-answers h2 {
   font-size: var(--font-size-xl);
@@ -156,9 +136,9 @@
   padding: var(--spacing-md) var(--spacing-lg);
 }
 
-.pr-answer-item.correct  { border-left-color: #10B981; }
+.pr-answer-item.correct   { border-left-color: #10B981; }
 .pr-answer-item.incorrect { border-left-color: #EF4444; }
-.pr-answer-item.neutral  { border-left-color: #9CA3AF; }
+.pr-answer-item.neutral   { border-left-color: #9CA3AF; }
 
 .pr-answer-header {
   display: flex;
@@ -173,27 +153,14 @@
   color: var(--text-secondary);
 }
 
-.pr-answer-icon {
-  font-size: var(--font-size-lg);
-}
-
+.pr-answer-icon { font-size: var(--font-size-lg); }
 .correct  .pr-answer-icon { color: #10B981; }
 .incorrect .pr-answer-icon { color: #EF4444; }
 .neutral  .pr-answer-icon { color: #9CA3AF; }
 
-.pr-answer-value {
-  margin: 0;
-  font-size: var(--font-size-base);
-  color: var(--text-primary);
-}
+.pr-answer-value { margin: 0; font-size: var(--font-size-base); color: var(--text-primary); }
+.pr-answer-pts   { margin: var(--spacing-xs) 0 0 0; font-size: var(--font-size-sm); color: var(--text-secondary); }
 
-.pr-answer-pts {
-  margin: var(--spacing-xs) 0 0 0;
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-}
-
-/* ---- Back button ---- */
 .pr-btn-home {
   padding: var(--spacing-md) var(--spacing-2xl);
   background: #4F46E5;
@@ -206,16 +173,10 @@
   align-self: center;
   transition: background var(--transition-fast);
 }
-
-.pr-btn-home:hover {
-  background: #4338CA;
-}
+.pr-btn-home:hover { background: #4338CA; }
 
 @media (max-width: 640px) {
-  .pr-score-card {
-    flex-direction: column;
-    text-align: center;
-  }
+  .pr-score-card { flex-direction: column; text-align: center; }
 }
 
 /* Made with Bob */

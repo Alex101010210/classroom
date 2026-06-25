@@ -1,3 +1,6 @@
+/* =============================================
+   Student Dashboard
+   ============================================= */
 
 .student-dashboard {
   min-height: 100vh;
@@ -21,9 +24,7 @@
   z-index: var(--z-sticky);
 }
 
-.sd-header-logo {
-  flex: 1;
-}
+.sd-header-logo { flex: 1; }
 
 .sd-logo-text {
   font-size: var(--font-size-xl);
@@ -40,13 +41,13 @@
 
 .sd-user-name {
   font-size: var(--font-size-sm);
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255,255,255,0.9);
   font-weight: var(--font-weight-medium);
 }
 
 .sd-user-badge {
   font-size: var(--font-size-xs);
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255,255,255,0.2);
   color: #ffffff;
   padding: 2px 10px;
   border-radius: var(--border-radius-full);
@@ -58,7 +59,7 @@
   width: 40px;
   height: 40px;
   border: none;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255,255,255,0.15);
   color: #ffffff;
   border-radius: var(--border-radius-md);
   cursor: pointer;
@@ -67,12 +68,9 @@
   justify-content: center;
   transition: background var(--transition-fast);
 }
+.sd-hamburger:hover { background: rgba(255,255,255,0.25); }
 
-.sd-hamburger:hover {
-  background: rgba(255, 255, 255, 0.25);
-}
-
-/* ---- Body layout ---- */
+/* ---- Body ---- */
 .sd-body {
   display: flex;
   flex: 1;
@@ -87,9 +85,7 @@
   overflow-y: auto;
 }
 
-.sd-welcome {
-  margin-bottom: var(--spacing-2xl);
-}
+.sd-welcome { margin-bottom: var(--spacing-2xl); }
 
 .sd-welcome h2 {
   font-size: var(--font-size-2xl);
@@ -98,9 +94,7 @@
   margin: 0 0 var(--spacing-xs) 0;
 }
 
-.sd-welcome h2 span {
-  color: #4F46E5;
-}
+.sd-welcome h2 span { color: #4F46E5; }
 
 .sd-welcome p {
   color: var(--text-secondary);
@@ -138,8 +132,9 @@
   color: var(--danger);
 }
 
+.sd-error p { margin: 0; flex: 1; }
+
 .sd-error button {
-  margin-left: auto;
   padding: var(--spacing-xs) var(--spacing-md);
   background: var(--danger);
   color: #fff;
@@ -275,9 +270,7 @@
   flex-shrink: 0;
 }
 
-.sd-nav-btn:hover svg:first-child {
-  color: #4F46E5;
-}
+.sd-nav-btn:hover svg:first-child { color: #4F46E5; }
 
 .sd-nav-chevron {
   margin-left: auto;
@@ -285,7 +278,7 @@
   color: var(--text-secondary);
 }
 
-/* Dropdown inside sidebar */
+/* Dropdown */
 .sd-nav-dropdown {
   display: flex;
   flex-direction: column;
@@ -330,42 +323,25 @@
   font-style: italic;
 }
 
-/* Logout button */
-.sd-nav-btn--logout {
-  color: var(--danger);
-}
+/* Logout */
+.sd-nav-btn--logout { color: var(--danger); }
+.sd-nav-btn--logout:hover { background: #FEF2F2; color: var(--danger-dark); }
+.sd-nav-btn--logout svg:first-child { color: var(--danger); }
+.sd-nav-btn--logout:hover svg:first-child { color: var(--danger-dark); }
 
-.sd-nav-btn--logout:hover {
-  background: #FEF2F2;
-  color: var(--danger-dark);
-}
-
-.sd-nav-btn--logout svg:first-child {
-  color: var(--danger);
-}
-
-.sd-nav-btn--logout:hover svg:first-child {
-  color: var(--danger-dark);
-}
-
-/* ---- Mobile overlay ---- */
+/* ---- Overlay ---- */
 .sd-overlay {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0,0,0,0.4);
   z-index: 999;
 }
 
 /* ---- Responsive ---- */
 @media (max-width: 768px) {
-  .sd-hamburger {
-    display: flex;
-  }
-
-  .sd-header-user {
-    display: none;
-  }
+  .sd-hamburger { display: flex; }
+  .sd-header-user { display: none; }
 
   .sd-sidebar {
     position: fixed;
@@ -378,19 +354,11 @@
     transition: right var(--transition-slow);
   }
 
-  .sd-sidebar--open {
-    right: 0;
-  }
+  .sd-sidebar--open { right: 0; }
+  .sd-overlay { display: block; }
 
-  .sd-overlay {
-    display: block;
-  }
-
-  .sd-main {
-    padding: var(--spacing-lg);
-  }
-
-  .sd-classes-grid {
-    grid-template-columns: 1fr;
-  }
+  .sd-main { padding: var(--spacing-lg); }
+  .sd-classes-grid { grid-template-columns: 1fr; }
 }
+
+/* Made with Bob */

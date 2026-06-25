@@ -23,18 +23,21 @@ const Login: React.FC = () => {
     }
     
     try {
-      const response = await authService.login({ email, password });
+      console.log('Login con:', email, password);
       
-      if (response.success) {
-        // El authService ya guarda el token y el usuario en localStorage
-        const user = response.data.user;
-        
-        // Redirigir según rol (1 = maestro, 2 = alumno)
-        if (user.rol === 0) {
-          navigate('/teacher/dashboard');
-        } else {
-          navigate('/student/dashboard');
-        }
+
+      const mockUser = {
+        rol: email.includes('teacher') ? 'maestro' : 'alumno',
+        nombre: email.split('@')[0]
+      };
+      
+      localStorage.setItem('user', JSON.stringify(mockUser));
+      
+      // Redirigir según rol
+      if (mockUser.rol === 'maestro') {
+        navigate('/teacher/dashboard');
+      } else {
+        navigate('/student/dashboard');
       }
     } catch (error: any) {
       setError(error.response?.data?.message || 'Error al iniciar sesión');

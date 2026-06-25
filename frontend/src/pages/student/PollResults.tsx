@@ -9,7 +9,6 @@ import './PollResults.css';
 const PollResults: React.FC = () => {
   const navigate = useNavigate();
   const { pollId } = useParams<{ pollId: string }>();
-
   const [result, setResult] = useState<StudentResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -32,10 +31,10 @@ const PollResults: React.FC = () => {
     }
   };
 
-  const getScoreColor = (percentage?: number) => {
-    if (percentage === undefined) return '#6B7280';
-    if (percentage >= 80) return '#10B981';
-    if (percentage >= 60) return '#F59E0B';
+  const getScoreColor = (pct?: number) => {
+    if (pct === undefined) return '#6B7280';
+    if (pct >= 80) return '#10B981';
+    if (pct >= 60) return '#F59E0B';
     return '#EF4444';
   };
 
@@ -71,20 +70,12 @@ const PollResults: React.FC = () => {
       </header>
 
       <div className="pr-content">
-        {/* Tarjeta de calificación */}
+        {/* Calificación */}
         <div className="pr-score-card">
-          <div
-            className="pr-score-circle"
-            style={{ borderColor: getScoreColor(pct) }}
-          >
-            <span className="pr-score-pct" style={{ color: getScoreColor(pct) }}>
-              {pct}%
-            </span>
-            <span className="pr-score-label">
-              {result.score ?? '—'} / {result.maxScore ?? '—'} pts
-            </span>
+          <div className="pr-score-circle" style={{ borderColor: getScoreColor(pct) }}>
+            <span className="pr-score-pct" style={{ color: getScoreColor(pct) }}>{pct}%</span>
+            <span className="pr-score-label">{result.score ?? '—'} / {result.maxScore ?? '—'} pts</span>
           </div>
-
           <div className="pr-score-meta">
             <p className="pr-score-date">
               Enviado el{' '}
@@ -101,7 +92,7 @@ const PollResults: React.FC = () => {
           </div>
         </div>
 
-        {/* Lista de respuestas */}
+        {/* Respuestas */}
         <div className="pr-answers">
           <h2>Tus respuestas</h2>
           {result.answers.map((ans, idx) => (
@@ -122,9 +113,7 @@ const PollResults: React.FC = () => {
                   className="pr-answer-icon"
                 />
               </div>
-              <p className="pr-answer-value">
-                Respuesta: <strong>{String(ans.answer)}</strong>
-              </p>
+              <p className="pr-answer-value">Respuesta: <strong>{String(ans.answer)}</strong></p>
               {ans.pointsEarned !== undefined && (
                 <p className="pr-answer-pts">{ans.pointsEarned} pts</p>
               )}
