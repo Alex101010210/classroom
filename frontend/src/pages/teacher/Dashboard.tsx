@@ -22,15 +22,11 @@ interface Subject {
   description?: string;
   color_class?: string;
   color?: string;
-  students?: string[];
+  student_count?: number;
   tasks?: Task[];
   createdAt?: string;
   created_at?: string;
 }
-
-const getStudentCount = (subject: Subject): number => {
-  return subject.students?.length || 0;
-};
 
 const TeacherDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -144,20 +140,9 @@ const TeacherDashboard: React.FC = () => {
 
   const submitAddStudent = (e: React.FormEvent) => {
     e.preventDefault();
-    if (studentName.trim() && selectedSubject) {
-      const updatedSubjects = subjects.map(subject => {
-        if (subject.id === selectedSubject.id) {
-          return {
-            ...subject,
-            students: [...(subject.students || []), studentName.trim()]
-          };
-        }
-        return subject;
-      });
-      
-      setSubjects(updatedSubjects);
-      localStorage.setItem('subjects', JSON.stringify(updatedSubjects));
-      setStudentName('');
+    if (selectedSubject) {
+      // La inscripción real se hace desde el detalle de clase
+      navigate(`/teacher/class/${selectedSubject.id}`);
       setShowAddStudentModal(false);
       setSelectedSubject(null);
     }
@@ -343,13 +328,8 @@ const TeacherDashboard: React.FC = () => {
                           )}
                           <div className="subject-info">
                             <p className="total-students">
-                              <strong>Total de alumnos:</strong> {getStudentCount(subject)}
+                              <strong>Total de alumnos:</strong> {subject.student_count ?? 0}
                             </p>
-                            {subject.students && subject.students.length > 0 && (
-                              <p className="subject-students">
-                                Alumnos: {subject.students.join(', ')}
-                              </p>
-                            )}
                           </div>
                         </div>
                       </div>

@@ -1,4 +1,6 @@
 const Class = require('../models/Class');
+const Enrollment = require('../models/Enrollment');
+const { sequelize } = require('../config/db');
 
 // Crear nueva clase (INSERT)
 exports.createClass = async (req, res) => {
@@ -39,21 +41,24 @@ exports.createClass = async (req, res) => {
 // Obtener todas las clases del maestro (SELECT)
 exports.getTeacherClasses = async (req, res) => {
   try {
-    // TEMPORAL: usar maestro_id = 1 para pruebas sin autenticación
     const maestro_id = req.user.id;
 
-    // Leer de la base de datos
     const classes = await Class.findAll({
-      where: {
-        maestro_id,
-        activa_class: true
+      where: { maestro_id, activa_class: true },
+      attributes: {
+        include: [
+          [
+            sequelize.literal(
+              `(SELECT COUNT(*) FROM inscripciones WHERE inscripciones.clase_id = "Class".id AND inscripciones.activa = true)`
+            ),
+            'student_count'
+          ]
+        ]
       },
       order: [['id', 'DESC']]
     });
 
-    res.json({
-      classes
-    });
+    res.json({ classes });
   } catch (error) {
     console.error('Error al obtener clases:', error);
     res.status(500).json({

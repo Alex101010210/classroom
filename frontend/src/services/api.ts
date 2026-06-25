@@ -79,6 +79,36 @@ export const classService = {
   },
 };
 
+// Tipos de inscripciones
+export interface StudentEnrollment {
+  id: number;
+  nombre: string;
+  apellido: string;
+  email: string;
+  fechaInscripcion: string | null;
+  inscripcion_id: number | null;
+}
+
+// Servicios de Inscripciones
+export const enrollmentService = {
+  // Obtener alumnos inscritos en una clase
+  getStudents: async (claseId: string): Promise<StudentEnrollment[]> => {
+    const response = await api.get(`/classes/${claseId}/students`);
+    return response.data.students;
+  },
+
+  // Inscribir alumno por email
+  enrollStudent: async (claseId: string, email: string): Promise<StudentEnrollment> => {
+    const response = await api.post(`/classes/${claseId}/students`, { email });
+    return response.data.student;
+  },
+
+  // Dar de baja a un alumno (soft delete)
+  removeStudent: async (claseId: string, alumnoId: number): Promise<void> => {
+    await api.delete(`/classes/${claseId}/students/${alumnoId}`);
+  },
+};
+
 // Tipos para el perfil de usuario
 export interface ProfileData {
   id: number;

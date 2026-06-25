@@ -176,6 +176,69 @@
   font-weight: var(--font-weight-medium);
 }
 
+/* Enroll Form */
+.enroll-form {
+  margin-bottom: var(--spacing-lg);
+}
+
+.enroll-input-group {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+.enroll-input-group input {
+  flex: 1;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-base);
+  background: var(--background);
+  color: var(--text-primary);
+  transition: border-color var(--transition-fast);
+}
+
+.enroll-input-group input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.enroll-input-group input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.enroll-input-group .btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-xl);
+  background: var(--primary);
+  color: var(--text-inverse);
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  white-space: nowrap;
+}
+
+.enroll-input-group .btn-primary:hover:not(:disabled) {
+  background: var(--primary-dark, #2563eb);
+}
+
+.enroll-input-group .btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.student-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
 /* Tasks Section */
 .tasks-section {
   background: var(--surface);
