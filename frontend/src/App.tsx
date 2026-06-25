@@ -6,8 +6,9 @@ import Clases from './pages/teacher/Clases';
 import ClassDetail from './pages/teacher/ClassDetail';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import PollsList from './pages/student/PollsList';  
+import PollsList from './pages/student/PollsList';
 import TakePoll from './pages/student/TakePoll';
+import PollResults from './pages/student/PollResults';
 import TeacherProfile from './pages/teacher/Profile';
 
 function App() {
@@ -41,6 +42,9 @@ function App() {
         } />
         <Route path="/student/poll/:pollId" element={
           <ProtectedRoute><TakePoll /></ProtectedRoute>
+        } />
+        <Route path="/student/poll/:pollId/results" element={
+          <ProtectedRoute><PollResults /></ProtectedRoute>
         } />
       </Routes>
     </Router>

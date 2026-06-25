@@ -1,0 +1,221 @@
+/* =============================================
+   Poll Results — Student
+   ============================================= */
+
+.poll-results-page {
+  min-height: 100vh;
+  background-color: var(--background);
+  font-family: var(--font-family);
+}
+
+/* ---- Header ---- */
+.pr-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  padding: 0 var(--spacing-xl);
+  height: 64px;
+  background: #4F46E5;
+  box-shadow: var(--shadow-md);
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+}
+
+.pr-header h1 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: #ffffff;
+  margin: 0;
+}
+
+.pr-btn-back {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xs) var(--spacing-md);
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  border-radius: var(--border-radius-md);
+  color: #ffffff;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  white-space: nowrap;
+}
+
+.pr-btn-back:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* ---- States ---- */
+.pr-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+  min-height: calc(100vh - 64px);
+  color: var(--text-secondary);
+}
+
+.pr-state--error {
+  color: var(--danger);
+}
+
+.pr-state button {
+  padding: var(--spacing-sm) var(--spacing-xl);
+  background: #4F46E5;
+  color: #fff;
+  border: none;
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* ---- Content ---- */
+.pr-content {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: var(--spacing-2xl) var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xl);
+}
+
+/* ---- Score card ---- */
+.pr-score-card {
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-xl);
+  padding: var(--spacing-2xl);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xl);
+  box-shadow: var(--shadow-md);
+}
+
+.pr-score-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 6px solid #4F46E5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pr-score-pct {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+}
+
+.pr-score-label {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.pr-score-meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.pr-score-date,
+.pr-score-time {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+/* ---- Answers ---- */
+.pr-answers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.pr-answers h2 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-sm) 0;
+}
+
+.pr-answer-item {
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--border-color-dark);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+}
+
+.pr-answer-item.correct  { border-left-color: #10B981; }
+.pr-answer-item.incorrect { border-left-color: #EF4444; }
+.pr-answer-item.neutral  { border-left-color: #9CA3AF; }
+
+.pr-answer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-xs);
+}
+
+.pr-answer-num {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-secondary);
+}
+
+.pr-answer-icon {
+  font-size: var(--font-size-lg);
+}
+
+.correct  .pr-answer-icon { color: #10B981; }
+.incorrect .pr-answer-icon { color: #EF4444; }
+.neutral  .pr-answer-icon { color: #9CA3AF; }
+
+.pr-answer-value {
+  margin: 0;
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+}
+
+.pr-answer-pts {
+  margin: var(--spacing-xs) 0 0 0;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+/* ---- Back button ---- */
+.pr-btn-home {
+  padding: var(--spacing-md) var(--spacing-2xl);
+  background: #4F46E5;
+  color: #fff;
+  border: none;
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  align-self: center;
+  transition: background var(--transition-fast);
+}
+
+.pr-btn-home:hover {
+  background: #4338CA;
+}
+
+@media (max-width: 640px) {
+  .pr-score-card {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+/* Made with Bob */

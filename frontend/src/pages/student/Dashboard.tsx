@@ -1,149 +1,212 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRightFromBracket, faBars } from '@fortawesome/free-solid-svg-icons';
+import {
+  faRightFromBracket,
+  faBars,
+  faXmark,
+  faBookOpen,
+  faClipboardList,
+  faChartBar,
+  faChevronDown,
+  faChevronUp,
+} from '@fortawesome/free-solid-svg-icons';
+import { authService } from '../../services/authService';
+import { classService } from '../../services/api';
 import './Dashboard.css';
 
-interface Subject {
+interface Class {
   id: string;
-  name: string;
+  nombre_class?: string;
+  name?: string;
+  descrip_class?: string;
   description?: string;
-  students?: string[];
+  color_class?: string;
 }
 
 const StudentDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const [subjects, setSubjects] = useState<Subject[]>([]);
-  const [isSubjectsOpen, setIsSubjectsOpen] = useState(false);
-  const [studentName] = useState('Nombre del estudiante');
+  const [classes, setClasses] = useState<Class[]>([]);
+  const [isClassesOpen, setIsClassesOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const user = authService.getCurrentUser();
+  const studentName = user
+    ? `${user.nombre} ${user.apellido || ''}`.trim()
+    : 'Estudiante';
 
   useEffect(() => {
-    //Cargar clases desde la API donde el estudiante está inscrito
-    const savedSubjects = localStorage.getItem('subjects');
-    if (savedSubjects) {
-      setSubjects(JSON.parse(savedSubjects));
-    }
+    loadClasses();
   }, []);
 
+  const loadClasses = async () => {
+    try {
+      setIsLoading(true);
+      setError('');
+      const response = await classService.getTeacherClasses();
+      setClasses(response.classes || []);
+    } catch (err) {
+      console.error('Error al cargar clases:', err);
+      setError('No se pudieron cargar las clases.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleLogout = () => {
-    if (window.confirm('¿Está seguro que desea salir?')) {
-      localStorage.clear();
+    if (window.confirm('¿Estás seguro que deseas salir?')) {
+      authService.logout();
       navigate('/login');
     }
   };
 
-  const handleSubjectClick = (subject: Subject) => {
-    alert(`Ver tareas de: ${subject.name}`);
-    setIsSubjectsOpen(false);
+  const handleClassClick = (cls: Class) => {
     setIsMobileMenuOpen(false);
+    navigate(`/student/class/${cls.id}/polls`);
   };
 
-  const handleForos = () => {
-    setIsMobileMenuOpen(false);
-    alert('Foros - Funcionalidad por implementar');
-  };
+  const getDisplayName = (cls: Class) =>
+    cls.nombre_class || cls.name || 'Sin nombre';
 
-  const handleAvisos = () => {
-    setIsMobileMenuOpen(false);
-    alert('Avisos - Funcionalidad por implementar');
-  };
-
-  const handleMisResultados = () => {
-    setIsMobileMenuOpen(false);
-    alert('Mis Resultados - Funcionalidad por implementar');
-  };
+  const getDisplayColor = (cls: Class) =>
+    cls.color_class || '#4F46E5';
 
   return (
     <div className="student-dashboard">
-      <header className="dashboard-header student">
-        <div className="header-logo">
-          <h1>Logo</h1>
+      {/* Header */}
+      <header className="sd-header">
+        <div className="sd-header-logo">
+          <span className="sd-logo-text">PollClass</span>
         </div>
-        <div className="header-actions">
-          <button className="hamburger-btn" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-            <FontAwesomeIcon icon={faBars} />
-          </button>
+        <div className="sd-header-user">
+          <span className="sd-user-name">{studentName}</span>
+          <span className="sd-user-badge">Alumno</span>
         </div>
+        <button
+          className="sd-hamburger"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          aria-label="Menú"
+        >
+          <FontAwesomeIcon icon={isMobileMenuOpen ? faXmark : faBars} />
+        </button>
       </header>
 
-      <div className="dashboard-content">
-        <div className="welcome-section">
-          <div className="welcome-content">
-            <h2 className="welcome-text">
-              Bienvenido {studentName}
-            </h2>
-            <div className="classes-preview-panel">
-              {subjects.length === 0 ? (
-                <p className="empty-classes-message">No estás inscrito en ninguna clase.</p>
-              ) : (
-                <div className="classes-preview-list">
-                  {subjects.map((subject) => (
-                    <div key={subject.id} className="class-preview-card read-only">
-                      <h3>{subject.name}</h3>
-                      {subject.description && <p>{subject.description}</p>}
-                      <button className="btn-view-tasks">📝 Ver Tareas</button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+      <div className="sd-body">
+        {/* Contenido de main */}
+        <main className="sd-main">
+          <div className="sd-welcome">
+            <h2>Bienvenido, <span>{studentName}</span></h2>
+            <p>Selecciona una clase para ver sus encuestas.</p>
           </div>
-        </div>
 
-        <aside className={`dashboard-sidebar student ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
-          <nav className="sidebar-nav">
-            <button className="sidebar-btn" onClick={handleForos}>
-              Foros
-            </button>
+          {error && (
+            <div className="sd-error">
+              <p>{error}</p>
+              <button onClick={loadClasses}>Reintentar</button>
+            </div>
+          )}
 
-            <button className="sidebar-btn" onClick={handleAvisos}>
-              Avisos
-            </button>
+          {isLoading ? (
+            <div className="sd-loading">
+              <p>Cargando clases...</p>
+            </div>
+          ) : classes.length === 0 && !error ? (
+            <div className="sd-empty">
+              <FontAwesomeIcon icon={faBookOpen} className="sd-empty-icon" />
+              <p>No estás inscrito en ninguna clase aún.</p>
+            </div>
+          ) : (
+            <div className="sd-classes-grid">
+              {classes.map((cls) => (
+                <button
+                  key={cls.id}
+                  className="sd-class-card"
+                  style={{ borderTopColor: getDisplayColor(cls) }}
+                  onClick={() => handleClassClick(cls)}
+                >
+                  <div
+                    className="sd-class-color-dot"
+                    style={{ backgroundColor: getDisplayColor(cls) }}
+                  />
+                  <h3 className="sd-class-name">{getDisplayName(cls)}</h3>
+                  {(cls.descrip_class || cls.description) && (
+                    <p className="sd-class-desc">
+                      {cls.descrip_class || cls.description}
+                    </p>
+                  )}
+                  <span className="sd-class-cta">
+                    <FontAwesomeIcon icon={faClipboardList} /> Ver encuestas
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+        </main>
 
-            <div className="sidebar-dropdown">
+        {/* Sidebar */}
+        <aside className={`sd-sidebar ${isMobileMenuOpen ? 'sd-sidebar--open' : ''}`}>
+          <nav className="sd-nav">
+            <div className="sd-nav-section">
+              <p className="sd-nav-label">Menú</p>
+
+              {/* Mis Clases */}
               <button
-                className="sidebar-btn dropdown-toggle"
-                onClick={() => setIsSubjectsOpen(!isSubjectsOpen)}
+                className="sd-nav-btn"
+                onClick={() => setIsClassesOpen(!isClassesOpen)}
               >
-                Mis Clases ↓
+                <FontAwesomeIcon icon={faBookOpen} />
+                <span>Mis Clases</span>
+                <FontAwesomeIcon
+                  icon={isClassesOpen ? faChevronUp : faChevronDown}
+                  className="sd-nav-chevron"
+                />
               </button>
 
-              {isSubjectsOpen && (
-                <div className="dropdown-menu">
-                  {subjects.length === 0 ? (
-                    <div className="dropdown-item empty">
-                      No estás inscrito en clases
-                    </div>
+              {isClassesOpen && (
+                <div className="sd-nav-dropdown">
+                  {classes.length === 0 ? (
+                    <span className="sd-nav-dropdown-empty">
+                      Sin clases inscritas
+                    </span>
                   ) : (
-                    subjects.map((subject) => (
+                    classes.map((cls) => (
                       <button
-                        key={subject.id}
-                        className="dropdown-item"
-                        onClick={() => handleSubjectClick(subject)}
+                        key={cls.id}
+                        className="sd-nav-dropdown-item"
+                        onClick={() => handleClassClick(cls)}
                       >
-                        {subject.name}
+                        <span
+                          className="sd-nav-dropdown-dot"
+                          style={{ backgroundColor: getDisplayColor(cls) }}
+                        />
+                        {getDisplayName(cls)}
                       </button>
                     ))
                   )}
                 </div>
               )}
+
+              <button className="sd-nav-btn" onClick={() => navigate('/student/results')}>
+                <FontAwesomeIcon icon={faChartBar} />
+                <span>Mis Resultados</span>
+              </button>
             </div>
 
-            <button className="sidebar-btn" onClick={handleMisResultados}>
-              Mis Resultados
-            </button>
-
-            <button className="sidebar-btn btn-logout" onClick={handleLogout}>
-              <FontAwesomeIcon icon={faRightFromBracket} />
-              <span>Salir</span>
-            </button>
+            <div className="sd-nav-section sd-nav-section--bottom">
+              <button className="sd-nav-btn sd-nav-btn--logout" onClick={handleLogout}>
+                <FontAwesomeIcon icon={faRightFromBracket} />
+                <span>Salir</span>
+              </button>
+            </div>
           </nav>
         </aside>
 
+        {/* Overlay mobile */}
         {isMobileMenuOpen && (
           <div
-            className="sidebar-overlay"
+            className="sd-overlay"
             onClick={() => setIsMobileMenuOpen(false)}
           />
         )}
