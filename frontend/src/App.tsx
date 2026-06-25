@@ -31,7 +31,7 @@ function App() {
           <ProtectedRoute><ClassDetail /></ProtectedRoute>
         } />
         <Route path="/teacher/profile" element={
-          <TeacherProfile />
+          <ProtectedRoute><TeacherProfile /></ProtectedRoute>
         } />
 
         {/* Rutas protegidas de Estudiante */}

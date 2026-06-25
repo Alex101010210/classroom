@@ -15,29 +15,24 @@ const Login: React.FC = () => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
-    
+
     if (!email || !password) {
       setError('Es necesario llenar todos los campos');
       setIsLoading(false);
       return;
     }
-    
-    try {
-      console.log('Login con:', email, password);
-      
 
-      const mockUser = {
-        rol: email.includes('teacher') ? 'maestro' : 'alumno',
-        nombre: email.split('@')[0]
-      };
-      
-      localStorage.setItem('user', JSON.stringify(mockUser));
-      
-      // Redirigir según rol
-      if (mockUser.rol === 'maestro') {
-        navigate('/teacher/dashboard');
-      } else {
-        navigate('/student/dashboard');
+    try {
+      const response = await authService.login({ email, password });
+
+      if (response.success) {
+        const user = response.data.user;
+        // rol: 0 = maestro, 1 = alumno
+        if (user.rol === 0) {
+          navigate('/teacher/dashboard');
+        } else {
+          navigate('/student/dashboard');
+        }
       }
     } catch (error: any) {
       setError(error.response?.data?.message || 'Error al iniciar sesión');
