@@ -79,6 +79,39 @@ export const classService = {
   },
 };
 
+// Tipos para el perfil de usuario
+export interface ProfileData {
+  id: number;
+  email: string;
+  nombre: string;
+  apellido: string;
+  telefono: string | null;
+  departamento: string | null;
+  biografia: string | null;
+}
+
+export interface ProfileUpdateData {
+  telefono?: string;
+  departamento?: string;
+  biografia?: string;
+}
+
+// Servicios de Perfil
+export const profileService = {
+  // Obtener el perfil del usuario autenticado
+  getProfile: async (): Promise<ProfileData> => {
+    const response = await api.get('/profile');
+    // El backend devuelve { success: true, data: { ... } }
+    return response.data?.data ?? response.data;
+  },
+
+  // Actualizar los campos opcionales del perfil
+  updateProfile: async (data: ProfileUpdateData): Promise<ProfileData> => {
+    const response = await api.put('/profile', data);
+    return response.data?.data ?? response.data;
+  },
+};
+
 export default api;
 
 // Made with Bob

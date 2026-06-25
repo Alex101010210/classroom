@@ -4,6 +4,7 @@ const router = express.Router();
 // Importar rutas cuando estén listas
 const authRoutes = require('./auth.routes');
 const classRoutes = require('./class.routes');
+const profileRoutes = require('./profile.routes');
 // const pollRoutes = require('./poll.routes');
 // const analyticsRoutes = require('./analytics.routes');
 
@@ -15,6 +16,7 @@ router.get('/health', (req, res) => {
 // Usar rutas cuando estén listas
 router.use('/auth', authRoutes);
 router.use('/classes', classRoutes);
+router.use('/profile', profileRoutes);
 // router.use('/polls', pollRoutes);
 // router.use('/analytics', analyticsRoutes);
 
