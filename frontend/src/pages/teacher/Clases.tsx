@@ -33,12 +33,12 @@ const Clases: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Cargar clases al montar el componente
+  
   useEffect(() => {
     loadClasses();
   }, []);
 
-  // Función para cargar clases desde la API
+  // Cargar clases desde el mi pa el servidor (API)
   const loadClasses = async () => {
     try {
       setIsLoading(true);
@@ -48,7 +48,7 @@ const Clases: React.FC = () => {
     } catch (error: any) {
       console.error('Error al cargar clases:', error);
       setErrorMessage('Error al cargar las clases');
-      // Fallback a localStorage si falla la API
+     
       const savedSubjects = localStorage.getItem('subjects');
       if (savedSubjects) {
         setSubjects(JSON.parse(savedSubjects));
@@ -60,7 +60,7 @@ const Clases: React.FC = () => {
 
   const handleCreateClass = async (e: React.FormEvent) => {
     e.preventDefault();
-
+//Crear clase new
     if (!className.trim()) {
       setErrorMessage('El nombre de la clase es requerido');
       return;
@@ -70,7 +70,7 @@ const Clases: React.FC = () => {
       setIsLoading(true);
       setErrorMessage('');
       
-      // Crear clase en la base de datos
+      
       await classService.createClass({
         nombre_class: className.trim(),
         descrip_class: classDescription.trim() || undefined,
@@ -79,7 +79,7 @@ const Clases: React.FC = () => {
 
       setSuccessMessage('Clase creada correctamente');
       
-      // Limpiar formulario
+      
       setClassName('');
       setClassDescription('');
       setClassColor('#3b82f6');
@@ -88,7 +88,7 @@ const Clases: React.FC = () => {
       // Recargar las clases
       await loadClasses();
 
-      // Navegar al dashboard después de un breve delay
+      
       setTimeout(() => {
         navigate('/teacher/dashboard');
       }, 1500);
@@ -253,4 +253,4 @@ const Clases: React.FC = () => {
 
 export default Clases;
 
-// Made with Bob
+

@@ -26,13 +26,13 @@ const ClassDetail: React.FC = () => {
   const { classId } = useParams<{ classId: string }>();
   const location = useLocation();
   const [subject, setSubject] = useState<Subject | null>(null);
-
+//Obtener datos de la clase
   useEffect(() => {
-    // Intentar obtener la clase desde el state de navegación
+    
     if (location.state?.subject) {
       setSubject(location.state.subject);
     } else {
-      // Si no está en el state, buscar en localStorage
+      
       const savedSubjects = localStorage.getItem('subjects');
       if (savedSubjects) {
         const subjects: Subject[] = JSON.parse(savedSubjects);
@@ -51,7 +51,7 @@ const ClassDetail: React.FC = () => {
   const handleBack = () => {
     navigate('/teacher/dashboard');
   };
-
+//Eliminar tarea
   const handleDeleteTask = (taskId: string) => {
     if (!subject) return;
     
@@ -59,7 +59,7 @@ const ClassDetail: React.FC = () => {
       const updatedTasks = (subject.tasks || []).filter(task => task.id !== taskId);
       const updatedSubject = { ...subject, tasks: updatedTasks };
       
-      // Actualizar localStorage
+      
       const savedSubjects = localStorage.getItem('subjects');
       if (savedSubjects) {
         const subjects: Subject[] = JSON.parse(savedSubjects);
@@ -79,7 +79,7 @@ const ClassDetail: React.FC = () => {
       const updatedStudents = (subject.students || []).filter(s => s !== studentName);
       const updatedSubject = { ...subject, students: updatedStudents };
       
-      // Actualizar localStorage
+      
       const savedSubjects = localStorage.getItem('subjects');
       if (savedSubjects) {
         const subjects: Subject[] = JSON.parse(savedSubjects);
@@ -91,7 +91,7 @@ const ClassDetail: React.FC = () => {
       }
     }
   };
-
+//Fecha de entrega
   const formatDeadline = (deadline: string) => {
     if (!deadline) return 'Sin fecha límite';
     const date = new Date(deadline);
@@ -123,7 +123,7 @@ const ClassDetail: React.FC = () => {
       </header>
 
       <div className="class-detail-content">
-        {/* Información de la clase */}
+        {}
         <section className="class-info-section">
           <div className="info-card">
             <h2>Información de la Clase</h2>
@@ -148,7 +148,7 @@ const ClassDetail: React.FC = () => {
           </div>
         </section>
 
-        {/* Lista de Alumnos */}
+        {}
         <section className="students-section">
           <div className="section-header">
             <h2>
@@ -182,7 +182,7 @@ const ClassDetail: React.FC = () => {
           )}
         </section>
 
-        {/* Lista de Tareas */}
+        {}
         <section className="tasks-section">
           <div className="section-header">
             <h2>
@@ -229,4 +229,3 @@ const ClassDetail: React.FC = () => {
 
 export default ClassDetail;
 
-// Made with Bob

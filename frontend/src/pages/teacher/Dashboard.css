@@ -1,4 +1,3 @@
-/* Teacher Dashboard Styles */
 
 .teacher-dashboard {
   min-height: 100vh;
@@ -7,7 +6,7 @@
   background-color: var(--background);
 }
 
-/* Header Styles */
+
 .dashboard-header {
   background: linear-gradient(135deg, #4A7C9E 0%, #5A8CAE 100%);
   padding: var(--spacing-lg) var(--spacing-xl);
@@ -75,7 +74,7 @@
   background-color: var(--background-dark);
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
-/* Hamburger Button - Hidden by default, visible on mobile */
+
 .hamburger-btn {
   display: none;
   width: 56px;
@@ -104,7 +103,11 @@
 
 }
 
-/* User Menu Dropdown */
+
+.add-menu-container {
+  position: relative;
+}
+
 .user-menu-container {
   position: relative;
 }
@@ -156,14 +159,14 @@
   width: 20px;
 }
 
-/* Main Content Layout */
+
 .dashboard-content {
   display: flex;
   flex: 1;
   min-height: calc(100vh - 100px);
 }
 
-/* Welcome Section */
+
 .welcome-section {
   flex: 1;
   padding: var(--spacing-3xl);
@@ -247,7 +250,6 @@
   font-weight: var(--font-weight-semibold);
 }
 
-/* Three-dot menu */
 .card-menu {
   position: relative;
 }
@@ -324,7 +326,7 @@
   min-width: 16px;
 }
 
-/* Sidebar Styles */
+
 .dashboard-sidebar {
   width: 350px;
   background: linear-gradient(180deg, #A8D5E2 0%, #B8E5F2 100%);
@@ -368,9 +370,15 @@
   transform: translateX(-5px);
 }
 
-/* Dropdown Styles */
+
 .sidebar-dropdown {
   position: relative;
+}
+
+.foro-dropdown-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .dropdown-toggle {
@@ -378,6 +386,15 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
+}
+
+.dropdown-toggle-active {
+  background-color: rgba(255, 255, 255, 0.9);
+  box-shadow: var(--shadow-md);
+}
+
+.foro-dropdown-wrapper .dropdown-toggle {
+  justify-content: center;
 }
 
 .dropdown-menu {
@@ -389,6 +406,41 @@
   max-height: 300px;
   overflow-y: auto;
   animation: slideDown 0.2s ease-out;
+}
+
+.foro-dropdown-menu {
+  width: 100%;
+  max-width: 260px;
+  background-color: var(--surface);
+  padding: 0;
+  overflow: hidden;
+}
+
+.foro-sidebar-menu {
+  top: 0;
+  left: calc(100% + 8px);
+  right: auto;
+}
+
+.foro-btn-container {
+  position: relative;
+}
+
+.btn-foro {
+  background-color: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-foro:hover {
+  background-color: var(--background-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.foro-btn-dropdown {
+  top: calc(100% + 8px);
+  left: 0;
+  right: auto;
 }
 
 @keyframes slideDown {
@@ -420,6 +472,24 @@
   color: var(--text-inverse);
 }
 
+.foro-dropdown-item {
+  border-radius: 0;
+  padding: var(--spacing-lg) var(--spacing-xl);
+  border-bottom: 1px solid var(--border-color);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  text-align: center;
+}
+
+.foro-dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.foro-dropdown-item:hover {
+  background-color: var(--background);
+  color: var(--text-primary);
+}
+
 .dropdown-item.empty {
   color: var(--text-secondary);
   font-style: italic;
@@ -431,7 +501,7 @@
   color: var(--text-secondary);
 }
 
-/* Logout Button */
+
 .btn-logout {
   margin-top: auto;
   background-color: rgba(239, 68, 68, 0.1);
@@ -446,7 +516,6 @@
   transform: translateX(-5px);
 }
 
-/* Sidebar Overlay - Dark background when mobile menu is open */
 .sidebar-overlay {
   display: none;
   position: fixed;
@@ -468,7 +537,7 @@
   }
 }
 
-/* Responsive Design */
+
 @media (max-width: 1024px) {
   .dashboard-sidebar {
     width: 280px;
@@ -484,14 +553,14 @@
 }
 
 @media (max-width: 768px) {
-  /* Show hamburger button on mobile */
+  
   .hamburger-btn {
     display: flex;
     align-items: center;
     justify-content: center;
   }
 
-  /* Keep all header buttons visible on mobile */
+  
   .btn-add,
   .btn-users {
     display: flex;
@@ -502,7 +571,7 @@
     position: relative;
   }
   
-  /* Hide sidebar by default on mobile */
+  
   .dashboard-sidebar {
     position: fixed;
     top: 0;
@@ -515,12 +584,11 @@
     border-top: none;
   }
 
-  /* Show sidebar when mobile menu is open */
+  
   .dashboard-sidebar.mobile-open {
     right: 0;
   }
 
-  /* Show overlay when mobile menu is open */
   .sidebar-overlay {
     display: block;
   }
@@ -544,7 +612,6 @@
   }
 }
 
-/* Scrollbar for dropdown */
 .dropdown-menu::-webkit-scrollbar {
   width: 6px;
 }
@@ -563,7 +630,6 @@
   background: var(--primary-dark);
 }
 
-/* Modal Styles */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -649,7 +715,6 @@
   color: var(--text-primary);
 }
 
-/* Form Styles */
 .modal-content form {
   padding: var(--spacing-xl);
 }
@@ -757,7 +822,6 @@
   box-shadow: var(--shadow-md);
 }
 
-/* Responsive adjustments for modals */
 @media (max-width: 768px) {
   .modal-content {
     width: 95%;
@@ -782,4 +846,3 @@
   }
 }
 
-/* Made with Bob */
