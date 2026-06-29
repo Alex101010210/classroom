@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faUser, faRightFromBracket, faEllipsisV, faUserPlus, faClipboardList, faTrash, faTimes, faBars, faComments, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faUser, faRightFromBracket, faEllipsisV, faUserPlus, faClipboardList, faTrash, faTimes, faBars, faComments, faPenToSquare, faFileAlt } from '@fortawesome/free-solid-svg-icons';
 import { classService } from '../../services/api';
 import './Dashboard.css';
 
@@ -131,6 +131,11 @@ const TeacherDashboard: React.FC = () => {
     setSelectedSubject(subject);
     setShowAddTaskModal(true);
     setOpenMenuId(null);
+  };
+
+  const handleAddExamen = (subject: Subject) => {
+    setOpenMenuId(null);
+    navigate('/teacher/examen', { state: { subject } });
   };
 
   const handleDeleteClass = (subject: Subject) => {
@@ -327,6 +332,16 @@ const TeacherDashboard: React.FC = () => {
                                   >
                                     <FontAwesomeIcon icon={faClipboardList} />
                                     <span>Agregar Tarea</span>
+                                  </button>
+                                  <button
+                                    className="menu-item"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleAddExamen(subject);
+                                    }}
+                                  >
+                                    <FontAwesomeIcon icon={faFileAlt} />
+                                    <span>Agregar Examen</span>
                                   </button>
                                   <button
                                     className="menu-item delete"
@@ -546,6 +561,7 @@ const TeacherDashboard: React.FC = () => {
           </div>
         </div>
       )}
+
     </div>
   );
 };
