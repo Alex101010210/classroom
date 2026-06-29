@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faUser, faRightFromBracket, faEllipsisV, faUserPlus, faClipboardList, faTrash, faTimes, faBars } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faUser, faRightFromBracket, faEllipsisV, faUserPlus, faClipboardList, faTrash, faTimes, faBars, faComments, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 import { classService } from '../../services/api';
 import './Dashboard.css';
 
@@ -30,20 +30,21 @@ interface Subject {
 
 const TeacherDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const [subjects, setSubjects] = useState<Subject[]>([]);
-  const [isSubjectsOpen, setIsSubjectsOpen] = useState(false);
+  const [subjects, setSubjects] = useState<Subject[]>([]); //Agregar mate
+  const [isSubjectsOpen, setIsSubjectsOpen] = useState(false);//Agregar alumno
+  const [isForosOpen, setIsForosOpen] = useState(false); // Dropdown de Foros
   const [teacherName] = useState('Nombre del maestro');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showAddMenu, setShowAddMenu] = useState(false);
   
-  // Modal states
+ 
   const [showAddStudentModal, setShowAddStudentModal] = useState(false);
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
-  
-  // Form states
+
   const [studentName, setStudentName] = useState('');
   const [taskForm, setTaskForm] = useState<Task>({
     id: '',
@@ -76,9 +77,6 @@ const TeacherDashboard: React.FC = () => {
     }
   };
 
-  const handleAddSubject = () => {
-    navigate('/teacher/clases');
-  };
 
   const handleUsers = () => {
     setShowUserMenu(!showUserMenu);
@@ -89,7 +87,7 @@ const TeacherDashboard: React.FC = () => {
     navigate('/teacher/profile');
   };
 
-  const handleLogout = () => {
+  const handleLogout = () => { //Cerrar sesionnnn
     if (window.confirm('¿Está seguro que desea salir?')) {
      localStorage.clear();
       navigate('/login');
@@ -102,14 +100,21 @@ const TeacherDashboard: React.FC = () => {
     setIsMobileMenuOpen(false);
   };
 
-  const handleForos = () => {
+  const handleCreateForo = () => {
     setIsMobileMenuOpen(false);
-    alert('Foros - Funcionalidad por implementar');
+    setIsForosOpen(false);
+    navigate('/teacher/foro');
+  };
+
+  const handleVerForos = () => {
+    setIsMobileMenuOpen(false);
+    setIsForosOpen(false);
+    navigate('/teacher/foros-list');
   };
 
   const handleAvisos = () => {
     setIsMobileMenuOpen(false);
-    alert('Avisos - Funcionalidad por implementar');
+    navigate('/teacher/avisos');
   };
 
   const toggleMenu = (subjectId: string) => {
@@ -138,7 +143,7 @@ const TeacherDashboard: React.FC = () => {
     setOpenMenuId(null);
   };
 
-  const submitAddStudent = (e: React.FormEvent) => {
+  const submitAddStudent = (e: React.FormEvent) => { //Agregar babys:)
     e.preventDefault();
     if (selectedSubject) {
       // La inscripción real se hace desde el detalle de clase
@@ -207,9 +212,23 @@ const TeacherDashboard: React.FC = () => {
           <h1>Logo</h1>
         </div>
         <div className="header-actions">
-          <button className="btn-header btn-add" onClick={handleAddSubject}>
-            <FontAwesomeIcon icon={faPlus} />
-          </button>
+          <div className="add-menu-container">
+            <button className="btn-header btn-add" onClick={() => setShowAddMenu(!showAddMenu)}>
+              <FontAwesomeIcon icon={faPlus} />
+            </button>
+            {showAddMenu && (
+              <div className="user-dropdown-menu">
+                <button className="user-menu-item" onClick={() => { setShowAddMenu(false); handleVerForos(); }}>
+                  <FontAwesomeIcon icon={faComments} />
+                  <span>Ver Foros</span>
+                </button>
+                <button className="user-menu-item" onClick={() => { setShowAddMenu(false); handleCreateForo(); }}>
+                  <FontAwesomeIcon icon={faPenToSquare} />
+                  <span>Crear Foro</span>
+                </button>
+              </div>
+            )}
+          </div>
           <div className="user-menu-container">
             <button className="btn-header btn-users" onClick={handleUsers}>
               <FontAwesomeIcon icon={faUser} />
@@ -343,9 +362,28 @@ const TeacherDashboard: React.FC = () => {
 
         <aside className={`dashboard-sidebar ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
           <nav className="sidebar-nav">
-            <button className="sidebar-btn" onClick={handleForos}>
-              Foros
-            </button>
+            {/* Dropdown de Foros */}
+            <div className="foro-btn-container">
+              <button
+                className="sidebar-btn"
+                onClick={() => setIsForosOpen(!isForosOpen)}
+              >
+                Foros
+              </button>
+
+              {isForosOpen && (
+                <div className="user-dropdown-menu foro-btn-dropdown">
+                  <button className="user-menu-item" onClick={handleVerForos}>
+                    <FontAwesomeIcon icon={faComments} />
+                    <span>Ver Foros</span>
+                  </button>
+                  <button className="user-menu-item" onClick={handleCreateForo}>
+                    <FontAwesomeIcon icon={faPenToSquare} />
+                    <span>Crear Foro</span>
+                  </button>
+                </div>
+              )}
+            </div>
 
             <button className="sidebar-btn" onClick={handleAvisos}>
               Avisos
@@ -514,4 +552,4 @@ const TeacherDashboard: React.FC = () => {
 
 export default TeacherDashboard;
 
-// Made with Bob
+

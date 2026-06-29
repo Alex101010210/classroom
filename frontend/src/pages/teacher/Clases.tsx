@@ -33,7 +33,7 @@ const Clases: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Cargar clases al montar el componente
+  
   useEffect(() => {
     loadClasses();
   }, []);
@@ -48,7 +48,7 @@ const Clases: React.FC = () => {
     } catch (error: any) {
       console.error('Error al cargar clases:', error);
       setErrorMessage('Error al cargar las clases');
-      // Fallback a localStorage si falla la API
+     
       const savedSubjects = localStorage.getItem('subjects');
       if (savedSubjects) {
         setSubjects(JSON.parse(savedSubjects));
@@ -253,4 +253,4 @@ const Clases: React.FC = () => {
 
 export default Clases;
 
-// Made with Bob
+

@@ -106,7 +106,7 @@ const ClassDetail: React.FC = () => {
       alert(err.response?.data?.message || 'Error al eliminar al alumno');
     }
   };
-
+//Eliminar tarea
   const handleDeleteTask = (taskId: string) => {
     if (window.confirm('¿Está seguro que desea eliminar esta tarea?')) {
       setTasks(prev => prev.filter(t => t.id !== taskId));
@@ -151,7 +151,7 @@ const ClassDetail: React.FC = () => {
       </header>
 
       <div className="class-detail-content">
-        {/* Información de la clase */}
+        {}
         <section className="class-info-section">
           <div className="info-card">
             <h2>Información de la Clase</h2>
@@ -243,7 +243,7 @@ const ClassDetail: React.FC = () => {
           )}
         </section>
 
-        {/* Lista de Tareas */}
+        {}
         <section className="tasks-section">
           <div className="section-header">
             <h2>
@@ -291,3 +291,4 @@ const ClassDetail: React.FC = () => {
 export default ClassDetail;
 
 // Made with Bob
+

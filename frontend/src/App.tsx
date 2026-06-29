@@ -4,6 +4,10 @@ import TeacherDashboard from './pages/teacher/Dashboard';
 import StudentDashboard from './pages/student/Dashboard';
 import Clases from './pages/teacher/Clases';
 import ClassDetail from './pages/teacher/ClassDetail';
+import Foro from './pages/teacher/Foro';
+import ForoDetail from './pages/teacher/ForoDetail';
+import Discusiones from './pages/teacher/Discusiones';
+import Avisos from './pages/teacher/Avisos';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import PollsList from './pages/student/PollsList';
@@ -50,6 +54,10 @@ function App() {
         <Route path="/student/profile" element={
           <ProtectedRoute><StudentProfile /></ProtectedRoute>
         } />
+        <Route path="/teacher/foro" element={<Foro />} />
+        <Route path="/teacher/foros-list" element={<ForoDetail />} />
+        <Route path="/teacher/discusiones/:foroId" element={<Discusiones />} />
+        <Route path="/teacher/avisos" element={<Avisos />} />
       </Routes>
     </Router>
   )
