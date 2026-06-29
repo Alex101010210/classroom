@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faUser, faRightFromBracket, faEllipsisV, faUserPlus, faClipboardList, faTrash, faTimes, faBars, faComments, faPenToSquare, faFileAlt } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faUser, faRightFromBracket, faEllipsisV, faUserPlus, faClipboardList, faTrash, faTimes, faBars, faComments, faPenToSquare, faFileAlt, faPollH } from '@fortawesome/free-solid-svg-icons';
 import { classService } from '../../services/api';
 import './Dashboard.css';
 
@@ -36,6 +37,7 @@ const TeacherDashboard: React.FC = () => {
   const [teacherName] = useState('Nombre del maestro');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [menuPos, setMenuPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showAddMenu, setShowAddMenu] = useState(false);
@@ -117,8 +119,14 @@ const TeacherDashboard: React.FC = () => {
     navigate('/teacher/avisos');
   };
 
-  const toggleMenu = (subjectId: string) => {
-    setOpenMenuId(openMenuId === subjectId ? null : subjectId);
+  const toggleMenu = (subjectId: string, e: React.MouseEvent<HTMLButtonElement>) => {
+    if (openMenuId === subjectId) {
+      setOpenMenuId(null);
+      return;
+    }
+    const rect = (e.currentTarget as HTMLButtonElement).getBoundingClientRect();
+    setMenuPos({ top: rect.bottom + window.scrollY + 4, left: rect.right + window.scrollX - 200 });
+    setOpenMenuId(subjectId);
   };
 
   const handleAddStudent = (subject: Subject) => {
@@ -136,6 +144,11 @@ const TeacherDashboard: React.FC = () => {
   const handleAddExamen = (subject: Subject) => {
     setOpenMenuId(null);
     navigate('/teacher/examen', { state: { subject } });
+  };
+
+  const handleAddEncuesta = (subject: Subject) => {
+    setOpenMenuId(null);
+    navigate('/teacher/encuestas', { state: { subject } });
   };
 
   const handleDeleteClass = (subject: Subject) => {
@@ -305,56 +318,12 @@ const TeacherDashboard: React.FC = () => {
                                 className="menu-button"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  toggleMenu(subject.id);
+                                  toggleMenu(subject.id, e);
                                 }}
                                 aria-label="Opciones"
                               >
                                 <FontAwesomeIcon icon={faEllipsisV} />
                               </button>
-                              {openMenuId === subject.id && (
-                                <div className="menu-dropdown">
-                                  <button
-                                    className="menu-item"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleAddStudent(subject);
-                                    }}
-                                  >
-                                    <FontAwesomeIcon icon={faUserPlus} />
-                                    <span>Agregar Alumno</span>
-                                  </button>
-                                  <button
-                                    className="menu-item"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleAddTask(subject);
-                                    }}
-                                  >
-                                    <FontAwesomeIcon icon={faClipboardList} />
-                                    <span>Agregar Tarea</span>
-                                  </button>
-                                  <button
-                                    className="menu-item"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleAddExamen(subject);
-                                    }}
-                                  >
-                                    <FontAwesomeIcon icon={faFileAlt} />
-                                    <span>Agregar Examen</span>
-                                  </button>
-                                  <button
-                                    className="menu-item delete"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleDeleteClass(subject);
-                                    }}
-                                  >
-                                    <FontAwesomeIcon icon={faTrash} />
-                                    <span>Eliminar</span>
-                                  </button>
-                                </div>
-                              )}
                             </div>
                           </div>
                           {displayDescription && (
@@ -444,6 +413,7 @@ const TeacherDashboard: React.FC = () => {
             onClick={() => setIsMobileMenuOpen(false)}
           />
         )}
+
       </div>
 
       {/* Modal: Agregar Alumno */}
@@ -560,6 +530,48 @@ const TeacherDashboard: React.FC = () => {
             </form>
           </div>
         </div>
+      )}
+
+      {/* Portal: dropdown del menú de tarjeta — renderizado en body para evitar stacking context */}
+      {openMenuId && createPortal(
+        <>
+          {/* Backdrop invisible — cierra el menú y bloquea todo lo de abajo */}
+          <div
+            style={{ position: 'fixed', inset: 0, zIndex: 9998 }}
+            onClick={() => setOpenMenuId(null)}
+          />
+          {/* Dropdown flotante */}
+          <div
+            className="menu-dropdown"
+            style={{ position: 'fixed', top: menuPos.top, left: menuPos.left, zIndex: 9999 }}
+          >
+            {subjects.filter(s => s.id === openMenuId).map(subject => (
+              <React.Fragment key={subject.id}>
+                <button className="menu-item" onClick={() => handleAddStudent(subject)}>
+                  <FontAwesomeIcon icon={faUserPlus} />
+                  <span>Agregar Alumno</span>
+                </button>
+                <button className="menu-item" onClick={() => handleAddTask(subject)}>
+                  <FontAwesomeIcon icon={faClipboardList} />
+                  <span>Agregar Tarea</span>
+                </button>
+                <button className="menu-item" onClick={() => handleAddExamen(subject)}>
+                  <FontAwesomeIcon icon={faFileAlt} />
+                  <span>Agregar Examen</span>
+                </button>
+                <button className="menu-item" onClick={() => handleAddEncuesta(subject)}>
+                  <FontAwesomeIcon icon={faPollH} />
+                  <span>Agregar Encuesta</span>
+                </button>
+                <button className="menu-item delete" onClick={() => handleDeleteClass(subject)}>
+                  <FontAwesomeIcon icon={faTrash} />
+                  <span>Eliminar</span>
+                </button>
+              </React.Fragment>
+            ))}
+          </div>
+        </>,
+        document.body
       )}
 
     </div>

@@ -16,6 +16,7 @@ import PollResults from './pages/student/PollResults';
 import StudentProfile from './pages/student/StudentProfile';
 import TeacherProfile from './pages/teacher/Profile';
 import Examen from './pages/teacher/Examen';
+import Encuestas from './pages/teacher/Encuestas';
 
 function App() {
   return (
@@ -60,6 +61,7 @@ function App() {
         <Route path="/teacher/discusiones/:foroId" element={<Discusiones />} />
         <Route path="/teacher/avisos" element={<Avisos />} />
         <Route path="/teacher/examen" element={<Examen />} />
+        <Route path="/teacher/encuestas" element={<Encuestas />} />
       </Routes>
     </Router>
   )

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faUserPlus, faClipboardList, faTrash, faPlus, faFileAlt } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faUserPlus, faClipboardList, faTrash, faPlus, faFileAlt, faPollH } from '@fortawesome/free-solid-svg-icons';
 import { classService, enrollmentService, StudentEnrollment } from '../../services/api';
 import './ClassDetail.css';
 
@@ -30,6 +30,16 @@ interface Exam {
   oneAttempt?: boolean;
 }
 
+interface SavedPoll {
+  id: string;
+  claseId?: string;
+  claseNombre?: string;
+  titulo: string;
+  descripcion: string;
+  preguntas: { id: string; text: string; type: string; options: { id: string; text: string }[]; required: boolean }[];
+  creadoEn: string;
+}
+
 const ClassDetail: React.FC = () => {
   const navigate = useNavigate();
   const { classId } = useParams<{ classId: string }>();
@@ -38,6 +48,7 @@ const ClassDetail: React.FC = () => {
   const [students, setStudents] = useState<StudentEnrollment[]>([]);
   const [tasks, setTasks]   = useState<Task[]>([]);
   const [exams, setExams]   = useState<Exam[]>([]);
+  const [polls, setPolls]   = useState<SavedPoll[]>([]);
 
   const [emailInput, setEmailInput] = useState('');
   const [enrollError, setEnrollError] = useState('');
@@ -86,6 +97,13 @@ const ClassDetail: React.FC = () => {
     init();
   }, [loadClass, loadStudents, loadExams]);
 
+  // Cargar encuestas de esta clase desde localStorage
+  useEffect(() => {
+    if (!classId) return;
+    const all: SavedPoll[] = JSON.parse(localStorage.getItem('encuestas') || '[]');
+    setPolls(all.filter(p => p.claseId === classId));
+  }, [classId]);
+
   const handleBack = () => navigate('/teacher/dashboard');
 
   // Inscribir alumno por email
@@ -125,12 +143,15 @@ const ClassDetail: React.FC = () => {
       alert(err.response?.data?.message || 'Error al eliminar al alumno');
     }
   };
+
+  // Eliminar tarea
   const handleDeleteTask = (taskId: string) => {
     if (window.confirm('¿Está seguro que desea eliminar esta tarea?')) {
       setTasks(prev => prev.filter(t => t.id !== taskId));
     }
   };
 
+  // Eliminar examen
   const handleDeleteExam = (examId: string) => {
     if (window.confirm('¿Está seguro que desea eliminar este examen?')) {
       const all: Exam[] = JSON.parse(localStorage.getItem('examenes') || '[]');
@@ -138,6 +159,14 @@ const ClassDetail: React.FC = () => {
       localStorage.setItem('examenes', JSON.stringify(updated));
       setExams(prev => prev.filter(e => e.id !== examId));
     }
+  };
+
+  // Eliminar encuesta
+  const handleDeletePoll = (pollId: string) => {
+    if (!window.confirm('¿Está seguro que desea eliminar esta encuesta?')) return;
+    const all: SavedPoll[] = JSON.parse(localStorage.getItem('encuestas') || '[]');
+    localStorage.setItem('encuestas', JSON.stringify(all.filter(p => p.id !== pollId)));
+    setPolls(prev => prev.filter(p => p.id !== pollId));
   };
 
   const formatDate = (dateStr: string | null) => {
@@ -270,6 +299,7 @@ const ClassDetail: React.FC = () => {
           )}
         </section>
 
+        {/* Tareas Asignadas */}
         <section className="tasks-section">
           <div className="section-header">
             <h2>
@@ -310,7 +340,7 @@ const ClassDetail: React.FC = () => {
           )}
         </section>
 
-        {/* ── Exámenes ── */}
+        {/* Exámenes */}
         <section className="exams-section">
           <div className="section-header">
             <h2>
@@ -368,6 +398,52 @@ const ClassDetail: React.FC = () => {
             </div>
           )}
         </section>
+
+        {/* Encuestas Asignadas */}
+        <section className="tasks-section">
+          <div className="section-header">
+            <h2>
+              <FontAwesomeIcon icon={faPollH} />
+              Encuestas Asignadas
+            </h2>
+          </div>
+
+          {polls.length === 0 ? (
+            <div className="empty-state">
+              <p>No hay encuestas asignadas en esta clase</p>
+            </div>
+          ) : (
+            <div className="tasks-list">
+              {polls.map((poll) => (
+                <div key={poll.id} className="task-card">
+                  <div className="task-header">
+                    <h3>{poll.titulo}</h3>
+                    <button
+                      className="btn-delete-small"
+                      onClick={() => handleDeletePoll(poll.id)}
+                      title="Eliminar encuesta"
+                    >
+                      <FontAwesomeIcon icon={faTrash} />
+                    </button>
+                  </div>
+                  <div className="task-body">
+                    {poll.descripcion && (
+                      <p className="task-description">{poll.descripcion}</p>
+                    )}
+                    <div className="task-meta">
+                      <span className="task-deadline">
+                        <strong>Preguntas:</strong> {poll.preguntas.length}
+                      </span>
+                      <span className="task-deadline">
+                        <strong>Creada:</strong> {new Date(poll.creadoEn).toLocaleDateString('es-MX')}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
       </div>
     </div>
   );
@@ -376,4 +452,3 @@ const ClassDetail: React.FC = () => {
 export default ClassDetail;
 
 // Made with Bob
-

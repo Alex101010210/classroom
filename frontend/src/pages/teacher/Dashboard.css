@@ -213,13 +213,13 @@
   border-radius: var(--border-radius-lg);
   padding: var(--spacing-lg);
   box-shadow: var(--shadow-sm);
-  position: relative;
-  transition: all var(--transition-fast);
+  position: static;
+  transition: box-shadow var(--transition-fast);
+  overflow: visible;
 }
 
 .class-preview-card:hover {
   box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
 }
 
 .card-header {
@@ -252,6 +252,16 @@
 
 .card-menu {
   position: relative;
+  z-index: 10;
+}
+
+/* Backdrop invisible que bloquea el resto de la UI cuando el menú está abierto */
+.menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: transparent;
+  cursor: default;
 }
 
 .menu-button {
@@ -276,17 +286,15 @@
 }
 
 .menu-dropdown {
-  position: absolute;
-  top: 100%;
-  right: 0;
+  position: fixed;
   background: var(--surface);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
   box-shadow: var(--shadow-lg);
   min-width: 200px;
-  z-index: 1000;
+  z-index: 9999;
   animation: slideDown 0.2s ease-out;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .menu-item {
