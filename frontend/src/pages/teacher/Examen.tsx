@@ -4,7 +4,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faArrowLeft, faPalette, faEye,
   faPlus, faImage,
-  faCopy, faTrash, faTimes
+  faCopy, faTrash, faTimes,
+  faClock, faUserCheck
 } from '@fortawesome/free-solid-svg-icons';
 import './Examen.css';
 
@@ -21,6 +22,8 @@ interface Question {
   type: QuestionType;
   options: Option[];
   required: boolean;
+  points: number;
+  correctAnswers: string[];   // option ids marked as correct
   imageUrl?: string | null;
 }
 
@@ -46,22 +49,33 @@ const newQuestion = (): Question => ({
   type: 'multiple',
   options: [{ id: '1', text: 'Opción 1' }],
   required: false,
+  points: 1,
+  correctAnswers: [],
   imageUrl: null,
 });
 
 const Examen: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const subject = (location.state as any)?.subject;
+  const state    = location.state as any;
+  const subject  = state?.subject;
+  const existing = state?.exam;   // set when opened from ClassDetail card
+
+  const initQuestions: Question[] = existing?.preguntas?.length ? existing.preguntas : [newQuestion()];
 
   const [activeTab, setActiveTab]     = useState<'preguntas' | 'respuestas'>('preguntas');
-  const [examTitle, setExamTitle]     = useState('Examen sin título');
-  const [examDesc, setExamDesc]       = useState('');
-  const [questions, setQuestions]     = useState<Question[]>([newQuestion()]);
-  const [activeQId, setActiveQId]     = useState<string>(questions[0].id);
-  const [accentColor, setAccentColor] = useState('#673ab7');
+  const [examTitle, setExamTitle]     = useState<string>(existing?.titulo  ?? 'Examen sin título');
+  const [examDesc, setExamDesc]       = useState<string>(existing?.descripcion ?? '');
+  const [questions, setQuestions]     = useState<Question[]>(initQuestions);
+  const [activeQId, setActiveQId]     = useState<string>(initQuestions[0].id);
+  const [accentColor, setAccentColor] = useState<string>(existing?.color ?? '#673ab7');
+  const [deadline, setDeadline]       = useState<string>(existing?.deadline ?? '');
+  const [oneAttempt, setOneAttempt]   = useState<boolean>(existing?.oneAttempt ?? true);
   const [showPalette, setShowPalette] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const existingId                    = existing?.id ?? null;   // keep same id on save
+
+  const totalPoints = questions.reduce((sum, q) => sum + (q.points || 0), 0);
 
   const imgInputRef = useRef<HTMLInputElement>(null);
   const [pendingImgQId, setPendingImgQId] = useState<string | null>(null);
@@ -82,8 +96,22 @@ const Examen: React.FC = () => {
 
   const removeOption = (qId: string, optId: string) =>
     setQuestions(qs => qs.map(q =>
-      q.id === qId ? { ...q, options: q.options.filter(o => o.id !== optId) } : q
+      q.id === qId
+        ? { ...q, options: q.options.filter(o => o.id !== optId), correctAnswers: q.correctAnswers.filter(id => id !== optId) }
+        : q
     ));
+
+  // For 'multiple' / 'dropdown' only one correct answer; for 'checkbox' multiple allowed
+  const toggleCorrect = (qId: string, optId: string, type: QuestionType) =>
+    setQuestions(qs => qs.map(q => {
+      if (q.id !== qId) return q;
+      if (type === 'checkbox') {
+        const already = q.correctAnswers.includes(optId);
+        return { ...q, correctAnswers: already ? q.correctAnswers.filter(id => id !== optId) : [...q.correctAnswers, optId] };
+      }
+      // single-select: toggle off if same, else replace
+      return { ...q, correctAnswers: q.correctAnswers[0] === optId ? [] : [optId] };
+    }));
 
   const addQuestion = () => {
     const q = newQuestion();
@@ -139,19 +167,27 @@ const Examen: React.FC = () => {
   const handleSend = () => {
     if (!examTitle.trim()) { alert('Por favor ingresa un título para el examen.'); return; }
     const data = {
-      id: Date.now().toString(),
-      claseId: subject?.id,
-      claseNombre: subject?.nombre_class || subject?.name,
+      id: existingId ?? Date.now().toString(),
+      claseId: subject?.id ?? existing?.claseId,
+      claseNombre: subject?.nombre_class || subject?.name || existing?.claseNombre,
       titulo: examTitle,
       descripcion: examDesc,
       preguntas: questions,
       color: accentColor,
+      deadline: deadline || null,
+      oneAttempt,
     };
-    const saved = JSON.parse(localStorage.getItem('examenes') || '[]');
-    saved.push(data);
+    const saved: any[] = JSON.parse(localStorage.getItem('examenes') || '[]');
+    if (existingId) {
+      // update in place
+      const idx = saved.findIndex(e => e.id === existingId);
+      if (idx !== -1) saved[idx] = data; else saved.push(data);
+    } else {
+      saved.push(data);
+    }
     localStorage.setItem('examenes', JSON.stringify(saved));
     alert('Examen guardado exitosamente');
-    navigate('/teacher/dashboard');
+    navigate(-1);   // back to the class detail that opened it
   };
 
   const hasOptions = (type: QuestionType) =>
@@ -241,18 +277,68 @@ const Examen: React.FC = () => {
             <>
               {/* Title card */}
               <div className="ef-card ef-title-card" style={{ borderTopColor: accentColor }}>
-                <input
-                  className="ef-title-input"
-                  value={examTitle}
-                  onChange={e => setExamTitle(e.target.value)}
-                  placeholder="Título del examen"
-                />
+                <div className="ef-title-row">
+                  <input
+                    className="ef-title-input"
+                    value={examTitle}
+                    onChange={e => setExamTitle(e.target.value)}
+                    placeholder="Título del examen"
+                  />
+                  <span className="ef-total-points">{totalPoints} pts en total</span>
+                </div>
                 <input
                   className="ef-desc-input"
                   value={examDesc}
                   onChange={e => setExamDesc(e.target.value)}
                   placeholder="Descripción del examen"
                 />
+              </div>
+
+              {/* Settings card */}
+              <div className="ef-card ef-settings-card">
+                <p className="ef-settings-title">
+                  <FontAwesomeIcon icon={faClock} /> Configuración del examen
+                </p>
+                <div className="ef-settings-row">
+                  <div className="ef-settings-field">
+                    <label className="ef-settings-label">
+                      <FontAwesomeIcon icon={faClock} /> Fecha y hora límite de entrega
+                    </label>
+                    <input
+                      type="datetime-local"
+                      className="ef-settings-input"
+                      value={deadline}
+                      onChange={e => setDeadline(e.target.value)}
+                    />
+                    {deadline && (
+                      <span className="ef-settings-hint">
+                        Después de esta fecha el examen no aceptará más respuestas.
+                      </span>
+                    )}
+                  </div>
+                  <div className="ef-settings-divider" />
+                  <div className="ef-settings-field">
+                    <label className="ef-settings-label">
+                      <FontAwesomeIcon icon={faUserCheck} /> Un intento por alumno
+                    </label>
+                    <label className="ef-toggle ef-settings-toggle">
+                      <input
+                        type="checkbox"
+                        checked={oneAttempt}
+                        onChange={e => setOneAttempt(e.target.checked)}
+                      />
+                      <span
+                        className="ef-toggle-slider"
+                        style={oneAttempt ? { backgroundColor: accentColor } : undefined}
+                      />
+                    </label>
+                    <span className="ef-settings-hint">
+                      {oneAttempt
+                        ? 'Cada alumno solo puede enviar el examen una vez.'
+                        : 'Los alumnos pueden enviarlo más de una vez.'}
+                    </span>
+                  </div>
+                </div>
               </div>
 
               {/* Question cards */}
@@ -271,13 +357,16 @@ const Examen: React.FC = () => {
                     <div className="ef-drag-handle">〓</div>
 
                     <div className="ef-q-top">
-                      <input
-                        className="ef-q-title-input"
-                        value={q.title}
-                        onChange={e => updateQ(q.id, { title: e.target.value })}
-                        placeholder="Pregunta sin título"
-                        onClick={e => e.stopPropagation()}
-                      />
+                      <div className="ef-q-title-wrapper">
+                        <label className="ef-q-title-label">Pregunta</label>
+                        <input
+                          className="ef-q-title-input"
+                          value={q.title}
+                          onChange={e => updateQ(q.id, { title: e.target.value })}
+                          placeholder="Escribe la pregunta aquí..."
+                          onClick={e => e.stopPropagation()}
+                        />
+                      </div>
                       <select
                         className="ef-q-type-select"
                         value={q.type}
@@ -307,11 +396,22 @@ const Examen: React.FC = () => {
                     {/* Options */}
                     {hasOptions(q.type) && (
                       <div className="ef-options">
-                        {q.options.map((opt, idx) => (
-                          <div key={opt.id} className="ef-option-row">
-                            <span className="ef-option-bullet">
-                              {q.type === 'checkbox' ? '☐' : q.type === 'dropdown' ? `${idx + 1}.` : '○'}
-                            </span>
+                        {q.options.map((opt, idx) => {
+                          const isCorrect = q.correctAnswers.includes(opt.id);
+                          return (
+                          <div
+                            key={opt.id}
+                            className={`ef-option-row ${isCorrect ? 'ef-option-row--correct' : ''}`}
+                          >
+                            {/* correct-answer toggle */}
+                            <button
+                              className={`ef-correct-btn ${isCorrect ? 'ef-correct-btn--active' : ''}`}
+                              title={isCorrect ? 'Desmarcar respuesta correcta' : 'Marcar como respuesta correcta'}
+                              style={isCorrect ? { color: accentColor, borderColor: accentColor } : undefined}
+                              onClick={e => { e.stopPropagation(); toggleCorrect(q.id, opt.id, q.type); }}
+                            >
+                              {isCorrect ? '✓' : q.type === 'checkbox' ? '☐' : '○'}
+                            </button>
                             <input
                               className="ef-option-input"
                               value={opt.text}
@@ -327,7 +427,8 @@ const Examen: React.FC = () => {
                               >×</button>
                             )}
                           </div>
-                        ))}
+                          );
+                        })}
                         <div className="ef-option-row">
                           <span className="ef-option-bullet ef-option-bullet--muted">
                             {q.type === 'checkbox' ? '☐' : q.type === 'dropdown' ? `${q.options.length + 1}.` : '○'}
@@ -371,6 +472,18 @@ const Examen: React.FC = () => {
                         >
                           <FontAwesomeIcon icon={faTrash} />
                         </button>
+                        <div className="ef-divider-v" />
+                        <label className="ef-points-label">
+                          <span>Puntos:</span>
+                          <input
+                            type="number"
+                            className="ef-points-input"
+                            min={0}
+                            value={q.points}
+                            onChange={e => updateQ(q.id, { points: Math.max(0, Number(e.target.value)) })}
+                            onClick={e => e.stopPropagation()}
+                          />
+                        </label>
                         <div className="ef-divider-v" />
                         <span className="ef-required-label">Obligatorio</span>
                         <label className="ef-toggle">
@@ -431,10 +544,13 @@ const Examen: React.FC = () => {
               </div>
               {questions.map((q, qi) => (
                 <div key={q.id} className="ef-preview-q-card">
-                  <p className="ef-preview-q-title">
-                    {qi + 1}. {q.title || 'Pregunta sin título'}
-                    {q.required && <span className="ef-preview-required"> *</span>}
-                  </p>
+                  <div className="ef-preview-q-header">
+                    <p className="ef-preview-q-title">
+                      {qi + 1}. {q.title || 'Pregunta sin título'}
+                      {q.required && <span className="ef-preview-required"> *</span>}
+                    </p>
+                    <span className="ef-preview-q-points">{q.points} pt{q.points !== 1 ? 's' : ''}</span>
+                  </div>
                   {q.imageUrl && <img src={q.imageUrl} alt="" className="ef-preview-q-image" />}
                   {q.type === 'short' && (
                     <input className="ef-preview-text-input" placeholder="Tu respuesta" readOnly />
@@ -444,16 +560,21 @@ const Examen: React.FC = () => {
                   )}
                   {(q.type === 'multiple' || q.type === 'checkbox' || q.type === 'dropdown') && (
                     <div className="ef-preview-options">
-                      {q.options.map((opt, oi) => (
-                        <label key={opt.id} className="ef-preview-option">
-                          <input
-                            type={q.type === 'checkbox' ? 'checkbox' : q.type === 'dropdown' ? 'radio' : 'radio'}
-                            name={`prev-${q.id}`}
-                            readOnly
-                          />
-                          <span>{opt.text || `Opción ${oi + 1}`}</span>
-                        </label>
-                      ))}
+                      {q.options.map((opt, oi) => {
+                        const correct = q.correctAnswers.includes(opt.id);
+                        return (
+                          <label key={opt.id} className={`ef-preview-option ${correct ? 'ef-preview-option--correct' : ''}`}>
+                            <input
+                              type={q.type === 'checkbox' ? 'checkbox' : 'radio'}
+                              name={`prev-${q.id}`}
+                              checked={correct}
+                              readOnly
+                            />
+                            <span>{opt.text || `Opción ${oi + 1}`}</span>
+                            {correct && <span className="ef-preview-correct-badge">✓ Correcta</span>}
+                          </label>
+                        );
+                      })}
                     </div>
                   )}
                 </div>

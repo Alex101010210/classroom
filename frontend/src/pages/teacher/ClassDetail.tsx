@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faUserPlus, faClipboardList, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faUserPlus, faClipboardList, faTrash, faPlus, faFileAlt } from '@fortawesome/free-solid-svg-icons';
 import { classService, enrollmentService, StudentEnrollment } from '../../services/api';
 import './ClassDetail.css';
 
@@ -19,13 +19,25 @@ interface Task {
   deadline: string;
 }
 
+interface Exam {
+  id: string;
+  claseId: string;
+  titulo: string;
+  descripcion: string;
+  color: string;
+  preguntas: { points: number }[];
+  deadline?: string | null;
+  oneAttempt?: boolean;
+}
+
 const ClassDetail: React.FC = () => {
   const navigate = useNavigate();
   const { classId } = useParams<{ classId: string }>();
 
   const [classData, setClassData] = useState<ClassData | null>(null);
   const [students, setStudents] = useState<StudentEnrollment[]>([]);
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [tasks, setTasks]   = useState<Task[]>([]);
+  const [exams, setExams]   = useState<Exam[]>([]);
 
   const [emailInput, setEmailInput] = useState('');
   const [enrollError, setEnrollError] = useState('');
@@ -58,14 +70,21 @@ const ClassDetail: React.FC = () => {
     }
   }, [classId]);
 
+  // Cargar exámenes desde localStorage filtrados por esta clase
+  const loadExams = useCallback(() => {
+    const all: Exam[] = JSON.parse(localStorage.getItem('examenes') || '[]');
+    setExams(all.filter(e => e.claseId === classId || String(e.claseId) === String(classId)));
+  }, [classId]);
+
   useEffect(() => {
     const init = async () => {
       setIsLoading(true);
       await Promise.all([loadClass(), loadStudents()]);
+      loadExams();
       setIsLoading(false);
     };
     init();
-  }, [loadClass, loadStudents]);
+  }, [loadClass, loadStudents, loadExams]);
 
   const handleBack = () => navigate('/teacher/dashboard');
 
@@ -106,10 +125,18 @@ const ClassDetail: React.FC = () => {
       alert(err.response?.data?.message || 'Error al eliminar al alumno');
     }
   };
-//Eliminar tarea
   const handleDeleteTask = (taskId: string) => {
     if (window.confirm('¿Está seguro que desea eliminar esta tarea?')) {
       setTasks(prev => prev.filter(t => t.id !== taskId));
+    }
+  };
+
+  const handleDeleteExam = (examId: string) => {
+    if (window.confirm('¿Está seguro que desea eliminar este examen?')) {
+      const all: Exam[] = JSON.parse(localStorage.getItem('examenes') || '[]');
+      const updated = all.filter(e => e.id !== examId);
+      localStorage.setItem('examenes', JSON.stringify(updated));
+      setExams(prev => prev.filter(e => e.id !== examId));
     }
   };
 
@@ -243,7 +270,6 @@ const ClassDetail: React.FC = () => {
           )}
         </section>
 
-        {}
         <section className="tasks-section">
           <div className="section-header">
             <h2>
@@ -280,6 +306,65 @@ const ClassDetail: React.FC = () => {
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+        </section>
+
+        {/* ── Exámenes ── */}
+        <section className="exams-section">
+          <div className="section-header">
+            <h2>
+              <FontAwesomeIcon icon={faFileAlt} />
+              Exámenes
+            </h2>
+          </div>
+
+          {exams.length === 0 ? (
+            <div className="empty-state">
+              <p>No hay exámenes creados para esta clase</p>
+            </div>
+          ) : (
+            <div className="tasks-list">
+              {exams.map((exam) => {
+                const totalPts = exam.preguntas?.reduce((s, p) => s + (p.points || 0), 0) ?? 0;
+                return (
+                  <div key={exam.id} className="task-card exam-card">
+                    <div className="task-header">
+                      <button
+                        className="exam-card-title-row exam-card-title-btn"
+                        onClick={() => navigate('/teacher/examen', { state: { subject: classData, exam } })}
+                        title="Ver / editar examen"
+                      >
+                        <span className="exam-color-dot" style={{ backgroundColor: exam.color }} />
+                        <h3>{exam.titulo}</h3>
+                      </button>
+                      <div className="exam-card-meta-right">
+                        {exam.deadline && (
+                          <span className="exam-deadline-badge" title="Fecha límite">
+                            🕐 {new Date(exam.deadline).toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' })}
+                          </span>
+                        )}
+                        {exam.oneAttempt && (
+                          <span className="exam-attempt-badge" title="Un intento por alumno">1 intento</span>
+                        )}
+                        <span className="exam-pts-badge">{totalPts} pts · {exam.preguntas?.length ?? 0} preguntas</span>
+                        <button
+                          className="btn-delete-small"
+                          onClick={() => handleDeleteExam(exam.id)}
+                          title="Eliminar examen"
+                        >
+                          <FontAwesomeIcon icon={faTrash} />
+                        </button>
+                      </div>
+                    </div>
+                    {exam.descripcion && (
+                      <div className="task-body">
+                        <p className="task-description">{exam.descripcion}</p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
         </section>
