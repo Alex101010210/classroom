@@ -74,7 +74,9 @@
   background-color: var(--background-dark);
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
+}
 
+/* Hamburger Button - Hidden by default, visible on mobile */
 .hamburger-btn {
   display: none;
   width: 56px;
@@ -101,13 +103,11 @@
   font-size: var(--font-size-lg);
 }
 
-}
-
-
 .add-menu-container {
   position: relative;
 }
 
+/* User Menu Dropdown */
 .user-menu-container {
   position: relative;
 }

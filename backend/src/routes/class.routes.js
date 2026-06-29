@@ -10,6 +10,9 @@ router.use(authenticateToken);    //mover este cunado la autentificación funcio
 // POST /api/classes - Crear nueva clase
 router.post('/', classController.createClass);
 
+// GET /api/classes/student - Obtener clases del alumno autenticado
+router.get('/student', classController.getStudentClasses);
+
 // GET /api/classes - Obtener todas las clases del maestro
 router.get('/', classController.getTeacherClasses);
 

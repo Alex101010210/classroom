@@ -53,6 +53,12 @@ export const classService = {
     return response.data;
   },
 
+  // Obtener las clases donde el alumno autenticado está inscrito
+  getStudentClasses: async () => {
+    const response = await api.get('/classes/student');
+    return response.data;
+  },
+
   // Obtener una clase específica por ID
   getClassById: async (id: string) => {
     const response = await api.get(`/classes/${id}`);
