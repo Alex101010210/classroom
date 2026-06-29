@@ -38,14 +38,10 @@ const TeacherDashboard: React.FC = () => {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [showAddMenu, setShowAddMenu] = useState(false);
   
  
-  const [showAddStudentModal, setShowAddStudentModal] = useState(false);
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
-
-  const [studentName, setStudentName] = useState('');
   const [taskForm, setTaskForm] = useState<Task>({
     id: '',
     name: '',
@@ -81,6 +77,10 @@ const TeacherDashboard: React.FC = () => {
   const handleUsers = () => {
     setShowUserMenu(!showUserMenu);
   };
+
+  const handleAddSubject = () => {
+    navigate('/teacher/clases')
+  }
 
   const handleProfile = () => {
     setShowUserMenu(false);
@@ -121,11 +121,10 @@ const TeacherDashboard: React.FC = () => {
     setOpenMenuId(openMenuId === subjectId ? null : subjectId);
   };
 
-  const handleAddStudent = (subject: Subject) => {
+  /*const handleAddStudent = (subject: Subject) => {
     setSelectedSubject(subject);
-    setShowAddStudentModal(true);
     setOpenMenuId(null);
-  };
+  };*/
 
   const handleAddTask = (subject: Subject) => {
     setSelectedSubject(subject);
@@ -143,15 +142,8 @@ const TeacherDashboard: React.FC = () => {
     setOpenMenuId(null);
   };
 
-  const submitAddStudent = (e: React.FormEvent) => { //Agregar babys:)
-    e.preventDefault();
-    if (selectedSubject) {
-      // La inscripción real se hace desde el detalle de clase
-      navigate(`/teacher/class/${selectedSubject.id}`);
-      setShowAddStudentModal(false);
-      setSelectedSubject(null);
-    }
-  };
+  
+  ;
 
   const submitAddTask = (e: React.FormEvent) => {
     e.preventDefault();
@@ -191,10 +183,8 @@ const TeacherDashboard: React.FC = () => {
   };
 
   const closeModals = () => {
-    setShowAddStudentModal(false);
     setShowAddTaskModal(false);
     setSelectedSubject(null);
-    setStudentName('');
     setTaskForm({
       id: '',
       name: '',
@@ -213,21 +203,9 @@ const TeacherDashboard: React.FC = () => {
         </div>
         <div className="header-actions">
           <div className="add-menu-container">
-            <button className="btn-header btn-add" onClick={() => setShowAddMenu(!showAddMenu)}>
-              <FontAwesomeIcon icon={faPlus} />
-            </button>
-            {showAddMenu && (
-              <div className="user-dropdown-menu">
-                <button className="user-menu-item" onClick={() => { setShowAddMenu(false); handleVerForos(); }}>
-                  <FontAwesomeIcon icon={faComments} />
-                  <span>Ver Foros</span>
-                </button>
-                <button className="user-menu-item" onClick={() => { setShowAddMenu(false); handleCreateForo(); }}>
-                  <FontAwesomeIcon icon={faPenToSquare} />
-                  <span>Crear Foro</span>
-                </button>
-              </div>
-            )}
+            <button className="btn-header btn-add" onClick={handleAddSubject}>
+            <FontAwesomeIcon icon={faPlus} />
+          </button>
           </div>
           <div className="user-menu-container">
             <button className="btn-header btn-users" onClick={handleUsers}>
@@ -308,7 +286,7 @@ const TeacherDashboard: React.FC = () => {
                               </button>
                               {openMenuId === subject.id && (
                                 <div className="menu-dropdown">
-                                  <button
+                                  {/*<button
                                     className="menu-item"
                                     onClick={(e) => {
                                       e.stopPropagation();
@@ -317,7 +295,7 @@ const TeacherDashboard: React.FC = () => {
                                   >
                                     <FontAwesomeIcon icon={faUserPlus} />
                                     <span>Agregar Alumno</span>
-                                  </button>
+                                  </button>*/}
                                   <button
                                     className="menu-item"
                                     onClick={(e) => {
@@ -431,7 +409,7 @@ const TeacherDashboard: React.FC = () => {
         )}
       </div>
 
-      {/* Modal: Agregar Alumno */}
+      {/* Modal: Agregar Alumno 
       {showAddStudentModal && (
         <div className="modal-overlay" onClick={closeModals}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -441,7 +419,7 @@ const TeacherDashboard: React.FC = () => {
                 <FontAwesomeIcon icon={faTimes} />
               </button>
             </div>
-            <form onSubmit={submitAddStudent}>
+            /*<form onSubmit={submitAddStudent}>
               <div className="form-group">
                 <label htmlFor="studentName">Nombre del Alumno</label>
                 <input
