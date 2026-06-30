@@ -119,7 +119,7 @@ const PollsList: React.FC = () => {
     <div className="polls-list-page">
       <header className="dashboard-header student">
         <div className="header-logo">
-          <h1>Logo</h1>
+          <h1>PollClass</h1>
         </div>
         <div className="header-info">
           <h2 className="page-title">
@@ -199,3 +199,5 @@ const PollsList: React.FC = () => {
 };
 
 export default PollsList;
+
+// Made with Bob

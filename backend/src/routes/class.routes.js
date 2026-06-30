@@ -4,16 +4,16 @@ const classController = require('../controllers/classController');
 const enrollmentController = require('../controllers/enrollmentController');
 const { authenticateToken } = require('../middleware/auth.middleware');
 
-// NOTA: Temporalmente sin autenticación para pruebas
-// Descomentar la siguiente línea cuando tengas el sistema de login funcionando:
-router.use(authenticateToken);    //mover este cunado la autentificación funcionando
+router.use(authenticateToken);
 
 // POST /api/classes - Crear nueva clase
 router.post('/', classController.createClass);
 
 // GET /api/classes/my-classes - Clases en las que está inscrito el alumno autenticado
-// IMPORTANTE: debe estar antes de /:id para no ser capturada como ID
+// GET /api/classes/student    - alias del remoto (ambos apuntan al mismo handler)
+// IMPORTANTE: deben estar antes de /:id
 router.get('/my-classes', enrollmentController.getMyClasses);
+router.get('/student',    enrollmentController.getMyClasses);
 
 // GET /api/classes - Obtener todas las clases del maestro
 router.get('/', classController.getTeacherClasses);

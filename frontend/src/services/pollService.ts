@@ -8,9 +8,9 @@ export const pollService = {
     return response.data.data;
   },
 
-  // Obtener todas las encuestas de una clase (para el alumno)
+  // Obtener todas las encuestas de una clase con estado (para el alumno)
   getPollsByClass: async (classId: string): Promise<PollWithStatus[]> => {
-    const response = await api.get(`/polls/class/${classId}`);
+    const response = await api.get(`/polls/student/class/${classId}`);
     return response.data.polls || response.data.data || [];
   },
 

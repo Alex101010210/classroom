@@ -53,6 +53,12 @@ export const classService = {
     return response.data;
   },
 
+  // Obtener las clases donde el alumno autenticado está inscrito
+  getStudentClasses: async () => {
+    const response = await api.get('/classes/student');
+    return response.data;
+  },
+
   // Obtener una clase específica por ID
   getClassById: async (id: string) => {
     const response = await api.get(`/classes/${id}`);
@@ -154,6 +160,57 @@ export const profileService = {
   updateProfile: async (data: ProfileUpdateData): Promise<ProfileData> => {
     const response = await api.put('/profile', data);
     return response.data?.data ?? response.data;
+  },
+};
+
+// ─── Tareas ───────────────────────────────────────────────────────────────────
+
+export interface TaskData {
+  id: number;
+  clase_id: number;
+  titulo_tarea: string;
+  descrip_tarea: string | null;
+  fecha_creacion: string;
+  fecha_limite: string;
+  puntos_max_tarea: number;
+  entrega_tardia: boolean;
+  archivos_adjuntos: string | null;
+}
+
+export interface CreateTaskPayload {
+  titulo_tarea: string;
+  descrip_tarea?: string;
+  fecha_limite: string;
+  puntos_max_tarea: number;
+  entrega_tardia?: boolean;
+  archivos_adjuntos?: string;
+}
+
+export interface UpdateTaskPayload {
+  descrip_tarea?: string;
+  fecha_limite?: string;
+  entrega_tardia?: boolean;
+}
+
+export const taskService = {
+  getTasksByClass: async (classId: string): Promise<TaskData[]> => {
+    const response = await api.get(`/classes/${classId}/tasks`);
+    return response.data.tasks;
+  },
+  getTaskById: async (classId: string, taskId: string): Promise<TaskData> => {
+    const response = await api.get(`/classes/${classId}/tasks/${taskId}`);
+    return response.data.task;
+  },
+  createTask: async (classId: string, payload: CreateTaskPayload): Promise<TaskData> => {
+    const response = await api.post(`/classes/${classId}/tasks`, payload);
+    return response.data.task;
+  },
+  updateTask: async (classId: string, taskId: string, payload: UpdateTaskPayload): Promise<TaskData> => {
+    const response = await api.put(`/classes/${classId}/tasks/${taskId}`, payload);
+    return response.data.task;
+  },
+  deleteTask: async (classId: string, taskId: string): Promise<void> => {
+    await api.delete(`/classes/${classId}/tasks/${taskId}`);
   },
 };
 

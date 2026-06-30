@@ -13,7 +13,11 @@ const User = sequelize.define('User', {
     allowNull: false,
     unique: true,
     validate: {
-      isEmail: true
+      isValidEmail(value) {
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+          throw new Error('El email no tiene un formato válido');
+        }
+      }
     }
   },
   password: {

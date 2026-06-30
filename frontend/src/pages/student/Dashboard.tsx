@@ -48,7 +48,6 @@ const StudentDashboard: React.FC = () => {
       setError('');
       const classes = await enrollmentService.getMyClasses();
       setClasses(classes);
-      // Guardar en localStorage para que PollsList pueda resolver el nombre de la clase sin llamada extra
       localStorage.setItem('myClasses', JSON.stringify(classes));
     } catch (err) {
       console.error('Error al cargar clases:', err);

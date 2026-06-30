@@ -131,7 +131,6 @@ const TakePoll: React.FC = () => {
   };
 
   const handleConfirmSubmit = async () => {
-    // Por ahora solo registra y vuelve — la persistencia de respuestas se puede agregar después
     console.log('Respuestas enviadas:', answers);
     alert('¡Actividad enviada exitosamente!');
     navigate(-1);
