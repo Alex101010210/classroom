@@ -57,8 +57,13 @@ const Register: React.FC = () => {
       });
 
       if (response.success) {
-        alert('¡Registro exitoso! Ahora puedes iniciar sesión');
-        navigate('/login');
+        const user = response.data.user;
+        // rol: 0 = maestro, 1 = alumno
+        if (user.rol === 0) {
+          navigate('/teacher/dashboard');
+        } else {
+          navigate('/student/dashboard');
+        }
       }
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || 'Error al registrarse. Intenta de nuevo';

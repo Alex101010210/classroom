@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faUser, faRightFromBracket, faEllipsisV, faUserPlus, faClipboardList, faTrash, faTimes, faBars, faComments, faPenToSquare, faFileAlt, faPollH } from '@fortawesome/free-solid-svg-icons';
 import { classService } from '../../services/api';
+import { authService } from '../../services/authService';
 import './Dashboard.css';
 
 interface Task {
@@ -31,11 +32,16 @@ interface Subject {
 
 const TeacherDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const [subjects, setSubjects] = useState<Subject[]>([]); //Agregar mate
-  const [isSubjectsOpen, setIsSubjectsOpen] = useState(false);//Agregar alumno
-  const [isForosOpen, setIsForosOpen] = useState(false); // Dropdown de Foros
-  const [teacherName] = useState('Nombre del maestro');
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [isSubjectsOpen, setIsSubjectsOpen] = useState(false);
+  const [isForosOpen, setIsForosOpen] = useState(false);
+  const [loadError, setLoadError] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const currentUser = authService.getCurrentUser();
+  const teacherName = currentUser
+    ? `${currentUser.nombre} ${currentUser.apellido || ''}`.trim()
+    : 'Maestro';
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [menuPos, setMenuPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -65,15 +71,12 @@ const TeacherDashboard: React.FC = () => {
   const loadClasses = async () => {
     try {
       setIsLoading(true);
+      setLoadError('');
       const response = await classService.getTeacherClasses();
       setSubjects(response.classes || []);
     } catch (error: any) {
       console.error('Error al cargar clases:', error);
-      // Fallback a localStorage si falla la API
-      const savedSubjects = localStorage.getItem('subjects');
-      if (savedSubjects) {
-        setSubjects(JSON.parse(savedSubjects));
-      }
+      setLoadError('No se pudo conectar con el servidor. Verifica que el backend esté corriendo.');
     } finally {
       setIsLoading(false);
     }
@@ -279,6 +282,8 @@ const TeacherDashboard: React.FC = () => {
             <div className="classes-preview-panel">
               {isLoading ? (
                 <p className="empty-classes-message">Cargando clases...</p>
+              ) : loadError ? (
+                <p className="empty-classes-message" style={{ color: '#ef4444' }}>{loadError}</p>
               ) : subjects.length === 0 ? (
                 <p className="empty-classes-message">Aún no hay clases creadas.</p>
               ) : (

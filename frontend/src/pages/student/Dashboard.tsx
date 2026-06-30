@@ -13,16 +13,16 @@ import {
   faUser,
 } from '@fortawesome/free-solid-svg-icons';
 import { authService } from '../../services/authService';
-import { classService } from '../../services/api';
+import { enrollmentService } from '../../services/api';
 import './Dashboard.css';
 
 interface Class {
-  id: string;
+  id: number;
   nombre_class?: string;
   name?: string;
-  descrip_class?: string;
+  descrip_class?: string | null;
   description?: string;
-  color_class?: string;
+  color_class?: string | null;
 }
 
 const StudentDashboard: React.FC = () => {
@@ -46,8 +46,10 @@ const StudentDashboard: React.FC = () => {
     try {
       setIsLoading(true);
       setError('');
-      const response = await classService.getTeacherClasses();
-      setClasses(response.classes || []);
+      const classes = await enrollmentService.getMyClasses();
+      setClasses(classes);
+      // Guardar en localStorage para que PollsList pueda resolver el nombre de la clase sin llamada extra
+      localStorage.setItem('myClasses', JSON.stringify(classes));
     } catch (err) {
       console.error('Error al cargar clases:', err);
       setError('No se pudieron cargar las clases.');

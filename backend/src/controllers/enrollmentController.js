@@ -2,6 +2,48 @@ const Enrollment = require('../models/Enrollment');
 const Class = require('../models/Class');
 const User = require('../models/User');
 
+// GET /api/classes/my-classes
+// Retorna las clases activas en las que el alumno autenticado está inscrito
+exports.getMyClasses = async (req, res) => {
+  try {
+    const alumno_id = req.user.id;
+
+    const enrollments = await Enrollment.findAll({
+      where: { alumno_id, activa: true }
+    });
+
+    const claseIds = enrollments.map(e => e.clase_id);
+
+    if (claseIds.length === 0) {
+      return res.json({ classes: [] });
+    }
+
+    const { Op } = require('sequelize');
+    const classes = await Class.findAll({
+      where: { id: claseIds, activa_class: true },
+      attributes: ['id', 'nombre_class', 'descrip_class', 'color_class'],
+      order: [['nombre_class', 'ASC']]
+    });
+
+    // Incluir fecha de inscripción en cada clase
+    const result = classes.map(cls => {
+      const enrollment = enrollments.find(e => e.clase_id === cls.id);
+      return {
+        id: cls.id,
+        nombre_class: cls.nombre_class,
+        descrip_class: cls.descrip_class,
+        color_class: cls.color_class,
+        fechaInscripcion: enrollment ? enrollment.fechaInscripcion : null
+      };
+    });
+
+    res.json({ classes: result });
+  } catch (error) {
+    console.error('Error al obtener clases del alumno:', error);
+    res.status(500).json({ message: 'Error al obtener las clases', error: error.message });
+  }
+};
+
 // GET /api/classes/:id/students
 // Retorna los alumnos activos inscritos en una clase del maestro autenticado
 exports.getStudents = async (req, res) => {

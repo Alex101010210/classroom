@@ -9,8 +9,10 @@ import {
   faClock,
   faClipboardList,
   faTrophy,
+  faBook,
 } from '@fortawesome/free-solid-svg-icons';
 import { authService } from '../../services/authService';
+import { enrollmentService, StudentClass } from '../../services/api';
 import { StudentResponse } from '../../types';
 import './StudentProfile.css';
 
@@ -27,11 +29,14 @@ const StudentProfile: React.FC = () => {
   const [user, setUser] = useState<UserData | null>(null);
   const [history, setHistory] = useState<StudentResponse[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
+  const [myClasses, setMyClasses] = useState<StudentClass[]>([]);
+  const [isLoadingClasses, setIsLoadingClasses] = useState(true);
 
   useEffect(() => {
     const currentUser = authService.getCurrentUser();
     setUser(currentUser);
     loadHistory();
+    loadMyClasses();
   }, []);
 
   const loadHistory = async () => {
@@ -43,6 +48,19 @@ const StudentProfile: React.FC = () => {
       console.error('Error al cargar historial:', err);
     } finally {
       setIsLoadingHistory(false);
+    }
+  };
+
+  const loadMyClasses = async () => {
+    try {
+      setIsLoadingClasses(true);
+      const classes = await enrollmentService.getMyClasses();
+      setMyClasses(classes);
+    } catch (err) {
+      console.error('Error al cargar clases:', err);
+      setMyClasses([]);
+    } finally {
+      setIsLoadingClasses(false);
     }
   };
 
@@ -94,6 +112,11 @@ const StudentProfile: React.FC = () => {
         {/* Estadísticas */}
         <div className="sp-stats-row">
           <div className="sp-stat-card">
+            <FontAwesomeIcon icon={faBook} className="sp-stat-icon" />
+            <span className="sp-stat-num">{myClasses.length}</span>
+            <span className="sp-stat-label">Clases inscritas</span>
+          </div>
+          <div className="sp-stat-card">
             <FontAwesomeIcon icon={faClipboardList} className="sp-stat-icon" />
             <span className="sp-stat-num">{history.length}</span>
             <span className="sp-stat-label">Encuestas respondidas</span>
@@ -108,6 +131,42 @@ const StudentProfile: React.FC = () => {
             <span className="sp-stat-num">{completedCount}</span>
             <span className="sp-stat-label">Completadas</span>
           </div>
+        </div>
+
+        {/* Mis Clases */}
+        <div className="sp-card">
+          <h3 className="sp-section-title">Mis Clases</h3>
+          {isLoadingClasses ? (
+            <p className="sp-state-msg">Cargando clases...</p>
+          ) : myClasses.length === 0 ? (
+            <p className="sp-state-msg sp-state-msg--empty">
+              No estás inscrito en ninguna clase todavía.
+            </p>
+          ) : (
+            <div className="sp-classes-list">
+              {myClasses.map((cls) => (
+                <div key={cls.id} className="sp-class-item">
+                  <span
+                    className="sp-class-color"
+                    style={{ backgroundColor: cls.color_class || '#3b82f6' }}
+                  />
+                  <div className="sp-class-info">
+                    <p className="sp-class-name">{cls.nombre_class}</p>
+                    {cls.descrip_class && (
+                      <p className="sp-class-desc">{cls.descrip_class}</p>
+                    )}
+                    {cls.fechaInscripcion && (
+                      <p className="sp-class-date">
+                        Inscrito: {new Date(cls.fechaInscripcion).toLocaleDateString('es-MX', {
+                          year: 'numeric', month: 'short', day: 'numeric',
+                        })}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Historial */}

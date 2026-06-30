@@ -8,6 +8,7 @@ import {
   faPollH,
   faTimes,
 } from '@fortawesome/free-solid-svg-icons';
+import { encuestaService } from '../../services/api';
 import './Encuestas.css';
 
 type QuestionType = 'multiple' | 'checkbox' | 'short';
@@ -23,16 +24,6 @@ interface PollQuestion {
   type: QuestionType;
   options: Option[];
   required: boolean;
-}
-
-interface SavedPoll {
-  id: string;
-  claseId?: string;
-  claseNombre?: string;
-  titulo: string;
-  descripcion: string;
-  preguntas: PollQuestion[];
-  creadoEn: string;
 }
 
 const questionTypeLabels: Record<QuestionType, string> = {
@@ -96,24 +87,27 @@ const Encuestas: React.FC = () => {
   };
 
   /* ── save ─────────────────────────────────────── */
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!pollTitle.trim()) {
       alert('Por favor ingresa un título para la encuesta.');
       return;
     }
-    const poll: SavedPoll = {
-      id: Date.now().toString(),
-      claseId: subject?.id,
-      claseNombre: subject?.nombre_class || subject?.name,
-      titulo: pollTitle,
-      descripcion: pollDesc,
-      preguntas: questions,
-      creadoEn: new Date().toISOString(),
-    };
-    const existing = JSON.parse(localStorage.getItem('encuestas') || '[]');
-    localStorage.setItem('encuestas', JSON.stringify([...existing, poll]));
-    alert('Encuesta guardada exitosamente');
-    navigate('/teacher/dashboard');
+    if (!subject?.id) {
+      alert('No se encontró la clase. Vuelve a entrar desde el detalle de la clase.');
+      return;
+    }
+    try {
+      await encuestaService.create({
+        clase_id: subject.id,
+        titulo: pollTitle,
+        descripcion: pollDesc,
+        preguntas: questions,
+      });
+      alert('Encuesta guardada exitosamente');
+      navigate(-1);
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Error al guardar la encuesta');
+    }
   };
 
   const hasOptions = (type: QuestionType) => type === 'multiple' || type === 'checkbox';

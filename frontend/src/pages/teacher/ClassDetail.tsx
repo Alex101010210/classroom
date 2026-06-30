@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faUserPlus, faClipboardList, faTrash, faPlus, faFileAlt, faPollH } from '@fortawesome/free-solid-svg-icons';
-import { classService, enrollmentService, StudentEnrollment } from '../../services/api';
+import { classService, enrollmentService, encuestaService, examenService, StudentEnrollment, EncuestaDB, ExamenDB } from '../../services/api';
 import './ClassDetail.css';
 
 interface ClassData {
@@ -19,26 +19,6 @@ interface Task {
   deadline: string;
 }
 
-interface Exam {
-  id: string;
-  claseId: string;
-  titulo: string;
-  descripcion: string;
-  color: string;
-  preguntas: { points: number }[];
-  deadline?: string | null;
-  oneAttempt?: boolean;
-}
-
-interface SavedPoll {
-  id: string;
-  claseId?: string;
-  claseNombre?: string;
-  titulo: string;
-  descripcion: string;
-  preguntas: { id: string; text: string; type: string; options: { id: string; text: string }[]; required: boolean }[];
-  creadoEn: string;
-}
 
 const ClassDetail: React.FC = () => {
   const navigate = useNavigate();
@@ -47,8 +27,8 @@ const ClassDetail: React.FC = () => {
   const [classData, setClassData] = useState<ClassData | null>(null);
   const [students, setStudents] = useState<StudentEnrollment[]>([]);
   const [tasks, setTasks]   = useState<Task[]>([]);
-  const [exams, setExams]   = useState<Exam[]>([]);
-  const [polls, setPolls]   = useState<SavedPoll[]>([]);
+  const [exams, setExams]   = useState<ExamenDB[]>([]);
+  const [polls, setPolls]   = useState<EncuestaDB[]>([]);
 
   const [emailInput, setEmailInput] = useState('');
   const [enrollError, setEnrollError] = useState('');
@@ -81,28 +61,36 @@ const ClassDetail: React.FC = () => {
     }
   }, [classId]);
 
-  // Cargar exámenes desde localStorage filtrados por esta clase
-  const loadExams = useCallback(() => {
-    const all: Exam[] = JSON.parse(localStorage.getItem('examenes') || '[]');
-    setExams(all.filter(e => e.claseId === classId || String(e.claseId) === String(classId)));
+  // Cargar exámenes desde la API
+  const loadExams = useCallback(async () => {
+    if (!classId) return;
+    try {
+      const list = await examenService.getByClaseMaestro(classId);
+      setExams(list);
+    } catch {
+      setExams([]);
+    }
+  }, [classId]);
+
+  // Cargar encuestas desde la API
+  const loadPolls = useCallback(async () => {
+    if (!classId) return;
+    try {
+      const list = await encuestaService.getByClaseMaestro(classId);
+      setPolls(list);
+    } catch {
+      setPolls([]);
+    }
   }, [classId]);
 
   useEffect(() => {
     const init = async () => {
       setIsLoading(true);
-      await Promise.all([loadClass(), loadStudents()]);
-      loadExams();
+      await Promise.all([loadClass(), loadStudents(), loadExams(), loadPolls()]);
       setIsLoading(false);
     };
     init();
-  }, [loadClass, loadStudents, loadExams]);
-
-  // Cargar encuestas de esta clase desde localStorage
-  useEffect(() => {
-    if (!classId) return;
-    const all: SavedPoll[] = JSON.parse(localStorage.getItem('encuestas') || '[]');
-    setPolls(all.filter(p => p.claseId === classId));
-  }, [classId]);
+  }, [loadClass, loadStudents, loadExams, loadPolls]);
 
   const handleBack = () => navigate('/teacher/dashboard');
 
@@ -152,21 +140,25 @@ const ClassDetail: React.FC = () => {
   };
 
   // Eliminar examen
-  const handleDeleteExam = (examId: string) => {
-    if (window.confirm('¿Está seguro que desea eliminar este examen?')) {
-      const all: Exam[] = JSON.parse(localStorage.getItem('examenes') || '[]');
-      const updated = all.filter(e => e.id !== examId);
-      localStorage.setItem('examenes', JSON.stringify(updated));
+  const handleDeleteExam = async (examId: number) => {
+    if (!window.confirm('¿Está seguro que desea eliminar este examen?')) return;
+    try {
+      await examenService.delete(examId);
       setExams(prev => prev.filter(e => e.id !== examId));
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Error al eliminar el examen');
     }
   };
 
   // Eliminar encuesta
-  const handleDeletePoll = (pollId: string) => {
+  const handleDeletePoll = async (pollId: number) => {
     if (!window.confirm('¿Está seguro que desea eliminar esta encuesta?')) return;
-    const all: SavedPoll[] = JSON.parse(localStorage.getItem('encuestas') || '[]');
-    localStorage.setItem('encuestas', JSON.stringify(all.filter(p => p.id !== pollId)));
-    setPolls(prev => prev.filter(p => p.id !== pollId));
+    try {
+      await encuestaService.delete(pollId);
+      setPolls(prev => prev.filter(p => p.id !== pollId));
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Error al eliminar la encuesta');
+    }
   };
 
   const formatDate = (dateStr: string | null) => {
@@ -374,7 +366,7 @@ const ClassDetail: React.FC = () => {
                             🕐 {new Date(exam.deadline).toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' })}
                           </span>
                         )}
-                        {exam.oneAttempt && (
+                        {exam.one_attempt && (
                           <span className="exam-attempt-badge" title="Un intento por alumno">1 intento</span>
                         )}
                         <span className="exam-pts-badge">{totalPts} pts · {exam.preguntas?.length ?? 0} preguntas</span>
@@ -435,7 +427,7 @@ const ClassDetail: React.FC = () => {
                         <strong>Preguntas:</strong> {poll.preguntas.length}
                       </span>
                       <span className="task-deadline">
-                        <strong>Creada:</strong> {new Date(poll.creadoEn).toLocaleDateString('es-MX')}
+                        <strong>Creada:</strong> {new Date(poll.creado_en).toLocaleDateString('es-MX')}
                       </span>
                     </div>
                   </div>
