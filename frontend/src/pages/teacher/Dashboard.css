@@ -614,7 +614,7 @@
 
 .foro-btn-dropdown {
   position: absolute;
-  top: calc(100% + 4px);
+  top: calc(100% + 8px);
   left: 0;
   right: 0;
   z-index: 100;

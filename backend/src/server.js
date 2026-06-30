@@ -5,22 +5,27 @@ const config = require('./config/env');
 
 const PORT = config.port;
 
-// Conectar a base de datos y sincronizar modelos
+// Conectar a base de datos, sincronizar modelos y luego iniciar servidor
 const startServer = async () => {
   await connectDB();
-  
-  // Sincronizar modelos con la base de datos
-  await sequelize.sync({ alter: true });
-  console.log('✅ Database models synced');
+
+  // Sincronizar modelos con la base de datos (solo en desarrollo)
+  if (config.nodeEnv === 'development') {
+    await sequelize.sync({ alter: true });
+    console.log('✅ Database models synced');
+  }
+
+  // Iniciar servidor solo después de que la DB esté lista
+  const server = app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`📡 API available at http://localhost:${PORT}/api`);
+  });
+
+  // Inicializar Socket.io
+  initSocket(server);
 };
 
-startServer();
-
-// Iniciar servidor
-const server = app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📡 API available at http://localhost:${PORT}/api`);
+startServer().catch((error) => {
+  console.error('❌ Error al iniciar el servidor:', error);
+  process.exit(1);
 });
-
-// Inicializar Socket.io
-initSocket(server);

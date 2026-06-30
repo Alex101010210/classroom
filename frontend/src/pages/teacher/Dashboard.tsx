@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faUser, faRightFromBracket, faEllipsisV, faClipboardList, faTrash, faTimes, faBars, faComments, faPenToSquare, faFileAlt, faPollH } from '@fortawesome/free-solid-svg-icons';
 import { classService, taskService } from '../../services/api';
 import './Dashboard.css';
+import { authService } from '../../services/authService';
 
 interface TaskForm {
   titulo_tarea: string;
@@ -32,14 +33,14 @@ const TeacherDashboard: React.FC = () => {
   const [subjects, setSubjects] = useState<Subject[]>([]); //Agregar mate
   const [isSubjectsOpen, setIsSubjectsOpen] = useState(false);//Agregar alumno
   const [isForosOpen, setIsForosOpen] = useState(false); // Dropdown de Foros
-  const [teacherName] = useState('Nombre del maestro');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [menuPos, setMenuPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
- 
+  const userMenuRef   = useRef<HTMLDivElement>(null);
+  const forosRef      = useRef<HTMLDivElement>(null);
+  const subjectsRef   = useRef<HTMLDivElement>(null);
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
   const [isSubmittingTask, setIsSubmittingTask] = useState(false);
@@ -55,6 +56,27 @@ const TeacherDashboard: React.FC = () => {
   useEffect(() => {
     loadClasses();
   }, []);
+
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setShowUserMenu(false);
+      }
+      if (forosRef.current && !forosRef.current.contains(e.target as Node)) {
+        setIsForosOpen(false);
+      }
+      if (subjectsRef.current && !subjectsRef.current.contains(e.target as Node)) {
+        setIsSubjectsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, []);
+
+  const currentUser = authService.getCurrentUser();
+  const teacherName = currentUser
+  ? `${currentUser.nombre} ${currentUser.apellido}`.trim()
+  : 'Maestro';
 
   // Función para cargar clases desde la API
   const loadClasses = async () => {
@@ -124,7 +146,12 @@ const TeacherDashboard: React.FC = () => {
       return;
     }
     const rect = (e.currentTarget as HTMLButtonElement).getBoundingClientRect();
-    setMenuPos({ top: rect.bottom + window.scrollY + 4, left: rect.right + window.scrollX - 200 });
+    const dropdownWidth = 200;
+    // Align left edge to button's left; if it overflows viewport, align right edge to button's right
+    const left = rect.left + dropdownWidth > window.innerWidth
+      ? rect.right - dropdownWidth
+      : rect.left;
+    setMenuPos({ top: rect.bottom + 4, left });
     setOpenMenuId(subjectId);
   };
 
@@ -201,7 +228,7 @@ const TeacherDashboard: React.FC = () => {
             <FontAwesomeIcon icon={faPlus} />
           </button>         
           </div>
-          <div className="user-menu-container">
+          <div className="user-menu-container" ref={userMenuRef}>
             <button className="btn-header btn-users" onClick={handleUsers}>
               <FontAwesomeIcon icon={faUser} />
             </button>
@@ -359,7 +386,7 @@ const TeacherDashboard: React.FC = () => {
           <div className="sidebar-tools-label">Herramientas</div>
           <nav className="sidebar-nav">
             {/* Dropdown de Foros */}
-            <div className="foro-btn-container">
+            <div className="foro-btn-container" ref={forosRef}>
               <button
                 className={`sidebar-btn${isForosOpen ? ' sidebar-btn--active' : ''}`}
                 onClick={() => setIsForosOpen(!isForosOpen)}
@@ -387,7 +414,7 @@ const TeacherDashboard: React.FC = () => {
               Avisos
             </button>
 
-            <div className="sidebar-dropdown">
+            <div className="sidebar-dropdown" ref={subjectsRef}>
               <button
                 className={`sidebar-btn dropdown-toggle${isSubjectsOpen ? ' sidebar-btn--active' : ''}`}
                 onClick={() => setIsSubjectsOpen(!isSubjectsOpen)}
