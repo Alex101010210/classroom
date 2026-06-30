@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faUser, faRightFromBracket, faEllipsisV, faUserPlus, faClipboardList, faTrash, faTimes, faBars, faComments, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
-import { classService } from '../../services/api';
+import { faPlus, faUser, faRightFromBracket, faEllipsisV, faClipboardList, faTrash, faTimes, faBars, faComments, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
+import { classService, taskService } from '../../services/api';
 import './Dashboard.css';
 
-interface Task {
-  id: string;
-  name: string;
-  description: string;
-  deadline: string;
-  attachedFile?: File | null;
-  submissionFile?: File | null;
+interface TaskForm {
+  titulo_tarea: string;
+  descrip_tarea: string;
+  fecha_limite: string;
+  puntos_max_tarea: string;
+  entrega_tardia: boolean;
 }
 
 interface Subject {
@@ -23,7 +22,6 @@ interface Subject {
   color_class?: string;
   color?: string;
   student_count?: number;
-  tasks?: Task[];
   createdAt?: string;
   created_at?: string;
 }
@@ -42,13 +40,14 @@ const TeacherDashboard: React.FC = () => {
  
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
-  const [taskForm, setTaskForm] = useState<Task>({
-    id: '',
-    name: '',
-    description: '',
-    deadline: '',
-    attachedFile: null,
-    submissionFile: null
+  const [isSubmittingTask, setIsSubmittingTask] = useState(false);
+  const [taskError, setTaskError] = useState('');
+  const [taskForm, setTaskForm] = useState<TaskForm>({
+    titulo_tarea: '',
+    descrip_tarea: '',
+    fecha_limite: '',
+    puntos_max_tarea: '100',
+    entrega_tardia: false
   });
 
   useEffect(() => {
@@ -145,54 +144,34 @@ const TeacherDashboard: React.FC = () => {
   
   ;
 
-  const submitAddTask = (e: React.FormEvent) => {
+  const submitAddTask = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (taskForm.name.trim() && selectedSubject) {
-      const newTask: Task = {
-        id: Date.now().toString(),
-        name: taskForm.name,
-        description: taskForm.description,
-        deadline: taskForm.deadline,
-        attachedFile: taskForm.attachedFile,
-        submissionFile: taskForm.submissionFile
-      };
-
-      const updatedSubjects = subjects.map(subject => {
-        if (subject.id === selectedSubject.id) {
-          return {
-            ...subject,
-            tasks: [...(subject.tasks || []), newTask]
-          };
-        }
-        return subject;
-      });
-      
-      setSubjects(updatedSubjects);
-      localStorage.setItem('subjects', JSON.stringify(updatedSubjects));
-      setTaskForm({
-        id: '',
-        name: '',
-        description: '',
-        deadline: '',
-        attachedFile: null,
-        submissionFile: null
+    if (!selectedSubject) return;
+    setTaskError('');
+    setIsSubmittingTask(true);
+    try {
+      await taskService.createTask(selectedSubject.id, {
+        titulo_tarea: taskForm.titulo_tarea.trim(),
+        descrip_tarea: taskForm.descrip_tarea.trim() || undefined,
+        fecha_limite: taskForm.fecha_limite,
+        puntos_max_tarea: parseInt(taskForm.puntos_max_tarea, 10) || 100,
+        entrega_tardia: taskForm.entrega_tardia
       });
       setShowAddTaskModal(false);
       setSelectedSubject(null);
+      setTaskForm({ titulo_tarea: '', descrip_tarea: '', fecha_limite: '', puntos_max_tarea: '100', entrega_tardia: false });
+    } catch (err: any) {
+      setTaskError(err.response?.data?.message || 'Error al guardar la tarea');
+    } finally {
+      setIsSubmittingTask(false);
     }
   };
 
   const closeModals = () => {
     setShowAddTaskModal(false);
     setSelectedSubject(null);
-    setTaskForm({
-      id: '',
-      name: '',
-      description: '',
-      deadline: '',
-      attachedFile: null,
-      submissionFile: null
-    });
+    setTaskError('');
+    setTaskForm({ titulo_tarea: '', descrip_tarea: '', fecha_limite: '', puntos_max_tarea: '100', entrega_tardia: false });
   };
 
   return (
@@ -449,75 +428,84 @@ const TeacherDashboard: React.FC = () => {
         <div className="modal-overlay" onClick={closeModals}>
           <div className="modal-content modal-large" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>Agregar Tarea</h2>
+              <h2>Agregar Tarea — {selectedSubject?.nombre_class || selectedSubject?.name}</h2>
               <button className="close-button" onClick={closeModals}>
                 <FontAwesomeIcon icon={faTimes} />
               </button>
             </div>
             <form onSubmit={submitAddTask}>
               <div className="form-group">
-                <label htmlFor="taskName">Nombre de la Tarea</label>
+                <label htmlFor="taskName">Título de la Tarea</label>
                 <input
                   type="text"
                   id="taskName"
-                  value={taskForm.name}
-                  onChange={(e) => setTaskForm({...taskForm, name: e.target.value})}
+                  value={taskForm.titulo_tarea}
+                  onChange={(e) => setTaskForm({...taskForm, titulo_tarea: e.target.value})}
                   placeholder="Ej: Tarea de Matemáticas"
                   required
+                  disabled={isSubmittingTask}
                 />
               </div>
-              
+
               <div className="form-group">
                 <label htmlFor="taskDescription">Descripción</label>
                 <textarea
                   id="taskDescription"
-                  value={taskForm.description}
-                  onChange={(e) => setTaskForm({...taskForm, description: e.target.value})}
+                  value={taskForm.descrip_tarea}
+                  onChange={(e) => setTaskForm({...taskForm, descrip_tarea: e.target.value})}
                   placeholder="Describe la tarea..."
                   rows={4}
-                  required
+                  disabled={isSubmittingTask}
                 />
               </div>
-              
+
               <div className="form-group">
-                <label htmlFor="taskDeadline">Tiempo de Entrega</label>
+                <label htmlFor="taskDeadline">Fecha Límite</label>
                 <input
                   type="datetime-local"
                   id="taskDeadline"
-                  value={taskForm.deadline}
-                  onChange={(e) => setTaskForm({...taskForm, deadline: e.target.value})}
+                  value={taskForm.fecha_limite}
+                  onChange={(e) => setTaskForm({...taskForm, fecha_limite: e.target.value})}
                   required
+                  disabled={isSubmittingTask}
                 />
               </div>
-              
+
               <div className="form-group">
-                <label htmlFor="attachedFile">Material Adjunto (Opcional)</label>
+                <label htmlFor="taskPoints">Puntos Máximos</label>
                 <input
-                  type="file"
-                  id="attachedFile"
-                  onChange={(e) => setTaskForm({...taskForm, attachedFile: e.target.files?.[0] || null})}
-                  accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.jpg,.jpeg,.png"
+                  type="number"
+                  id="taskPoints"
+                  min={1}
+                  max={1000}
+                  value={taskForm.puntos_max_tarea}
+                  onChange={(e) => setTaskForm({...taskForm, puntos_max_tarea: e.target.value})}
+                  required
+                  disabled={isSubmittingTask}
                 />
-                <small>Formatos permitidos: PDF, DOC, DOCX, PPT, PPTX, TXT, imágenes</small>
               </div>
-              
-              <div className="form-group">
-                <label htmlFor="submissionFile">Apartado para Enviar Archivos</label>
+
+              <div className="form-group form-group-inline">
                 <input
-                  type="file"
-                  id="submissionFile"
-                  onChange={(e) => setTaskForm({...taskForm, submissionFile: e.target.files?.[0] || null})}
-                  accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.zip"
+                  type="checkbox"
+                  id="taskLate"
+                  checked={taskForm.entrega_tardia}
+                  onChange={(e) => setTaskForm({...taskForm, entrega_tardia: e.target.checked})}
+                  disabled={isSubmittingTask}
                 />
-                <small>Los alumnos podrán enviar sus trabajos aquí</small>
+                <label htmlFor="taskLate">Permitir entrega tardía</label>
               </div>
-              
+
+              {taskError && (
+                <p style={{ color: 'red', fontSize: '0.9rem', marginTop: '4px' }}>{taskError}</p>
+              )}
+
               <div className="modal-footer">
-                <button type="button" className="btn-cancel" onClick={closeModals}>
+                <button type="button" className="btn-cancel" onClick={closeModals} disabled={isSubmittingTask}>
                   Cancelar
                 </button>
-                <button type="submit" className="btn-submit">
-                  Guardar Tarea
+                <button type="submit" className="btn-submit" disabled={isSubmittingTask}>
+                  {isSubmittingTask ? 'Guardando...' : 'Guardar Tarea'}
                 </button>
               </div>
             </form>

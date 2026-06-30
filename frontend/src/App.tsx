@@ -15,6 +15,7 @@ import TakePoll from './pages/student/TakePoll';
 import PollResults from './pages/student/PollResults';
 import StudentProfile from './pages/student/StudentProfile';
 import TeacherProfile from './pages/teacher/Profile';
+import TareaDetail from './pages/teacher/TareaDetail';
 
 function App() {
   return (
@@ -33,6 +34,9 @@ function App() {
         } />
         <Route path="/teacher/class/:classId" element={
           <ProtectedRoute><ClassDetail /></ProtectedRoute>
+        } />
+        <Route path="/teacher/class/:classId/task/:taskId" element={
+          <ProtectedRoute><TareaDetail /></ProtectedRoute>
         } />
         <Route path="/teacher/profile" element={
           <ProtectedRoute><TeacherProfile /></ProtectedRoute>

@@ -148,6 +148,66 @@ export const profileService = {
   },
 };
 
+// Tipos para tareas
+export interface TaskData {
+  id: number;
+  clase_id: number;
+  titulo_tarea: string;
+  descrip_tarea: string | null;
+  fecha_creacion: string;
+  fecha_limite: string;
+  puntos_max_tarea: number;
+  entrega_tardia: boolean;
+  archivos_adjuntos: string | null;
+}
+
+export interface CreateTaskPayload {
+  titulo_tarea: string;
+  descrip_tarea?: string;
+  fecha_limite: string;
+  puntos_max_tarea: number;
+  entrega_tardia?: boolean;
+  archivos_adjuntos?: string;
+}
+
+export interface UpdateTaskPayload {
+  descrip_tarea?: string;
+  fecha_limite?: string;
+  entrega_tardia?: boolean;
+}
+
+// Servicios de Tareas
+export const taskService = {
+  // Obtener tareas de una clase
+  getTasksByClass: async (classId: string): Promise<TaskData[]> => {
+    const response = await api.get(`/classes/${classId}/tasks`);
+    return response.data.tasks;
+  },
+
+  // Obtener una tarea específica
+  getTaskById: async (classId: string, taskId: string): Promise<TaskData> => {
+    const response = await api.get(`/classes/${classId}/tasks/${taskId}`);
+    return response.data.task;
+  },
+
+  // Crear tarea
+  createTask: async (classId: string, payload: CreateTaskPayload): Promise<TaskData> => {
+    const response = await api.post(`/classes/${classId}/tasks`, payload);
+    return response.data.task;
+  },
+
+  // Actualizar tarea
+  updateTask: async (classId: string, taskId: string, payload: UpdateTaskPayload): Promise<TaskData> => {
+    const response = await api.put(`/classes/${classId}/tasks/${taskId}`, payload);
+    return response.data.task;
+  },
+
+  // Eliminar tarea
+  deleteTask: async (classId: string, taskId: string): Promise<void> => {
+    await api.delete(`/classes/${classId}/tasks/${taskId}`);
+  },
+};
+
 export default api;
 
 // Made with Bob
