@@ -2,7 +2,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: var(--background);
+  background-color: #f0f2f8;
 }
 
 .avisos-container {
@@ -21,26 +21,26 @@
   align-items: center;
   gap: 0.75rem;
   padding-bottom: 1rem;
-  border-bottom: 2px solid #e0e0e0;
+  border-bottom: 2px solid #e5e7eb;
 }
 
 .avisos-page-header svg {
-  font-size: 1.6rem;
-  color: #e67e22;
+  font-size: 1.4rem;
+  color: #4A5AE8;
 }
 
 .avisos-page-header h1 {
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   font-weight: 700;
-  color: #2c3e50;
+  color: #1f2328;
   margin: 0;
 }
 
 /* Tarjeta del formulario */
 .aviso-form-card {
   background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  border-radius: 14px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
   padding: 2rem;
 }
 
@@ -55,17 +55,17 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 700;
-  color: #e67e22;
-  background-color: #fff3e0;
-  border-left: 4px solid #e67e22;
+  color: #4A5AE8;
+  background-color: #eef0fc;
+  border-left: 4px solid #4A5AE8;
   padding: 0.6rem 1rem;
   border-radius: 0 8px 8px 0;
 }
 
 .aviso-preview-label svg {
-  color: #e67e22;
+  color: #4A5AE8;
 }
 
 /* Filas del formulario */
@@ -76,22 +76,22 @@
 }
 
 .form-row label {
-  font-size: 0.95rem;
+  font-size: 0.88rem;
   font-weight: 600;
-  color: #34495e;
+  color: #1f2328;
 }
 
 .form-row input[type="date"],
 .form-row input[type="text"],
 .form-row textarea {
-  padding: 0.75rem 1rem;
-  border: 1.5px solid #e0e0e0;
+  padding: 10px 12px;
+  border: 1.5px solid #e5e7eb;
   border-radius: 8px;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-family: inherit;
-  color: #2c3e50;
+  color: #1f2328;
   background-color: #fafafa;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
   box-sizing: border-box;
   width: 100%;
 }
@@ -100,9 +100,9 @@
 .form-row input[type="text"]:focus,
 .form-row textarea:focus {
   outline: none;
-  border-color: #e67e22;
+  border-color: #4A5AE8;
   background-color: #fff;
-  box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.12);
+  box-shadow: 0 0 0 3px rgba(74, 90, 232, 0.1);
 }
 
 .form-row textarea {
@@ -114,7 +114,7 @@
 /* Fila "Atentamente" con línea separadora arriba */
 .atentamente-row {
   padding-top: 1rem;
-  border-top: 1px dashed #e0e0e0;
+  border-top: 1px dashed #e5e7eb;
 }
 
 /* Botones */
@@ -126,48 +126,47 @@
 }
 
 .btn-cancel {
-  padding: 0.7rem 1.5rem;
-  border: 1.5px solid #d5d8dc;
+  padding: 10px 20px;
+  border: 1.5px solid #e5e7eb;
   border-radius: 8px;
-  background-color: #f4f6f7;
-  color: #7f8c8d;
-  font-size: 0.95rem;
+  background-color: #f7f8fa;
+  color: #57606a;
+  font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.15s;
 }
 
 .btn-cancel:hover {
-  background-color: #e8eaec;
+  background-color: #e5e7eb;
 }
 
 .btn-submit {
-  padding: 0.7rem 1.5rem;
+  padding: 10px 20px;
   border: none;
   border-radius: 8px;
-  background-color: #e67e22;
-  color: white;
-  font-size: 0.95rem;
+  background: linear-gradient(135deg, #4A5AE8 0%, #5B6CF8 100%);
+  color: #ffffff;
+  font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 6px rgba(230, 126, 34, 0.3);
+  transition: all 0.15s;
+  box-shadow: 0 2px 6px rgba(74, 90, 232, 0.3);
 }
 
 .btn-submit:hover {
-  background-color: #d35400;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(230, 126, 34, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(74, 90, 232, 0.4);
 }
 
 /* Sección de avisos publicados */
 .avisos-publicados h2 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #7f8c8d;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #adb5bd;
   margin: 0 0 1rem 0;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
 }
 
 .avisos-lista {
@@ -179,14 +178,14 @@
 /* Tarjeta de aviso publicado */
 .aviso-card {
   background-color: #ffffff;
-  border-radius: 10px;
+  border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
   padding: 1.25rem 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
   animation: fadeInUp 0.3s ease-out;
-  border-left: 4px solid #e67e22;
+  border-left: 4px solid #4A5AE8;
 }
 
 .aviso-card-top {
@@ -197,8 +196,8 @@
 
 .aviso-tag {
   font-weight: 700;
-  font-size: 0.95rem;
-  color: #e67e22;
+  font-size: 0.88rem;
+  color: #4A5AE8;
 }
 
 .btn-eliminar-aviso {
@@ -208,35 +207,35 @@
   cursor: pointer;
   padding: 4px 6px;
   border-radius: 4px;
-  font-size: 0.85rem;
-  transition: all 0.2s ease;
+  font-size: 0.82rem;
+  transition: all 0.15s;
 }
 
 .btn-eliminar-aviso:hover {
-  color: #e74c3c;
-  background-color: rgba(231, 76, 60, 0.1);
+  color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.08);
 }
 
 .aviso-fecha {
   margin: 0;
-  font-size: 0.9rem;
-  color: #555;
+  font-size: 0.88rem;
+  color: #57606a;
 }
 
 .aviso-mensaje {
   margin: 0;
-  font-size: 0.95rem;
-  color: #2c3e50;
+  font-size: 0.92rem;
+  color: #1f2328;
   line-height: 1.65;
   white-space: pre-wrap;
 }
 
 .aviso-atentamente {
   margin: 0;
-  font-size: 0.9rem;
-  color: #7f8c8d;
+  font-size: 0.85rem;
+  color: #57606a;
   padding-top: 0.5rem;
-  border-top: 1px dashed #e0e0e0;
+  border-top: 1px dashed #e5e7eb;
 }
 
 @keyframes fadeInUp {

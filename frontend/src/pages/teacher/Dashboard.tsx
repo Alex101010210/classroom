@@ -220,6 +220,7 @@ const TeacherDashboard: React.FC = () => {
           <div className="add-menu-container">
             <button className="btn-header btn-add" onClick={() => setShowAddMenu(!showAddMenu)}>
               <FontAwesomeIcon icon={faPlus} />
+              <span>Nueva materia</span>
             </button>
             {showAddMenu && (
               <div className="user-dropdown-menu">
@@ -260,9 +261,20 @@ const TeacherDashboard: React.FC = () => {
       <div className="dashboard-content">
         <div className="welcome-section">
           <div className="welcome-content">
-            <h2 className="welcome-text">
-              Bienvenido ({teacherName} que hace el registro)
-            </h2>
+            {/* Welcome banner */}
+            <div className="welcome-text">
+              <div className="welcome-banner-text">
+                <span className="welcome-label">Panel del Maestro</span>
+                <h1 className="welcome-title">
+                  Bienvenido, <span>{teacherName}</span> 👋
+                </h1>
+                <p className="welcome-subtitle">
+                  Tienes <strong>{subjects.length}</strong> {subjects.length === 1 ? 'materia activa' : 'materias activas'} este ciclo.
+                </p>
+              </div>
+              <span className="welcome-icon">🎓</span>
+            </div>
+
             <div className="classes-preview-panel">
               {isLoading ? (
                 <p className="empty-classes-message">Cargando clases...</p>
@@ -274,32 +286,17 @@ const TeacherDashboard: React.FC = () => {
                     const displayName = subject.nombre_class || subject.name || 'Sin nombre';
                     const displayDescription = subject.descrip_class || subject.description;
                     const displayColor = subject.color_class || subject.color || '#3b82f6';
-                    
+
                     return (
-                      <div
-                        key={subject.id}
-                        className="class-preview-card"
-                        style={{
-                          borderLeft: `4px solid ${displayColor}`
-                        }}
-                      >
+                      <div key={subject.id} className="class-preview-card">
+                        {/* Colored banner */}
                         <div
-                          className="card-content-clickable"
+                          className="card-color-banner"
                           onClick={() => handleSubjectClick(subject)}
-                          style={{ cursor: 'pointer' }}
+                          style={{ backgroundColor: displayColor, cursor: 'pointer' }}
                         >
+                          <h3>{displayName}</h3>
                           <div className="card-header">
-                            <h3>{displayName}</h3>
-                            <div
-                              style={{
-                                width: '20px',
-                                height: '20px',
-                                borderRadius: '50%',
-                                backgroundColor: displayColor,
-                                border: '2px solid #fff',
-                                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                              }}
-                            />
                             <div className="card-menu">
                               <button
                                 className="menu-button"
@@ -315,40 +312,28 @@ const TeacherDashboard: React.FC = () => {
                                 <div className="menu-dropdown">
                                   <button
                                     className="menu-item"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleAddStudent(subject);
-                                    }}
+                                    onClick={(e) => { e.stopPropagation(); handleAddStudent(subject); }}
                                   >
                                     <FontAwesomeIcon icon={faUserPlus} />
                                     <span>Agregar Alumno</span>
                                   </button>
                                   <button
                                     className="menu-item"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleAddTask(subject);
-                                    }}
+                                    onClick={(e) => { e.stopPropagation(); handleAddTask(subject); }}
                                   >
                                     <FontAwesomeIcon icon={faClipboardList} />
                                     <span>Agregar Tarea</span>
                                   </button>
                                   <button
                                     className="menu-item"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleAddExamen(subject);
-                                    }}
+                                    onClick={(e) => { e.stopPropagation(); handleAddExamen(subject); }}
                                   >
                                     <FontAwesomeIcon icon={faFileAlt} />
                                     <span>Agregar Examen</span>
                                   </button>
                                   <button
                                     className="menu-item delete"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleDeleteClass(subject);
-                                    }}
+                                    onClick={(e) => { e.stopPropagation(); handleDeleteClass(subject); }}
                                   >
                                     <FontAwesomeIcon icon={faTrash} />
                                     <span>Eliminar</span>
@@ -357,18 +342,46 @@ const TeacherDashboard: React.FC = () => {
                               )}
                             </div>
                           </div>
-                          {displayDescription && (
+                        </div>
+
+                        {/* White card body */}
+                        <div
+                          className="card-body"
+                          onClick={() => handleSubjectClick(subject)}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          {displayDescription ? (
                             <p className="subject-description">{displayDescription}</p>
+                          ) : (
+                            <p className="subject-description" style={{ color: '#adb5bd', fontStyle: 'italic' }}>Sin descripción</p>
                           )}
                           <div className="subject-info">
                             <p className="total-students">
-                              <strong>Total de alumnos:</strong> {subject.student_count ?? 0}
+                              <FontAwesomeIcon icon={faUser} />
+                              Total de alumnos: {subject.student_count ?? 0}
                             </p>
+                            <span className="status-badge" style={{ color: displayColor, borderColor: displayColor }}>
+                              Activa
+                            </span>
                           </div>
                         </div>
                       </div>
                     );
                   })}
+
+                  {/* Add new subject card */}
+                  <div
+                    className="class-preview-card class-preview-card--add"
+                    onClick={() => navigate('/teacher/clases')}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => e.key === 'Enter' && navigate('/teacher/clases')}
+                  >
+                    <div className="add-icon">
+                      <FontAwesomeIcon icon={faPlus} />
+                    </div>
+                    <span>Nueva materia</span>
+                  </div>
                 </div>
               )}
             </div>
@@ -376,18 +389,20 @@ const TeacherDashboard: React.FC = () => {
         </div>
 
         <aside className={`dashboard-sidebar ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
+          <div className="sidebar-tools-label">Herramientas</div>
           <nav className="sidebar-nav">
             {/* Dropdown de Foros */}
             <div className="foro-btn-container">
               <button
-                className="sidebar-btn"
+                className={`sidebar-btn${isForosOpen ? ' sidebar-btn--active' : ''}`}
                 onClick={() => setIsForosOpen(!isForosOpen)}
               >
+                <FontAwesomeIcon icon={faComments} />
                 Foros
               </button>
 
               {isForosOpen && (
-                <div className="user-dropdown-menu foro-btn-dropdown">
+                <div className="foro-btn-dropdown">
                   <button className="user-menu-item" onClick={handleVerForos}>
                     <FontAwesomeIcon icon={faComments} />
                     <span>Ver Foros</span>
@@ -401,15 +416,17 @@ const TeacherDashboard: React.FC = () => {
             </div>
 
             <button className="sidebar-btn" onClick={handleAvisos}>
+              <FontAwesomeIcon icon={faClipboardList} />
               Avisos
             </button>
 
             <div className="sidebar-dropdown">
               <button
-                className="sidebar-btn dropdown-toggle"
+                className={`sidebar-btn dropdown-toggle${isSubjectsOpen ? ' sidebar-btn--active' : ''}`}
                 onClick={() => setIsSubjectsOpen(!isSubjectsOpen)}
               >
-                Materias ↓
+                <FontAwesomeIcon icon={faFileAlt} />
+                Materias {isSubjectsOpen ? '↑' : '↓'}
               </button>
 
               {isSubjectsOpen && (
