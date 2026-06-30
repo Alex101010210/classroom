@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faUserPlus, faClipboardList, faTrash, faPlus, faFileAlt, faPollH } from '@fortawesome/free-solid-svg-icons';
-import { classService, enrollmentService, StudentEnrollment } from '../../services/api';
+import { faArrowLeft, faUserPlus, faClipboardList, faTrash, faPlus, faFileAlt, faPollH, faEye } from '@fortawesome/free-solid-svg-icons';
+import { classService, enrollmentService, taskService, TaskData, StudentEnrollment } from '../../services/api';
 import './ClassDetail.css';
 
 interface ClassData {
@@ -10,13 +10,6 @@ interface ClassData {
   nombre_class: string;
   descrip_class?: string;
   color_class?: string;
-}
-
-interface Task {
-  id: string;
-  name: string;
-  description: string;
-  deadline: string;
 }
 
 interface Exam {
@@ -46,7 +39,7 @@ const ClassDetail: React.FC = () => {
 
   const [classData, setClassData] = useState<ClassData | null>(null);
   const [students, setStudents] = useState<StudentEnrollment[]>([]);
-  const [tasks, setTasks]   = useState<Task[]>([]);
+  const [tasks, setTasks]   = useState<TaskData[]>([]);
   const [exams, setExams]   = useState<Exam[]>([]);
   const [polls, setPolls]   = useState<SavedPoll[]>([]);
 
@@ -87,15 +80,26 @@ const ClassDetail: React.FC = () => {
     setExams(all.filter(e => e.claseId === classId || String(e.claseId) === String(classId)));
   }, [classId]);
 
+  // Cargar tareas de la clase
+  const loadTasks = useCallback(async () => {
+    if (!classId) return;
+    try {
+      const list = await taskService.getTasksByClass(classId);
+      setTasks(list);
+    } catch {
+      setTasks([]);
+    }
+  }, [classId]);
+
   useEffect(() => {
     const init = async () => {
       setIsLoading(true);
-      await Promise.all([loadClass(), loadStudents()]);
+      await Promise.all([loadClass(), loadStudents(), loadTasks()]);
       loadExams();
       setIsLoading(false);
     };
     init();
-  }, [loadClass, loadStudents, loadExams]);
+  }, [loadClass, loadStudents, loadTasks, loadExams]);
 
   // Cargar encuestas de esta clase desde localStorage
   useEffect(() => {
@@ -145,9 +149,14 @@ const ClassDetail: React.FC = () => {
   };
 
   // Eliminar tarea
-  const handleDeleteTask = (taskId: string) => {
-    if (window.confirm('¿Está seguro que desea eliminar esta tarea?')) {
+  const handleDeleteTask = async (taskId: number) => {
+    if (!classId) return;
+    if (!window.confirm('¿Está seguro que desea eliminar esta tarea?')) return;
+    try {
+      await taskService.deleteTask(classId, String(taskId));
       setTasks(prev => prev.filter(t => t.id !== taskId));
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Error al eliminar la tarea');
     }
   };
 
@@ -167,6 +176,10 @@ const ClassDetail: React.FC = () => {
     const all: SavedPoll[] = JSON.parse(localStorage.getItem('encuestas') || '[]');
     localStorage.setItem('encuestas', JSON.stringify(all.filter(p => p.id !== pollId)));
     setPolls(prev => prev.filter(p => p.id !== pollId));
+  }
+
+  const handleViewTask = (taskId: number) => {
+    navigate(`/teacher/class/${classId}/task/${taskId}`);
   };
 
   const formatDate = (dateStr: string | null) => {
@@ -207,7 +220,7 @@ const ClassDetail: React.FC = () => {
       </header>
 
       <div className="class-detail-content">
-        {}
+        {/* Información */}
         <section className="class-info-section">
           <div className="info-card">
             <h2>Información de la Clase</h2>
@@ -317,21 +330,44 @@ const ClassDetail: React.FC = () => {
               {tasks.map((task) => (
                 <div key={task.id} className="task-card">
                   <div className="task-header">
-                    <h3>{task.name}</h3>
-                    <button
-                      className="btn-delete-small"
-                      onClick={() => handleDeleteTask(task.id)}
-                      title="Eliminar tarea"
+                    <h3
+                      className="task-title-link"
+                      onClick={() => handleViewTask(task.id)}
+                      title="Ver detalle de la tarea"
                     >
-                      <FontAwesomeIcon icon={faTrash} />
-                    </button>
+                      {task.titulo_tarea}
+                    </h3>
+                    <div className="task-actions">
+                      <button
+                        className="btn-view-small"
+                        onClick={() => handleViewTask(task.id)}
+                        title="Ver / Editar tarea"
+                      >
+                        <FontAwesomeIcon icon={faEye} />
+                      </button>
+                      <button
+                        className="btn-delete-small"
+                        onClick={() => handleDeleteTask(task.id)}
+                        title="Eliminar tarea"
+                      >
+                        <FontAwesomeIcon icon={faTrash} />
+                      </button>
+                    </div>
                   </div>
                   <div className="task-body">
-                    <p className="task-description">{task.description}</p>
+                    {task.descrip_tarea && (
+                      <p className="task-description">{task.descrip_tarea}</p>
+                    )}
                     <div className="task-meta">
                       <span className="task-deadline">
-                        <strong>Fecha límite:</strong> {formatDate(task.deadline)}
+                        <strong>Fecha límite:</strong> {formatDate(task.fecha_limite)}
                       </span>
+                      <span className="task-points">
+                        <strong>Puntos:</strong> {task.puntos_max_tarea}
+                      </span>
+                      {task.entrega_tardia && (
+                        <span className="task-late-badge">Entrega tardía permitida</span>
+                      )}
                     </div>
                   </div>
                 </div>

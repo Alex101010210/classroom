@@ -165,4 +165,31 @@ exports.deleteClass = async (req, res) => {
   }
 };
 
+// Obtener las clases donde el alumno autenticado está inscrito
+exports.getStudentClasses = async (req, res) => {
+  try {
+    const alumno_id = req.user.id;
+
+    const enrollments = await Enrollment.findAll({
+      where: { alumno_id, activa: true }
+    });
+
+    const claseIds = enrollments.map(e => e.clase_id);
+
+    if (claseIds.length === 0) {
+      return res.json({ classes: [] });
+    }
+
+    const classes = await Class.findAll({
+      where: { id: claseIds, activa_class: true },
+      order: [['id', 'DESC']]
+    });
+
+    res.json({ classes });
+  } catch (error) {
+    console.error('Error al obtener clases del alumno:', error);
+    res.status(500).json({ message: 'Error al obtener las clases', error: error.message });
+  }
+};
+
 // Made with Bob

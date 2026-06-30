@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faClock, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 import { Poll, Question, Answer } from '../../types';
+import { pollService } from '../../services/pollService';
 import './TakePoll.css';
 
 const TakePoll: React.FC = () => {
@@ -40,72 +41,19 @@ const TakePoll: React.FC = () => {
   const loadPoll = async () => {
     try {
       setIsLoading(true);
-      
-      // TODO: Reemplazar con llamada real a la API
-      // const response = await pollService.getPollById(pollId);
-      // setPoll(response.data);
-      
-      // SIMULACIÓN TEMPORAL
-      const mockPoll: Poll = {
-        id: pollId || '1',
-        title: 'Examen de Matemáticas - Unidad 1',
-        description: 'Evaluación de álgebra básica. Lee cada pregunta cuidadosamente.',
-        classId: 'class1',
-        className: 'Matemáticas 101',
-        teacherId: 'teacher1',
-        questions: [
-          {
-            id: 'q1',
-            text: '¿Cuánto es 2 + 2?',
-            type: 'multiple-choice',
-            options: ['3', '4', '5', '6'],
-            correctAnswer: 1,
-            points: 10,
-            required: true
-          },
-          {
-            id: 'q2',
-            text: '¿Cuánto es 5 × 5?',
-            type: 'multiple-choice',
-            options: ['20', '25', '30', '35'],
-            correctAnswer: 1,
-            points: 10,
-            required: true
-          },
-          {
-            id: 'q3',
-            text: 'La ecuación x + 5 = 10 tiene como solución x = 5',
-            type: 'true-false',
-            options: ['Verdadero', 'Falso'],
-            correctAnswer: 0,
-            points: 10,
-            required: true
-          },
-          {
-            id: 'q4',
-            text: '¿Cuál es la fórmula del área de un círculo?',
-            type: 'short-answer',
-            points: 15,
-            required: true
-          }
-        ],
-        isActive: true,
-        timeLimit: 30,
-        createdAt: new Date()
-      };
-      
-      setPoll(mockPoll);
-      
+      const pollData = await pollService.getPollById(pollId!);
+      setPoll(pollData);
+
       // Inicializar respuestas vacías
-      const initialAnswers: Answer[] = mockPoll.questions.map(q => ({
+      const initialAnswers: Answer[] = pollData.questions.map(q => ({
         questionId: q.id,
         answer: ''
       }));
       setAnswers(initialAnswers);
-      
+
       // Iniciar timer si hay límite de tiempo
-      if (mockPoll.timeLimit) {
-        setTimeRemaining(mockPoll.timeLimit * 60); // convertir a segundos
+      if (pollData.timeLimit) {
+        setTimeRemaining(pollData.timeLimit * 60);
       }
     } catch (error) {
       console.error('Error al cargar encuesta:', error);
@@ -152,17 +100,14 @@ const TakePoll: React.FC = () => {
 
   const handleConfirmSubmit = async () => {
     try {
-      // TODO: Enviar respuestas al backend
-      // await pollService.submitResponse(pollId, { answers });
-      
-      console.log('Respuestas enviadas:', answers);
-      alert('¡Encuesta enviada exitosamente!');
-      
-      // Navegar a resultados o dashboard
+      await pollService.submitResponse({
+        pollId: pollId!,
+        answers: answers.map(a => ({ questionId: a.questionId, answer: a.answer }))
+      });
       navigate(`/student/poll/${pollId}/results`);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error al enviar respuestas:', error);
-      alert('Error al enviar la encuesta. Intenta de nuevo.');
+      alert(error.response?.data?.message || 'Error al enviar la encuesta. Intenta de nuevo.');
     }
   };
 

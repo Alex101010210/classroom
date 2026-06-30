@@ -2,17 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faUser, faRightFromBracket, faEllipsisV, faUserPlus, faClipboardList, faTrash, faTimes, faBars, faComments, faPenToSquare, faFileAlt, faPollH } from '@fortawesome/free-solid-svg-icons';
-import { classService } from '../../services/api';
+import { faPlus, faUser, faRightFromBracket, faEllipsisV, faClipboardList, faTrash, faTimes, faBars, faComments, faPenToSquare, faFileAlt, faPollH } from '@fortawesome/free-solid-svg-icons';
+import { classService, taskService } from '../../services/api';
 import './Dashboard.css';
 
-interface Task {
-  id: string;
-  name: string;
-  description: string;
-  deadline: string;
-  attachedFile?: File | null;
-  submissionFile?: File | null;
+interface TaskForm {
+  titulo_tarea: string;
+  descrip_tarea: string;
+  fecha_limite: string;
+  puntos_max_tarea: string;
+  entrega_tardia: boolean;
 }
 
 interface Subject {
@@ -24,7 +23,6 @@ interface Subject {
   color_class?: string;
   color?: string;
   student_count?: number;
-  tasks?: Task[];
   createdAt?: string;
   created_at?: string;
 }
@@ -40,21 +38,18 @@ const TeacherDashboard: React.FC = () => {
   const [menuPos, setMenuPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [showAddMenu, setShowAddMenu] = useState(false);
   
  
-  const [showAddStudentModal, setShowAddStudentModal] = useState(false);
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
-
-  const [studentName, setStudentName] = useState('');
-  const [taskForm, setTaskForm] = useState<Task>({
-    id: '',
-    name: '',
-    description: '',
-    deadline: '',
-    attachedFile: null,
-    submissionFile: null
+  const [isSubmittingTask, setIsSubmittingTask] = useState(false);
+  const [taskError, setTaskError] = useState('');
+  const [taskForm, setTaskForm] = useState<TaskForm>({
+    titulo_tarea: '',
+    descrip_tarea: '',
+    fecha_limite: '',
+    puntos_max_tarea: '100',
+    entrega_tardia: false
   });
 
   useEffect(() => {
@@ -83,6 +78,10 @@ const TeacherDashboard: React.FC = () => {
   const handleUsers = () => {
     setShowUserMenu(!showUserMenu);
   };
+
+  const handleAddSubject = () => {
+    navigate('/teacher/clases')
+  }
 
   const handleProfile = () => {
     setShowUserMenu(false);
@@ -129,11 +128,10 @@ const TeacherDashboard: React.FC = () => {
     setOpenMenuId(subjectId);
   };
 
-  const handleAddStudent = (subject: Subject) => {
+  /*const handleAddStudent = (subject: Subject) => {
     setSelectedSubject(subject);
-    setShowAddStudentModal(true);
     setOpenMenuId(null);
-  };
+  };*/
 
   const handleAddTask = (subject: Subject) => {
     setSelectedSubject(subject);
@@ -161,66 +159,34 @@ const TeacherDashboard: React.FC = () => {
     setOpenMenuId(null);
   };
 
-  const submitAddStudent = (e: React.FormEvent) => { //Agregar babys:)
+  const submitAddTask = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (selectedSubject) {
-      // La inscripción real se hace desde el detalle de clase
-      navigate(`/teacher/class/${selectedSubject.id}`);
-      setShowAddStudentModal(false);
-      setSelectedSubject(null);
-    }
-  };
-
-  const submitAddTask = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (taskForm.name.trim() && selectedSubject) {
-      const newTask: Task = {
-        id: Date.now().toString(),
-        name: taskForm.name,
-        description: taskForm.description,
-        deadline: taskForm.deadline,
-        attachedFile: taskForm.attachedFile,
-        submissionFile: taskForm.submissionFile
-      };
-
-      const updatedSubjects = subjects.map(subject => {
-        if (subject.id === selectedSubject.id) {
-          return {
-            ...subject,
-            tasks: [...(subject.tasks || []), newTask]
-          };
-        }
-        return subject;
-      });
-      
-      setSubjects(updatedSubjects);
-      localStorage.setItem('subjects', JSON.stringify(updatedSubjects));
-      setTaskForm({
-        id: '',
-        name: '',
-        description: '',
-        deadline: '',
-        attachedFile: null,
-        submissionFile: null
+    if (!selectedSubject) return;
+    setTaskError('');
+    setIsSubmittingTask(true);
+    try {
+      await taskService.createTask(selectedSubject.id, {
+        titulo_tarea: taskForm.titulo_tarea.trim(),
+        descrip_tarea: taskForm.descrip_tarea.trim() || undefined,
+        fecha_limite: taskForm.fecha_limite,
+        puntos_max_tarea: parseInt(taskForm.puntos_max_tarea, 10) || 100,
+        entrega_tardia: taskForm.entrega_tardia
       });
       setShowAddTaskModal(false);
       setSelectedSubject(null);
+      setTaskForm({ titulo_tarea: '', descrip_tarea: '', fecha_limite: '', puntos_max_tarea: '100', entrega_tardia: false });
+    } catch (err: any) {
+      setTaskError(err.response?.data?.message || 'Error al guardar la tarea');
+    } finally {
+      setIsSubmittingTask(false);
     }
   };
 
   const closeModals = () => {
-    setShowAddStudentModal(false);
     setShowAddTaskModal(false);
     setSelectedSubject(null);
-    setStudentName('');
-    setTaskForm({
-      id: '',
-      name: '',
-      description: '',
-      deadline: '',
-      attachedFile: null,
-      submissionFile: null
-    });
+    setTaskError('');
+    setTaskForm({ titulo_tarea: '', descrip_tarea: '', fecha_limite: '', puntos_max_tarea: '100', entrega_tardia: false });
   };
 
   return (
@@ -231,21 +197,9 @@ const TeacherDashboard: React.FC = () => {
         </div>
         <div className="header-actions">
           <div className="add-menu-container">
-            <button className="btn-header btn-add" onClick={() => setShowAddMenu(!showAddMenu)}>
-              <FontAwesomeIcon icon={faPlus} />
-            </button>
-            {showAddMenu && (
-              <div className="user-dropdown-menu">
-                <button className="user-menu-item" onClick={() => { setShowAddMenu(false); handleVerForos(); }}>
-                  <FontAwesomeIcon icon={faComments} />
-                  <span>Ver Foros</span>
-                </button>
-                <button className="user-menu-item" onClick={() => { setShowAddMenu(false); handleCreateForo(); }}>
-                  <FontAwesomeIcon icon={faPenToSquare} />
-                  <span>Crear Foro</span>
-                </button>
-              </div>
-            )}
+            <button className="btn-header btn-add" onClick={handleAddSubject}>
+            <FontAwesomeIcon icon={faPlus} />
+          </button>
           </div>
           <div className="user-menu-container">
             <button className="btn-header btn-users" onClick={handleUsers}>
@@ -300,7 +254,7 @@ const TeacherDashboard: React.FC = () => {
                           className="card-content-clickable"
                           onClick={() => handleSubjectClick(subject)}
                           style={{ cursor: 'pointer' }}
-                        >
+                        > 
                           <div className="card-header">
                             <h3>{displayName}</h3>
                             <div
@@ -324,8 +278,43 @@ const TeacherDashboard: React.FC = () => {
                               >
                                 <FontAwesomeIcon icon={faEllipsisV} />
                               </button>
+                              {/*openMenuId === subject.id && (
+                                <div className="menu-dropdown">
+                                  <button
+                                    className="menu-item"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleAddStudent(subject);
+                                    }}
+                                  >
+                                    <FontAwesomeIcon icon={faUserPlus} />
+                                    <span>Agregar Alumno</span>
+                                  </button> 
+                                  <button
+                                    className="menu-item"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleAddTask(subject);
+                                    }}
+                                  >
+                                    <FontAwesomeIcon icon={faClipboardList} />
+                                    <span>Agregar Tarea</span>
+                                  </button>
+                                  <button
+                                    className="menu-item delete"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDeleteClass(subject);
+                                    }}
+                                  >
+                                    <FontAwesomeIcon icon={faTrash} />
+                                    <span>Eliminar</span>
+                                  </button>
+                                </div>
+                              )*/}
                             </div>
                           </div>
+                          
                           {displayDescription && (
                             <p className="subject-description">{displayDescription}</p>
                           )}
@@ -416,115 +405,89 @@ const TeacherDashboard: React.FC = () => {
 
       </div>
 
-      {/* Modal: Agregar Alumno */}
-      {showAddStudentModal && (
-        <div className="modal-overlay" onClick={closeModals}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Agregar Alumno</h2>
-              <button className="close-button" onClick={closeModals}>
-                <FontAwesomeIcon icon={faTimes} />
-              </button>
-            </div>
-            <form onSubmit={submitAddStudent}>
-              <div className="form-group">
-                <label htmlFor="studentName">Nombre del Alumno</label>
-                <input
-                  type="text"
-                  id="studentName"
-                  value={studentName}
-                  onChange={(e) => setStudentName(e.target.value)}
-                  placeholder="Ingrese el nombre completo"
-                  required
-                />
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="btn-cancel" onClick={closeModals}>
-                  Cancelar
-                </button>
-                <button type="submit" className="btn-submit">
-                  Agregar
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
       {/* Modal: Agregar Tarea */}
       {showAddTaskModal && (
         <div className="modal-overlay" onClick={closeModals}>
           <div className="modal-content modal-large" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>Agregar Tarea</h2>
+              <h2>Agregar Tarea — {selectedSubject?.nombre_class || selectedSubject?.name}</h2>
               <button className="close-button" onClick={closeModals}>
                 <FontAwesomeIcon icon={faTimes} />
               </button>
             </div>
             <form onSubmit={submitAddTask}>
               <div className="form-group">
-                <label htmlFor="taskName">Nombre de la Tarea</label>
+                <label htmlFor="taskName">Título de la Tarea</label>
                 <input
                   type="text"
                   id="taskName"
-                  value={taskForm.name}
-                  onChange={(e) => setTaskForm({...taskForm, name: e.target.value})}
+                  value={taskForm.titulo_tarea}
+                  onChange={(e) => setTaskForm({...taskForm, titulo_tarea: e.target.value})}
                   placeholder="Ej: Tarea de Matemáticas"
                   required
+                  disabled={isSubmittingTask}
                 />
               </div>
-              
+
               <div className="form-group">
                 <label htmlFor="taskDescription">Descripción</label>
                 <textarea
                   id="taskDescription"
-                  value={taskForm.description}
-                  onChange={(e) => setTaskForm({...taskForm, description: e.target.value})}
+                  value={taskForm.descrip_tarea}
+                  onChange={(e) => setTaskForm({...taskForm, descrip_tarea: e.target.value})}
                   placeholder="Describe la tarea..."
                   rows={4}
-                  required
+                  disabled={isSubmittingTask}
                 />
               </div>
-              
+
               <div className="form-group">
-                <label htmlFor="taskDeadline">Tiempo de Entrega</label>
+                <label htmlFor="taskDeadline">Fecha Límite</label>
                 <input
                   type="datetime-local"
                   id="taskDeadline"
-                  value={taskForm.deadline}
-                  onChange={(e) => setTaskForm({...taskForm, deadline: e.target.value})}
+                  value={taskForm.fecha_limite}
+                  onChange={(e) => setTaskForm({...taskForm, fecha_limite: e.target.value})}
                   required
+                  disabled={isSubmittingTask}
                 />
               </div>
-              
+
               <div className="form-group">
-                <label htmlFor="attachedFile">Material Adjunto (Opcional)</label>
+                <label htmlFor="taskPoints">Puntos Máximos</label>
                 <input
-                  type="file"
-                  id="attachedFile"
-                  onChange={(e) => setTaskForm({...taskForm, attachedFile: e.target.files?.[0] || null})}
-                  accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.jpg,.jpeg,.png"
+                  type="number"
+                  id="taskPoints"
+                  min={1}
+                  max={1000}
+                  value={taskForm.puntos_max_tarea}
+                  onChange={(e) => setTaskForm({...taskForm, puntos_max_tarea: e.target.value})}
+                  required
+                  disabled={isSubmittingTask}
                 />
-                <small>Formatos permitidos: PDF, DOC, DOCX, PPT, PPTX, TXT, imágenes</small>
               </div>
-              
-              <div className="form-group">
-                <label htmlFor="submissionFile">Apartado para Enviar Archivos</label>
+
+              <div className="form-group form-group-inline">
                 <input
-                  type="file"
-                  id="submissionFile"
-                  onChange={(e) => setTaskForm({...taskForm, submissionFile: e.target.files?.[0] || null})}
-                  accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.zip"
+                  type="checkbox"
+                  id="taskLate"
+                  checked={taskForm.entrega_tardia}
+                  onChange={(e) => setTaskForm({...taskForm, entrega_tardia: e.target.checked})}
+                  disabled={isSubmittingTask}
                 />
-                <small>Los alumnos podrán enviar sus trabajos aquí</small>
+                <label htmlFor="taskLate">Permitir entrega tardía</label>
               </div>
-              
+
+              {taskError && (
+                <p style={{ color: 'red', fontSize: '0.9rem', marginTop: '4px' }}>{taskError}</p>
+              )}
+
               <div className="modal-footer">
-                <button type="button" className="btn-cancel" onClick={closeModals}>
+                <button type="button" className="btn-cancel" onClick={closeModals} disabled={isSubmittingTask}>
                   Cancelar
                 </button>
-                <button type="submit" className="btn-submit">
-                  Guardar Tarea
+                <button type="submit" className="btn-submit" disabled={isSubmittingTask}>
+                  {isSubmittingTask ? 'Guardando...' : 'Guardar Tarea'}
                 </button>
               </div>
             </form>
@@ -547,10 +510,10 @@ const TeacherDashboard: React.FC = () => {
           >
             {subjects.filter(s => s.id === openMenuId).map(subject => (
               <React.Fragment key={subject.id}>
-                <button className="menu-item" onClick={() => handleAddStudent(subject)}>
+                {/*<button className="menu-item" onClick={() => handleAddStudent(subject)}>
                   <FontAwesomeIcon icon={faUserPlus} />
                   <span>Agregar Alumno</span>
-                </button>
+                </button>*/}
                 <button className="menu-item" onClick={() => handleAddTask(subject)}>
                   <FontAwesomeIcon icon={faClipboardList} />
                   <span>Agregar Tarea</span>

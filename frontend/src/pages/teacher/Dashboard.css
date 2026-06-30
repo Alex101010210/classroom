@@ -74,7 +74,9 @@
   background-color: var(--background-dark);
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
+}
 
+/* Hamburger Button - Hidden by default, visible on mobile */
 .hamburger-btn {
   display: none;
   width: 56px;
@@ -101,13 +103,11 @@
   font-size: var(--font-size-lg);
 }
 
-}
-
-
 .add-menu-container {
   position: relative;
 }
 
+/* User Menu Dropdown */
 .user-menu-container {
   position: relative;
 }
@@ -789,6 +789,40 @@
   margin-top: var(--spacing-xs);
   color: var(--text-secondary);
   font-size: var(--font-size-sm);
+}
+
+.form-group-inline {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-direction: row;
+  margin-bottom: var(--spacing-lg);
+}
+
+.form-group-inline label {
+  margin-bottom: 0;
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  font-size: var(--font-size-base);
+  cursor: pointer;
+}
+
+.form-group input[type="number"] {
+  width: 100%;
+  padding: var(--spacing-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+  background-color: var(--background);
+  transition: all var(--transition-fast);
+  box-sizing: border-box;
+}
+
+.form-group input[type="number"]:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(74, 124, 158, 0.1);
 }
 
 .modal-footer {

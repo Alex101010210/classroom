@@ -6,7 +6,8 @@ const authRoutes = require('./auth.routes');
 const classRoutes = require('./class.routes');
 const profileRoutes = require('./profile.routes');
 const enrollmentRoutes = require('./enrollment.routes');
-// const pollRoutes = require('./poll.routes');
+const pollRoutes = require('./poll.routes');
+const taskRoutes = require('./task.routes');
 // const analyticsRoutes = require('./analytics.routes');
 
 // Ruta de prueba
@@ -19,7 +20,8 @@ router.use('/auth', authRoutes);
 router.use('/classes', classRoutes);
 router.use('/classes/:id/students', enrollmentRoutes);
 router.use('/profile', profileRoutes);
-// router.use('/polls', pollRoutes);
+router.use('/polls', pollRoutes);
+router.use('/classes/:classId/tasks', taskRoutes);
 // router.use('/analytics', analyticsRoutes);
 
 module.exports = router;

@@ -46,7 +46,7 @@ const StudentDashboard: React.FC = () => {
     try {
       setIsLoading(true);
       setError('');
-      const response = await classService.getTeacherClasses();
+      const response = await classService.getStudentClasses();
       setClasses(response.classes || []);
     } catch (err) {
       console.error('Error al cargar clases:', err);

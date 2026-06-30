@@ -1,0 +1,346 @@
+.tarea-detail-page {
+  min-height: 100vh;
+  background-color: var(--background);
+}
+
+.tarea-detail-header {
+  background: linear-gradient(135deg, #4A7C9E 0%, #5A8CAE 100%);
+  padding: var(--spacing-xl) var(--spacing-2xl);
+  box-shadow: var(--shadow-md);
+  border-bottom: 3px solid #3A6C8E;
+}
+
+.btn-back {
+  background-color: var(--surface);
+  border: none;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  transition: all var(--transition-fast);
+  margin-bottom: var(--spacing-lg);
+}
+
+.btn-back:hover {
+  background-color: var(--background-dark);
+  transform: translateX(-5px);
+}
+
+.tarea-header-title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.tarea-header-title svg {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: var(--font-size-2xl);
+}
+
+.tarea-header-title h1 {
+  color: var(--text-inverse);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.tarea-detail-content {
+  padding: var(--spacing-2xl);
+  max-width: 860px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.tarea-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-size: var(--font-size-xl);
+  color: var(--text-secondary);
+}
+
+.tarea-success-banner {
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #6ee7b7;
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+}
+
+.tarea-card {
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-xl);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xl);
+}
+
+.tarea-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.tarea-section h2 {
+  color: var(--text-primary);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  margin: 0;
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 2px solid var(--primary);
+}
+
+.tarea-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tarea-section-header h2 {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.tarea-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-lg) var(--spacing-xl);
+}
+
+.tarea-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.tarea-info-item.full-width {
+  grid-column: 1 / -1;
+}
+
+.tarea-info-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tarea-info-value {
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.tarea-info-description {
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+  line-height: var(--line-height-relaxed);
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.tarea-no-value {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.tarea-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  width: fit-content;
+}
+
+.tarea-badge-yes {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.tarea-badge-no {
+  background: #f3f4f6;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+/* Edit button */
+.btn-edit {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background: var(--primary);
+  color: var(--text-inverse);
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.btn-edit:hover {
+  background: var(--primary-dark, #2563eb);
+}
+
+/* Edit form */
+.tarea-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.tarea-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.tarea-form-group label {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+.tarea-form-group textarea,
+.tarea-form-group input[type="datetime-local"] {
+  padding: var(--spacing-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+  background: var(--background);
+  transition: border-color var(--transition-fast);
+  font-family: inherit;
+  resize: vertical;
+}
+
+.tarea-form-group textarea:focus,
+.tarea-form-group input[type="datetime-local"]:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(74, 124, 158, 0.1);
+}
+
+.tarea-form-group textarea:disabled,
+.tarea-form-group input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.tarea-form-inline {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.tarea-form-inline label {
+  cursor: pointer;
+}
+
+.tarea-error {
+  color: #dc2626;
+  font-size: var(--font-size-sm);
+  margin: 0;
+}
+
+.tarea-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--border-color);
+}
+
+.btn-cancel {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-xl);
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-cancel:hover:not(:disabled) {
+  background: var(--background-dark, #f3f4f6);
+  color: var(--text-primary);
+}
+
+.btn-cancel:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-save {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-xl);
+  background: var(--primary);
+  color: var(--text-inverse);
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.btn-save:hover:not(:disabled) {
+  background: var(--primary-dark, #2563eb);
+}
+
+.btn-save:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .tarea-detail-header {
+    padding: var(--spacing-lg) var(--spacing-xl);
+  }
+
+  .tarea-header-title h1 {
+    font-size: var(--font-size-2xl);
+  }
+
+  .tarea-detail-content {
+    padding: var(--spacing-lg);
+  }
+
+  .tarea-info-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .btn-back span {
+    display: none;
+  }
+
+  .tarea-header-title h1 {
+    font-size: var(--font-size-xl);
+  }
+}
