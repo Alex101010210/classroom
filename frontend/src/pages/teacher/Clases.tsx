@@ -13,14 +13,12 @@ interface Subject {
   description?: string;
   color_class?: string;
   color?: string;
+  student_count?: number;
   students?: string[];
   createdAt?: string;
   created_at?: string;
 }
 
-const getStudentCount = (subject: Subject): number => {
-  return subject.students?.length || 0;
-};
 
 const Clases: React.FC = () => {
   const navigate = useNavigate();
@@ -28,7 +26,7 @@ const Clases: React.FC = () => {
   const [className, setClassName] = useState('');
   const [classDescription, setClassDescription] = useState('');
   const [classColor, setClassColor] = useState('#3b82f6');
-  const [studentsInput, setStudentsInput] = useState('');
+/*const [studentsInput, setStudentsInput] = useState('');*/
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -83,7 +81,7 @@ const Clases: React.FC = () => {
       setClassName('');
       setClassDescription('');
       setClassColor('#3b82f6');
-      setStudentsInput('');
+    /*setStudentsInput('');*/
 
       // Recargar las clases
       await loadClasses();
@@ -159,7 +157,7 @@ const Clases: React.FC = () => {
               </small>
             </div>
 
-            <div className="form-group">
+            {/*<div className="form-group">
               <label htmlFor="studentsInput">Agregar alumnos</label>
               <input
                 id="studentsInput"
@@ -168,7 +166,7 @@ const Clases: React.FC = () => {
                 onChange={(e) => setStudentsInput(e.target.value)}
                 placeholder="Juan, Ana, Luis"
               />
-            </div>
+            </div>*/}
 
             <button type="submit" className="btn-primary btn-create-class" disabled={isLoading}>
               <FontAwesomeIcon icon={faPlus} />
@@ -232,12 +230,12 @@ const Clases: React.FC = () => {
                     )}
                     <div className="subject-info">
                       <p className="total-students">
-                        <strong>Total de alumnos:</strong> {getStudentCount(subject)}
+                        <strong>Total de alumnos:</strong> {subject.student_count ?? 0}
                       </p>
                       {subject.students && subject.students.length > 0 && (
                         <p className="subject-students">
-                          Alumnos: {subject.students.join(', ')}
-                        </p>
+                          Alumnos: 
+                        </p> 
                       )}
                     </div>
                   </button>

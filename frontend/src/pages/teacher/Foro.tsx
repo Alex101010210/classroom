@@ -62,6 +62,9 @@ const Foro: React.FC = () => {
     // Redirigir a la lista de foros
     navigate('/teacher/foros-list');
   };
+  const handleForos = () => {
+    navigate('/teacher/foros-list');
+  }
 
   const handleBack = () => {
     navigate('/teacher/dashboard');
@@ -273,7 +276,7 @@ const Foro: React.FC = () => {
 
         {/* Botones de acción */}
         <div className="form-actions">
-          <button type="button" className="btn-cancel">
+          <button type="button" className="btn-cancel" onClick={handleForos}>
             Cancelar
           </button>
           <button type="submit" className="btn-submit">
