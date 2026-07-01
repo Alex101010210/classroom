@@ -315,4 +315,122 @@
   animation: fadeIn 0.4s ease-out;
 }
 
+/* ---- Shared header styles ---- */
+.dashboard-header {
+  background: linear-gradient(135deg, #4A5AE8 0%, #5B6CF8 100%);
+  padding: 14px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(74, 90, 232, 0.3);
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-logo-text {
+  color: #ffffff;
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-header {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  padding: 0;
+  font-size: 1rem;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  border: none;
+  color: #2c3158;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+}
+
+.btn-header:hover {
+  background-color: #f0f2f8;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}
+
+.btn-users {
+  background-color: #ffffff;
+}
+
+.user-menu-container {
+  position: relative;
+}
+
+.user-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  min-width: 200px;
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.user-menu-name {
+  padding: 12px 18px 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #57606a;
+  border-bottom: 1px solid #e5e7eb;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.user-menu-item {
+  width: 100%;
+  padding: 12px 18px;
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+  color: #1f2328;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-align: left;
+}
+
+.user-menu-item:hover {
+  background-color: #f7f8fa;
+}
+
+.user-menu-item.logout {
+  color: #ef4444;
+  border-top: 1px solid #e5e7eb;
+}
+
+.user-menu-item.logout:hover {
+  background-color: rgba(239, 68, 68, 0.06);
+}
+
+.user-menu-item svg {
+  font-size: 0.9rem;
+  width: 18px;
+}
+
 /* Made with Bob */

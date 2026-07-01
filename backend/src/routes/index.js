@@ -1,16 +1,19 @@
 const express = require('express');
 const router = express.Router();
 
-// Importar rutas cuando estén listas
-const authRoutes = require('./auth.routes');
-const classRoutes = require('./class.routes');
-const profileRoutes = require('./profile.routes');
+const authRoutes       = require('./auth.routes');
+const classRoutes      = require('./class.routes');
+const profileRoutes    = require('./profile.routes');
 const enrollmentRoutes = require('./enrollment.routes');
 const pollRoutes = require('./poll.routes');
 const taskRoutes = require('./task.routes');
 const foroRoutes = require('./foro.routes');
 const postForoRoutes = require('./postForo.routes');
 // const analyticsRoutes = require('./analytics.routes');
+const encuestaRoutes   = require('./encuesta.routes');
+const examenRoutes     = require('./examen.routes');
+const pollRoutes       = require('./poll.routes');
+const taskRoutes       = require('./task.routes');
 
 // Ruta de prueba
 router.get('/health', (req, res) => {
@@ -18,15 +21,17 @@ router.get('/health', (req, res) => {
 });
 
 // Usar rutas cuando estén listas
-router.use('/auth', authRoutes);
-router.use('/classes', classRoutes);
-router.use('/classes/:id/students', enrollmentRoutes);
-router.use('/profile', profileRoutes);
-router.use('/polls', pollRoutes);
-router.use('/classes/:classId/tasks', taskRoutes);
-router.use('/foros', foroRoutes);
-router.use('/foros/:foroId/posts', postForoRoutes);
+router.use('/auth',                     authRoutes);
+router.use('/classes',                  classRoutes);
+router.use('/classes/:id/students',     enrollmentRoutes);
+router.use('/profile',                  profileRoutes);
+router.use('/polls',                    pollRoutes);
+router.use('/classes/:classId/tasks',   taskRoutes);
+router.use('/foros',                    foroRoutes);
+router.use('/foros/:foroId/posts',      postForoRoutes);
 // router.use('/analytics', analyticsRoutes);
+router.use('/encuestas',               encuestaRoutes);
+router.use('/examenes',                examenRoutes);
 
 module.exports = router;
 

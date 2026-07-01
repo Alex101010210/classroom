@@ -9,21 +9,19 @@
 
 /* Header - Estilo similar a Teacher Dashboard */
 .dashboard-header.student {
-  background: linear-gradient(135deg, #A8D5E2 0%, #B8E5F2 100%);
-  padding: var(--spacing-lg) var(--spacing-xl);
+  background: linear-gradient(135deg, #4A5AE8 0%, #5B6CF8 100%);
+  padding: 14px var(--spacing-xl);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: var(--shadow-md);
-  border-bottom: 3px solid #88B5C2;
+  box-shadow: 0 2px 8px rgba(74, 90, 232, 0.3);
 }
 
 .header-logo h1 {
-  color: var(--text-primary);
-  font-size: var(--font-size-3xl);
-  font-weight: var(--font-weight-bold);
+  color: #ffffff;
+  font-size: 1.4rem;
+  font-weight: 700;
   margin: 0;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .header-info {
@@ -34,8 +32,8 @@
 }
 
 .page-title {
-  color: var(--text-primary);
-  font-size: var(--font-size-2xl);
+  color: #ffffff;
+  font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);
   margin: 0;
 }
@@ -47,27 +45,27 @@
 }
 
 .btn-header {
-  width: 56px;
-  height: 56px;
-  min-width: 56px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
   padding: 0;
-  font-size: var(--font-size-xl);
-  border-radius: var(--border-radius-md);
+  font-size: 1rem;
+  border-radius: 50%;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all 0.18s ease;
   border: none;
-  color: var(--text-primary);
+  color: #2c3158;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--surface);
-  box-shadow: var(--shadow-sm);
+  background-color: #ffffff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
 }
 
 .btn-header:hover {
-  background-color: var(--background-dark);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  background-color: #f0f2f8;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
 }
 
 .btn-header svg {

@@ -7,6 +7,7 @@ import {
   faCopy, faTrash, faTimes,
   faClock, faUserCheck
 } from '@fortawesome/free-solid-svg-icons';
+import { examenService } from '../../services/api';
 import './Examen.css';
 
 type QuestionType = 'multiple' | 'checkbox' | 'short' | 'paragraph' | 'dropdown';
@@ -164,30 +165,32 @@ const Examen: React.FC = () => {
   };
 
   /* ── send ──────────────────────────────────────── */
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!examTitle.trim()) { alert('Por favor ingresa un título para el examen.'); return; }
-    const data = {
-      id: existingId ?? Date.now().toString(),
-      claseId: subject?.id ?? existing?.claseId,
-      claseNombre: subject?.nombre_class || subject?.name || existing?.claseNombre,
+    const claseId = subject?.id ?? existing?.claseId;
+    if (!claseId) { alert('No se encontró la clase. Vuelve a entrar desde el detalle de la clase.'); return; }
+
+    const payload = {
+      clase_id: claseId,
       titulo: examTitle,
       descripcion: examDesc,
       preguntas: questions,
       color: accentColor,
       deadline: deadline || null,
-      oneAttempt,
+      one_attempt: oneAttempt,
     };
-    const saved: any[] = JSON.parse(localStorage.getItem('examenes') || '[]');
-    if (existingId) {
-      // update in place
-      const idx = saved.findIndex(e => e.id === existingId);
-      if (idx !== -1) saved[idx] = data; else saved.push(data);
-    } else {
-      saved.push(data);
+
+    try {
+      if (existingId) {
+        await examenService.update(existingId, payload);
+      } else {
+        await examenService.create(payload);
+      }
+      alert('Examen guardado exitosamente');
+      navigate(-1);
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Error al guardar el examen');
     }
-    localStorage.setItem('examenes', JSON.stringify(saved));
-    alert('Examen guardado exitosamente');
-    navigate(-1);   // back to the class detail that opened it
   };
 
   const hasOptions = (type: QuestionType) =>

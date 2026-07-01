@@ -1,70 +1,119 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faCheckCircle, faClock, faTimesCircle, faClipboardList } from '@fortawesome/free-solid-svg-icons';
-import { pollService } from '../../services/pollService';
-import { PollWithStatus } from '../../types';
+import { faArrowLeft, faCheckCircle, faClock, faTimesCircle, faFileAlt, faPollH } from '@fortawesome/free-solid-svg-icons';
+import { encuestaService, examenService } from '../../services/api';
 import './PollsList.css';
+
+type ItemStatus = 'pending' | 'completed' | 'expired';
+
+interface ActivityItem {
+  id: number;
+  type: 'encuesta' | 'examen';
+  title: string;
+  description: string;
+  numPreguntas: number;
+  deadline?: string | null;
+  status: ItemStatus;
+  color?: string;
+}
 
 const PollsList: React.FC = () => {
   const navigate = useNavigate();
   const { classId } = useParams<{ classId: string }>();
-  const [polls, setPolls] = useState<PollWithStatus[]>([]);
+  const [items, setItems] = useState<ActivityItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [className, setClassName] = useState('');
 
   useEffect(() => {
-    if (classId) loadPolls();
+    if (!classId) return;
+
+    // Nombre de la clase desde localStorage (guardado por el dashboard)
+    const myClasses: any[] = JSON.parse(localStorage.getItem('myClasses') || '[]');
+    const found = myClasses.find((c: any) => String(c.id) === String(classId));
+    if (found) setClassName(found.nombre_class || '');
+
+    const fetchAll = async () => {
+      try {
+        const [encuestas, examenes] = await Promise.all([
+          encuestaService.getByClaseAlumno(classId),
+          examenService.getByClaseAlumno(classId),
+        ]);
+
+        const mapped: ActivityItem[] = [
+          ...encuestas.map(e => ({
+            id: e.id,
+            type: 'encuesta' as const,
+            title: e.titulo,
+            description: e.descripcion || '',
+            numPreguntas: e.preguntas?.length ?? 0,
+            status: 'pending' as ItemStatus,
+          })),
+          ...examenes.map(e => ({
+            id: e.id,
+            type: 'examen' as const,
+            title: e.titulo,
+            description: e.descripcion || '',
+            numPreguntas: e.preguntas?.length ?? 0,
+            deadline: e.deadline,
+            color: e.color,
+            status: (e.deadline && new Date(e.deadline) < new Date()
+              ? 'expired' : 'pending') as ItemStatus,
+          })),
+        ].sort((a, b) => {
+          if (a.status === b.status) return 0;
+          return a.status === 'pending' ? -1 : 1;
+        });
+
+        setItems(mapped);
+      } catch (err) {
+        console.error('Error al cargar actividades:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAll();
   }, [classId]);
 
-  const loadPolls = async () => {
-    try {
-      setIsLoading(true);
-      setError('');
-      const data = await pollService.getPollsByClass(classId!);
-      setPolls(data);
-    } catch (err: any) {
-      console.error('Error al cargar encuestas:', err);
-      setError('No se pudieron cargar las encuestas.');
-    } finally {
-      setIsLoading(false);
+  const handleClick = (item: ActivityItem) => {
+    if (item.status === 'expired') {
+      alert('Esta actividad ha expirado');
+      return;
     }
+    if (item.status === 'completed') {
+      navigate(`/student/poll/${item.id}/results`);
+      return;
+    }
+    // pending — pasamos el tipo en state para que TakePoll sepa qué cargar
+    navigate(`/student/poll/${item.id}`, { state: { type: item.type } });
   };
 
-  const handlePollClick = (poll: PollWithStatus) => {
-    if (poll.status === 'pending') {
-      navigate(`/student/poll/${poll.id}`);
-    } else if (poll.status === 'completed') {
-      navigate(`/student/poll/${poll.id}/results`);
-    }
+  const statusColor = (s: ItemStatus) => {
+    if (s === 'pending')   return '#fbbf24';
+    if (s === 'completed') return '#10b981';
+    return '#ef4444';
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'pending':    return <FontAwesomeIcon icon={faClock}        className="status-icon pending"   />;
-      case 'completed':  return <FontAwesomeIcon icon={faCheckCircle}  className="status-icon completed" />;
-      case 'expired':    return <FontAwesomeIcon icon={faTimesCircle}  className="status-icon expired"   />;
-      default:           return null;
-    }
+  const statusIcon = (s: ItemStatus) => {
+    if (s === 'pending')   return <FontAwesomeIcon icon={faClock}       className="status-icon pending"   />;
+    if (s === 'completed') return <FontAwesomeIcon icon={faCheckCircle} className="status-icon completed" />;
+    return                        <FontAwesomeIcon icon={faTimesCircle} className="status-icon expired"   />;
   };
 
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'pending':   return 'Pendiente';
-      case 'completed': return 'Completada';
-      case 'expired':   return 'Expirada';
-      default:          return '';
-    }
+  const statusText = (s: ItemStatus) => {
+    if (s === 'pending')   return 'Pendiente';
+    if (s === 'completed') return 'Completada';
+    return 'Expirada';
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'pending':   return '#fbbf24';
-      case 'completed': return '#10b981';
-      case 'expired':   return '#ef4444';
-      default:          return '#6b7280';
-    }
-  };
+  const typeIcon = (type: 'encuesta' | 'examen') =>
+    type === 'examen'
+      ? <FontAwesomeIcon icon={faFileAlt} className="type-icon" title="Examen" />
+      : <FontAwesomeIcon icon={faPollH}   className="type-icon" title="Encuesta" />;
+
+  const formatDeadline = (dl: string) =>
+    new Date(dl).toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' });
 
   return (
     <div className="polls-list-page">
@@ -74,8 +123,7 @@ const PollsList: React.FC = () => {
         </div>
         <div className="header-info">
           <h2 className="page-title">
-            <FontAwesomeIcon icon={faClipboardList} style={{ marginRight: '8px' }} />
-            Encuestas de la clase
+            Actividades{className ? ` — ${className}` : ''}
           </h2>
         </div>
         <div className="header-actions">
@@ -88,69 +136,58 @@ const PollsList: React.FC = () => {
       <div className="polls-content">
         {isLoading ? (
           <div className="loading-state">
-            <p>Cargando encuestas...</p>
+            <p>Cargando actividades...</p>
           </div>
-        ) : error ? (
+        ) : items.length === 0 ? (
           <div className="empty-state">
-            <p>{error}</p>
-            <button onClick={loadPolls} style={{ marginTop: '12px', cursor: 'pointer' }}>
-              Reintentar
-            </button>
-          </div>
-        ) : polls.length === 0 ? (
-          <div className="empty-state">
-            <FontAwesomeIcon icon={faClipboardList} style={{ fontSize: '2rem', marginBottom: '12px', color: '#ccc' }} />
-            <p>No hay encuestas disponibles en esta clase.</p>
+            <p>No hay encuestas ni exámenes disponibles en esta clase.</p>
           </div>
         ) : (
           <div className="polls-grid">
-            {polls.map((poll) => (
+            {items.map((item) => (
               <div
-                key={poll.id}
-                className={`poll-card ${poll.status}`}
-                style={{ borderLeftColor: getStatusColor(poll.status) }}
+                key={item.id}
+                className={`poll-card ${item.status}`}
+                style={{ borderLeftColor: statusColor(item.status) }}
               >
                 <div className="poll-card-header">
-                  <h3>{poll.title}</h3>
+                  <h3>
+                    {typeIcon(item.type)}
+                    {item.title}
+                  </h3>
                   <div className="poll-status">
-                    {getStatusIcon(poll.status)}
-                    <span>{getStatusText(poll.status)}</span>
+                    {statusIcon(item.status)}
+                    <span>{statusText(item.status)}</span>
                   </div>
                 </div>
 
-                {poll.description && (
-                  <p className="poll-description">{poll.description}</p>
+                {item.description && (
+                  <p className="poll-description">{item.description}</p>
                 )}
 
                 <div className="poll-card-footer">
                   <div className="poll-info">
-                    {poll.timeLimit && (
-                      <span className="poll-time">
-                        <FontAwesomeIcon icon={faClock} /> {poll.timeLimit} minutos
+                    {item.numPreguntas > 0 && (
+                      <span className="poll-questions">
+                        {item.numPreguntas} pregunta{item.numPreguntas !== 1 ? 's' : ''}
                       </span>
                     )}
-                    {poll.questions.length > 0 && (
-                      <span className="poll-questions">
-                        {poll.questions.length} pregunta{poll.questions.length !== 1 ? 's' : ''}
+                    {item.deadline && (
+                      <span className="poll-time" title="Fecha límite">
+                        🕐 {formatDeadline(item.deadline)}
                       </span>
                     )}
                   </div>
-
-                  {poll.status === 'completed' && poll.studentResponse?.percentage !== undefined && (
-                    <div className="poll-score">
-                      Calificación: {poll.studentResponse.percentage}%
-                    </div>
-                  )}
                 </div>
 
                 <button
                   className="btn-action"
-                  onClick={() => handlePollClick(poll)}
-                  disabled={poll.status === 'expired'}
+                  onClick={() => handleClick(item)}
+                  disabled={item.status === 'expired'}
                 >
-                  {poll.status === 'pending'   && 'Responder'}
-                  {poll.status === 'completed' && 'Ver Resultados'}
-                  {poll.status === 'expired'   && 'Expirada'}
+                  {item.status === 'pending'   && 'Responder'}
+                  {item.status === 'completed' && 'Ver Resultados'}
+                  {item.status === 'expired'   && 'Expirada'}
                 </button>
               </div>
             ))}

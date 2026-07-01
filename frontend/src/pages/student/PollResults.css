@@ -10,10 +10,10 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-lg);
-  padding: 0 var(--spacing-xl);
-  height: 64px;
-  background: #4F46E5;
-  box-shadow: var(--shadow-md);
+  padding: 14px var(--spacing-xl);
+  height: auto;
+  background: linear-gradient(135deg, #4A5AE8 0%, #5B6CF8 100%);
+  box-shadow: 0 2px 8px rgba(74, 90, 232, 0.3);
   position: sticky;
   top: 0;
   z-index: var(--z-sticky);
@@ -57,7 +57,7 @@
 
 .pr-state button {
   padding: var(--spacing-sm) var(--spacing-xl);
-  background: #4F46E5;
+  background: #4A5AE8;
   color: #fff;
   border: none;
   border-radius: var(--border-radius-md);
@@ -90,7 +90,7 @@
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  border: 6px solid #4F46E5;
+  border: 6px solid #4A5AE8;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -163,7 +163,7 @@
 
 .pr-btn-home {
   padding: var(--spacing-md) var(--spacing-2xl);
-  background: #4F46E5;
+  background: #4A5AE8;
   color: #fff;
   border: none;
   border-radius: var(--border-radius-md);
@@ -173,7 +173,7 @@
   align-self: center;
   transition: background var(--transition-fast);
 }
-.pr-btn-home:hover { background: #4338CA; }
+.pr-btn-home:hover { background: #3a4ad8; }
 
 @media (max-width: 640px) {
   .pr-score-card { flex-direction: column; text-align: center; }

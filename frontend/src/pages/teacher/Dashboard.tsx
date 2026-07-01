@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faUser, faRightFromBracket, faEllipsisV, faClipboardList, faTrash, faTimes, faBars, faComments, faPenToSquare, faFileAlt, faPollH } from '@fortawesome/free-solid-svg-icons';
 import { classService, taskService } from '../../services/api';
-import './Dashboard.css';
 import { authService } from '../../services/authService';
+import './Dashboard.css';
 
 interface TaskForm {
   titulo_tarea: string;
@@ -30,9 +30,15 @@ interface Subject {
 
 const TeacherDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const [subjects, setSubjects] = useState<Subject[]>([]); //Agregar mate
-  const [isSubjectsOpen, setIsSubjectsOpen] = useState(false);//Agregar alumno
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [isSubjectsOpen, setIsSubjectsOpen] = useState(false);
+  const [loadError, setLoadError] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const currentUser = authService.getCurrentUser();
+  const teacherName = currentUser
+    ? `${currentUser.nombre} ${currentUser.apellido || ''}`.trim()
+    : 'Maestro';
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [menuPos, setMenuPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -68,24 +74,16 @@ const TeacherDashboard: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleOutsideClick);
   }, []);
 
-  const currentUser = authService.getCurrentUser();
-  const teacherName = currentUser
-  ? `${currentUser.nombre} ${currentUser.apellido}`.trim()
-  : 'Maestro';
-
   // Función para cargar clases desde la API
   const loadClasses = async () => {
     try {
       setIsLoading(true);
+      setLoadError('');
       const response = await classService.getTeacherClasses();
       setSubjects(response.classes || []);
     } catch (error: any) {
       console.error('Error al cargar clases:', error);
-      // Fallback a localStorage si falla la API
-      const savedSubjects = localStorage.getItem('subjects');
-      if (savedSubjects) {
-        setSubjects(JSON.parse(savedSubjects));
-      }
+      setLoadError('No se pudo conectar con el servidor. Verifica que el backend esté corriendo.');
     } finally {
       setIsLoading(false);
     }
@@ -264,6 +262,8 @@ const TeacherDashboard: React.FC = () => {
             <div className="classes-preview-panel">
               {isLoading ? (
                 <p className="empty-classes-message">Cargando clases...</p>
+              ) : loadError ? (
+                <p className="empty-classes-message" style={{ color: '#ef4444' }}>{loadError}</p>
               ) : subjects.length === 0 ? (
                 <p className="empty-classes-message">Aún no hay clases creadas.</p>
               ) : (

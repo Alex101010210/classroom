@@ -95,8 +95,23 @@ export interface StudentEnrollment {
   inscripcion_id: number | null;
 }
 
+// Tipo para las clases del alumno
+export interface StudentClass {
+  id: number;
+  nombre_class: string;
+  descrip_class: string | null;
+  color_class: string | null;
+  fechaInscripcion: string | null;
+}
+
 // Servicios de Inscripciones
 export const enrollmentService = {
+  // Obtener las clases en las que está inscrito el alumno autenticado
+  getMyClasses: async (): Promise<StudentClass[]> => {
+    const response = await api.get('/classes/my-classes');
+    return response.data.classes;
+  },
+
   // Obtener alumnos inscritos en una clase
   getStudents: async (claseId: string): Promise<StudentEnrollment[]> => {
     const response = await api.get(`/classes/${claseId}/students`);
@@ -148,7 +163,8 @@ export const profileService = {
   },
 };
 
-// Tipos para tareas
+// ─── Tareas ───────────────────────────────────────────────────────────────────
+
 export interface TaskData {
   id: number;
   clase_id: number;
@@ -176,35 +192,121 @@ export interface UpdateTaskPayload {
   entrega_tardia?: boolean;
 }
 
-// Servicios de Tareas
 export const taskService = {
-  // Obtener tareas de una clase
   getTasksByClass: async (classId: string): Promise<TaskData[]> => {
     const response = await api.get(`/classes/${classId}/tasks`);
     return response.data.tasks;
   },
-
-  // Obtener una tarea específica
   getTaskById: async (classId: string, taskId: string): Promise<TaskData> => {
     const response = await api.get(`/classes/${classId}/tasks/${taskId}`);
     return response.data.task;
   },
-
-  // Crear tarea
   createTask: async (classId: string, payload: CreateTaskPayload): Promise<TaskData> => {
     const response = await api.post(`/classes/${classId}/tasks`, payload);
     return response.data.task;
   },
-
-  // Actualizar tarea
   updateTask: async (classId: string, taskId: string, payload: UpdateTaskPayload): Promise<TaskData> => {
     const response = await api.put(`/classes/${classId}/tasks/${taskId}`, payload);
     return response.data.task;
   },
-
-  // Eliminar tarea
   deleteTask: async (classId: string, taskId: string): Promise<void> => {
     await api.delete(`/classes/${classId}/tasks/${taskId}`);
+  },
+};
+
+// ─── Encuestas ────────────────────────────────────────────────────────────────
+
+export interface EncuestaPayload {
+  clase_id: number | string;
+  titulo: string;
+  descripcion?: string;
+  preguntas: any[];
+}
+
+export interface EncuestaDB {
+  id: number;
+  clase_id: number;
+  titulo: string;
+  descripcion: string | null;
+  preguntas: any[];
+  activa: boolean;
+  creado_en: string;
+}
+
+export const encuestaService = {
+  create: async (data: EncuestaPayload): Promise<EncuestaDB> => {
+    const res = await api.post('/encuestas', data);
+    return res.data.encuesta;
+  },
+  getById: async (id: number | string): Promise<EncuestaDB> => {
+    const res = await api.get(`/encuestas/${id}`);
+    return res.data.encuesta;
+  },
+  update: async (id: number | string, data: Partial<EncuestaPayload>): Promise<EncuestaDB> => {
+    const res = await api.put(`/encuestas/${id}`, data);
+    return res.data.encuesta;
+  },
+  getByClaseMaestro: async (claseId: number | string): Promise<EncuestaDB[]> => {
+    const res = await api.get(`/encuestas/clase/${claseId}`);
+    return res.data.encuestas;
+  },
+  getByClaseAlumno: async (claseId: number | string): Promise<EncuestaDB[]> => {
+    const res = await api.get(`/encuestas/alumno/${claseId}`);
+    return res.data.encuestas;
+  },
+  delete: async (id: number | string): Promise<void> => {
+    await api.delete(`/encuestas/${id}`);
+  },
+};
+
+// ─── Exámenes ─────────────────────────────────────────────────────────────────
+
+export interface ExamenPayload {
+  clase_id: number | string;
+  titulo: string;
+  descripcion?: string;
+  preguntas: any[];
+  color?: string;
+  deadline?: string | null;
+  one_attempt?: boolean;
+}
+
+export interface ExamenDB {
+  id: number;
+  clase_id: number;
+  titulo: string;
+  descripcion: string | null;
+  preguntas: any[];
+  color: string;
+  deadline: string | null;
+  one_attempt: boolean;
+  activo: boolean;
+  creado_en: string;
+}
+
+export const examenService = {
+  create: async (data: ExamenPayload): Promise<ExamenDB> => {
+    const res = await api.post('/examenes', data);
+    return res.data.examen;
+  },
+  getById: async (id: number | string): Promise<ExamenDB> => {
+    const res = await api.get(`/examenes/${id}`);
+    return res.data.examen;
+  },
+  update: async (id: number | string, data: Partial<ExamenPayload>): Promise<ExamenDB> => {
+    const res = await api.put(`/examenes/${id}`, data);
+    return res.data.examen;
+  },
+  getByClaseMaestro: async (claseId: number | string): Promise<ExamenDB[]> => {
+    const res = await api.get(`/examenes/clase/${claseId}`);
+    return res.data.examenes;
+  },
+  getByClaseAlumno: async (claseId: number | string): Promise<ExamenDB[]> => {
+    const res = await api.get(`/examenes/alumno/${claseId}`);
+    return res.data.examenes;
+  },
+  delete: async (id: number | string): Promise<void> => {
+    await api.delete(`/examenes/${id}`);
   },
 };
 

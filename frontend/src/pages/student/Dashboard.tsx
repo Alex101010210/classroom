@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -11,27 +11,31 @@ import {
   faChevronDown,
   faChevronUp,
   faUser,
+  faComments,
+  faPenToSquare,
 } from '@fortawesome/free-solid-svg-icons';
 import { authService } from '../../services/authService';
-import { classService } from '../../services/api';
+import { enrollmentService } from '../../services/api';
 import './Dashboard.css';
 
 interface Class {
-  id: string;
+  id: number;
   nombre_class?: string;
   name?: string;
-  descrip_class?: string;
+  descrip_class?: string | null;
   description?: string;
-  color_class?: string;
+  color_class?: string | null;
 }
 
 const StudentDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [classes, setClasses] = useState<Class[]>([]);
   const [isClassesOpen, setIsClassesOpen] = useState(false);
+  const [isForosOpen, setIsForosOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const forosRef = useRef<HTMLDivElement>(null);
 
   const user = authService.getCurrentUser();
   const studentName = user
@@ -42,12 +46,23 @@ const StudentDashboard: React.FC = () => {
     loadClasses();
   }, []);
 
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (forosRef.current && !forosRef.current.contains(e.target as Node)) {
+        setIsForosOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, []);
+
   const loadClasses = async () => {
     try {
       setIsLoading(true);
       setError('');
-      const response = await classService.getStudentClasses();
-      setClasses(response.classes || []);
+      const classes = await enrollmentService.getMyClasses();
+      setClasses(classes);
+      localStorage.setItem('myClasses', JSON.stringify(classes));
     } catch (err) {
       console.error('Error al cargar clases:', err);
       setError('No se pudieron cargar las clases.');
@@ -61,6 +76,18 @@ const StudentDashboard: React.FC = () => {
       authService.logout();
       navigate('/login');
     }
+  };
+
+  const handleCreateForo = () => {
+    setIsMobileMenuOpen(false);
+    setIsForosOpen(false);
+    navigate('/student/foro');
+  };
+
+  const handleVerForos = () => {
+    setIsMobileMenuOpen(false);
+    setIsForosOpen(false);
+    navigate('/student/foros-list');
   };
 
   const handleClassClick = (cls: Class) => {
@@ -138,7 +165,7 @@ const StudentDashboard: React.FC = () => {
                     </p>
                   )}
                   <span className="sd-class-cta">
-                    <FontAwesomeIcon icon={faClipboardList} /> Ver encuestas
+                    <FontAwesomeIcon icon={faClipboardList} /> Ver actividades
                   </span>
                 </button>
               ))}
@@ -193,6 +220,34 @@ const StudentDashboard: React.FC = () => {
                 <FontAwesomeIcon icon={faChartBar} />
                 <span>Mis Resultados</span>
               </button>
+
+              {/* Foros */}
+              <div className="sd-foros-container" ref={forosRef}>
+                <button
+                  className={`sd-nav-btn${isForosOpen ? ' sd-nav-btn--active' : ''}`}
+                  onClick={() => setIsForosOpen(!isForosOpen)}
+                >
+                  <FontAwesomeIcon icon={faComments} />
+                  <span>Foros</span>
+                  <FontAwesomeIcon
+                    icon={isForosOpen ? faChevronUp : faChevronDown}
+                    className="sd-nav-chevron"
+                  />
+                </button>
+
+                {isForosOpen && (
+                  <div className="sd-foros-dropdown">
+                    <button className="sd-foros-dropdown-item" onClick={handleVerForos}>
+                      <FontAwesomeIcon icon={faComments} />
+                      <span>Ver Foros</span>
+                    </button>
+                    <button className="sd-foros-dropdown-item" onClick={handleCreateForo}>
+                      <FontAwesomeIcon icon={faPenToSquare} />
+                      <span>Crear Foro</span>
+                    </button>
+                  </div>
+                )}
+              </div>
 
               <button className="sd-nav-btn" onClick={() => navigate('/student/profile')}>
                 <FontAwesomeIcon icon={faUser} />
