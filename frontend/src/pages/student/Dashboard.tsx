@@ -139,7 +139,7 @@ const StudentDashboard: React.FC = () => {
                     </p>
                   )}
                   <span className="sd-class-cta">
-                    <FontAwesomeIcon icon={faClipboardList} /> Ver encuestas
+                    <FontAwesomeIcon icon={faClipboardList} /> Ver actividades
                   </span>
                 </button>
               ))}
