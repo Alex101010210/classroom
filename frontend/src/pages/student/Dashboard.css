@@ -15,10 +15,11 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
-  padding: 0 var(--spacing-xl);
-  height: 64px;
-  background: #4F46E5;
-  box-shadow: var(--shadow-md);
+  padding: 14px 28px var(--spacing-xl);
+  font-size:30px;
+  height: auto;
+  background: linear-gradient(135deg, #4A5AE8 0%, #5B6CF8 100%);
+  box-shadow: 0 2px 8px rgba(74, 90, 232, 0.3);
   position: sticky;
   top: 0;
   z-index: var(--z-sticky);
@@ -74,7 +75,7 @@
 .sd-body {
   display: flex;
   flex: 1;
-  min-height: calc(100vh - 64px);
+  min-height: calc(100vh - 72px);
   position: relative;
 }
 
@@ -94,7 +95,7 @@
   margin: 0 0 var(--spacing-xs) 0;
 }
 
-.sd-welcome h2 span { color: #4F46E5; }
+.sd-welcome h2 span { color: #4A5AE8; }
 
 .sd-welcome p {
   color: var(--text-secondary);
@@ -156,7 +157,7 @@
 .sd-class-card {
   background: var(--surface);
   border: 1px solid var(--border-color);
-  border-top: 4px solid #4F46E5;
+  border-top: 4px solid #4A5AE8;
   border-radius: var(--border-radius-lg);
   padding: var(--spacing-lg);
   cursor: pointer;
@@ -197,7 +198,7 @@
 .sd-class-cta {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
-  color: #4F46E5;
+  color: #4A5AE8;
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
@@ -261,7 +262,7 @@
 
 .sd-nav-btn:hover {
   background: var(--background-dark);
-  color: #4F46E5;
+  color: #4A5AE8;
 }
 
 .sd-nav-btn svg:first-child {
@@ -270,7 +271,7 @@
   flex-shrink: 0;
 }
 
-.sd-nav-btn:hover svg:first-child { color: #4F46E5; }
+.sd-nav-btn:hover svg:first-child { color: #4A5AE8; }
 
 .sd-nav-chevron {
   margin-left: auto;
