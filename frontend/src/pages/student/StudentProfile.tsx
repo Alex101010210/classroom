@@ -6,14 +6,14 @@ import {
   faUser,
   faEnvelope,
   faCheckCircle,
-  faClock,
-  faClipboardList,
+  faFileAlt,
+  faPollH,
   faTrophy,
   faBook,
+  faClipboardList,
 } from '@fortawesome/free-solid-svg-icons';
 import { authService } from '../../services/authService';
-import { enrollmentService, StudentClass } from '../../services/api';
-import { StudentResponse } from '../../types';
+import { enrollmentService, resultadosService, ResultadoItem, StudentClass } from '../../services/api';
 import './StudentProfile.css';
 
 interface UserData {
@@ -26,55 +26,45 @@ interface UserData {
 
 const StudentProfile: React.FC = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<UserData | null>(null);
-  const [history, setHistory] = useState<StudentResponse[]>([]);
-  const [isLoadingHistory, setIsLoadingHistory] = useState(true);
-  const [myClasses, setMyClasses] = useState<StudentClass[]>([]);
-  const [isLoadingClasses, setIsLoadingClasses] = useState(true);
+  const [user, setUser]               = useState<UserData | null>(null);
+  const [resultados, setResultados]   = useState<ResultadoItem[]>([]);
+  const [myClasses, setMyClasses]     = useState<StudentClass[]>([]);
+  const [isLoadingRes, setIsLoadingRes] = useState(true);
+  const [isLoadingCls, setIsLoadingCls] = useState(true);
+  const [tab, setTab] = useState<'todos' | 'encuestas' | 'examenes'>('todos');
 
   useEffect(() => {
-    const currentUser = authService.getCurrentUser();
-    setUser(currentUser);
-    loadHistory();
-    loadMyClasses();
+    setUser(authService.getCurrentUser());
+
+    resultadosService.getMisResultados()
+      .then(data => setResultados(data))
+      .catch(() => setResultados([]))
+      .finally(() => setIsLoadingRes(false));
+
+    enrollmentService.getMyClasses()
+      .then(data => setMyClasses(data))
+      .catch(() => setMyClasses([]))
+      .finally(() => setIsLoadingCls(false));
   }, []);
 
-  const loadHistory = async () => {
-    try {
-      setIsLoadingHistory(true);
-      // Se conectará al endpoint cuando el backend lo implemente
-      setHistory([]);
-    } catch (err) {
-      console.error('Error al cargar historial:', err);
-    } finally {
-      setIsLoadingHistory(false);
-    }
-  };
-
-  const loadMyClasses = async () => {
-    try {
-      setIsLoadingClasses(true);
-      const classes = await enrollmentService.getMyClasses();
-      setMyClasses(classes);
-    } catch (err) {
-      console.error('Error al cargar clases:', err);
-      setMyClasses([]);
-    } finally {
-      setIsLoadingClasses(false);
-    }
-  };
-
-  const getScoreColor = (pct?: number) => {
-    if (pct === undefined) return '#6B7280';
+  const getScoreColor = (pct: number | null) => {
+    if (pct === null) return '#57606a';
     if (pct >= 80) return '#10B981';
     if (pct >= 60) return '#F59E0B';
     return '#EF4444';
   };
 
-  const completedCount = history.filter(r => r.score !== undefined).length;
-  const avgScore = completedCount > 0
-    ? Math.round(history.reduce((acc, r) => acc + (r.percentage ?? 0), 0) / completedCount)
+  const encuestas  = resultados.filter(r => r.tipo === 'encuesta');
+  const examenes   = resultados.filter(r => r.tipo === 'examen');
+  // El promedio solo considera exámenes con calificación (las encuestas no llevan nota)
+  const examenesConNota = examenes.filter(r => r.porcentaje !== null);
+  const promedio   = examenesConNota.length > 0
+    ? Math.round(examenesConNota.reduce((s, r) => s + (r.porcentaje ?? 0), 0) / examenesConNota.length)
     : null;
+
+  const listaActiva = tab === 'encuestas' ? encuestas
+    : tab === 'examenes' ? examenes
+    : resultados;
 
   return (
     <div className="sp-page">
@@ -87,7 +77,8 @@ const StudentProfile: React.FC = () => {
       </header>
 
       <div className="sp-content">
-        {/* Tarjeta de usuario */}
+
+        {/* Tarjeta usuario */}
         <div className="sp-card sp-user-card">
           <div className="sp-avatar">
             <FontAwesomeIcon icon={faUser} />
@@ -117,50 +108,115 @@ const StudentProfile: React.FC = () => {
             <span className="sp-stat-label">Clases inscritas</span>
           </div>
           <div className="sp-stat-card">
-            <FontAwesomeIcon icon={faClipboardList} className="sp-stat-icon" />
-            <span className="sp-stat-num">{history.length}</span>
-            <span className="sp-stat-label">Encuestas respondidas</span>
+            <FontAwesomeIcon icon={faPollH} className="sp-stat-icon" />
+            <span className="sp-stat-num">{encuestas.length}</span>
+            <span className="sp-stat-label">Encuestas</span>
           </div>
           <div className="sp-stat-card">
-            <FontAwesomeIcon icon={faTrophy} className="sp-stat-icon" />
-            <span className="sp-stat-num">{avgScore !== null ? `${avgScore}%` : '—'}</span>
-            <span className="sp-stat-label">Promedio general</span>
+            <FontAwesomeIcon icon={faFileAlt} className="sp-stat-icon" />
+            <span className="sp-stat-num">{examenes.length}</span>
+            <span className="sp-stat-label">Exámenes</span>
           </div>
           <div className="sp-stat-card">
-            <FontAwesomeIcon icon={faCheckCircle} className="sp-stat-icon sp-stat-icon--green" />
-            <span className="sp-stat-num">{completedCount}</span>
-            <span className="sp-stat-label">Completadas</span>
+            <FontAwesomeIcon icon={faTrophy} className="sp-stat-icon sp-stat-icon--gold" />
+            <span className="sp-stat-num" style={{ color: promedio !== null ? getScoreColor(promedio) : undefined }}>
+              {promedio !== null ? `${promedio}%` : '—'}
+            </span>
+            <span className="sp-stat-label">Promedio</span>
           </div>
         </div>
 
         {/* Mis Clases */}
         <div className="sp-card">
-          <h3 className="sp-section-title">Mis Clases</h3>
-          {isLoadingClasses ? (
+          <h3 className="sp-section-title">
+            <FontAwesomeIcon icon={faBook} /> Mis Clases
+          </h3>
+          {isLoadingCls ? (
             <p className="sp-state-msg">Cargando clases...</p>
           ) : myClasses.length === 0 ? (
-            <p className="sp-state-msg sp-state-msg--empty">
-              No estás inscrito en ninguna clase todavía.
-            </p>
+            <p className="sp-state-msg sp-state-msg--empty">No estás inscrito en ninguna clase todavía.</p>
           ) : (
             <div className="sp-classes-list">
               {myClasses.map((cls) => (
                 <div key={cls.id} className="sp-class-item">
-                  <span
-                    className="sp-class-color"
-                    style={{ backgroundColor: cls.color_class || '#3b82f6' }}
-                  />
+                  <span className="sp-class-color" style={{ backgroundColor: cls.color_class || '#3b82f6' }} />
                   <div className="sp-class-info">
                     <p className="sp-class-name">{cls.nombre_class}</p>
-                    {cls.descrip_class && (
-                      <p className="sp-class-desc">{cls.descrip_class}</p>
-                    )}
-                    {cls.fechaInscripcion && (
-                      <p className="sp-class-date">
-                        Inscrito: {new Date(cls.fechaInscripcion).toLocaleDateString('es-MX', {
-                          year: 'numeric', month: 'short', day: 'numeric',
-                        })}
+                    {cls.descrip_class && <p className="sp-class-desc">{cls.descrip_class}</p>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Historial de resultados */}
+        <div className="sp-card">
+          <h3 className="sp-section-title">
+            <FontAwesomeIcon icon={faClipboardList} /> Mis Resultados
+          </h3>
+
+          {/* Tabs */}
+          <div className="sp-tabs">
+            <button className={`sp-tab ${tab === 'todos'     ? 'active' : ''}`} onClick={() => setTab('todos')}>
+              Todos ({resultados.length})
+            </button>
+            <button className={`sp-tab ${tab === 'examenes'  ? 'active' : ''}`} onClick={() => setTab('examenes')}>
+              Exámenes ({examenes.length})
+            </button>
+            <button className={`sp-tab ${tab === 'encuestas' ? 'active' : ''}`} onClick={() => setTab('encuestas')}>
+              Encuestas ({encuestas.length})
+            </button>
+          </div>
+
+          {isLoadingRes ? (
+            <p className="sp-state-msg">Cargando resultados...</p>
+          ) : listaActiva.length === 0 ? (
+            <p className="sp-state-msg sp-state-msg--empty">
+              Aún no tienes {tab === 'todos' ? 'actividades completadas' : tab} registradas.
+            </p>
+          ) : (
+            <div className="sp-history-list">
+              {listaActiva.map((item) => (
+                <div key={`${item.tipo}-${item.id}`} className="sp-history-item">
+                  <div className="sp-history-left">
+                    <FontAwesomeIcon
+                      icon={item.tipo === 'examen' ? faFileAlt : faPollH}
+                      className="sp-history-type-icon"
+                      style={{ color: item.tipo === 'examen' ? '#3b82d4' : '#7c5cd8' }}
+                    />
+                    <div>
+                      <p className="sp-history-title">{item.titulo}</p>
+                      <p className="sp-history-meta">
+                        <span className={`sp-tipo-badge sp-tipo-badge--${item.tipo}`}>
+                          {item.tipo === 'examen' ? 'Examen' : 'Encuesta'}
+                        </span>
+                        <span className="sp-history-date">
+                          {new Date(item.submitted_at).toLocaleDateString('es-MX', {
+                            year: 'numeric', month: 'short', day: 'numeric',
+                          })}
+                        </span>
                       </p>
+                    </div>
+                  </div>
+
+                  <div className="sp-history-right">
+                    {item.porcentaje !== null ? (
+                      <>
+                        <span
+                          className="sp-history-pct"
+                          style={{ color: getScoreColor(item.porcentaje) }}
+                        >
+                          {item.porcentaje}%
+                        </span>
+                        <span className="sp-history-pts">
+                          {item.calificacion} / {item.calificacion_max} pts
+                        </span>
+                      </>
+                    ) : (
+                      <span className="sp-history-check">
+                        <FontAwesomeIcon icon={faCheckCircle} style={{ color: '#10B981' }} /> Enviada
+                      </span>
                     )}
                   </div>
                 </div>
@@ -169,46 +225,6 @@ const StudentProfile: React.FC = () => {
           )}
         </div>
 
-        {/* Historial */}
-        <div className="sp-card">
-          <h3 className="sp-section-title">Historial de encuestas</h3>
-          {isLoadingHistory ? (
-            <p className="sp-state-msg">Cargando historial...</p>
-          ) : history.length === 0 ? (
-            <p className="sp-state-msg sp-state-msg--empty">
-              Aún no has respondido ninguna encuesta.
-            </p>
-          ) : (
-            <div className="sp-history-list">
-              {history.map((item) => (
-                <div
-                  key={item.id}
-                  className="sp-history-item"
-                  onClick={() => navigate(`/student/poll/${item.pollId}/results`)}
-                >
-                  <div className="sp-history-left">
-                    <FontAwesomeIcon
-                      icon={item.score !== undefined ? faCheckCircle : faClock}
-                      className="sp-history-icon"
-                      style={{ color: getScoreColor(item.percentage) }}
-                    />
-                    <div>
-                      <p className="sp-history-poll">Encuesta #{item.pollId}</p>
-                      <p className="sp-history-date">
-                        {new Date(item.submittedAt).toLocaleDateString('es-MX', {
-                          year: 'numeric', month: 'short', day: 'numeric',
-                        })}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="sp-history-score" style={{ color: getScoreColor(item.percentage) }}>
-                    {item.percentage !== undefined ? `${item.percentage}%` : '—'}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );

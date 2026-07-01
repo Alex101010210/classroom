@@ -7,7 +7,6 @@ import {
   faXmark,
   faBookOpen,
   faClipboardList,
-  faChartBar,
   faChevronDown,
   faChevronUp,
   faUser,
@@ -189,11 +188,6 @@ const StudentDashboard: React.FC = () => {
                   )}
                 </div>
               )}
-
-              <button className="sd-nav-btn" onClick={() => navigate('/student/profile')}>
-                <FontAwesomeIcon icon={faChartBar} />
-                <span>Mis Resultados</span>
-              </button>
 
               <button className="sd-nav-btn" onClick={() => navigate('/student/profile')}>
                 <FontAwesomeIcon icon={faUser} />

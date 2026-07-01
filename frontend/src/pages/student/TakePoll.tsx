@@ -21,6 +21,12 @@ interface Pregunta {
   points?: number;
 }
 
+// Opción normalizada con id siempre presente
+interface OpcionNorm {
+  id: string;
+  text: string;
+}
+
 interface Actividad {
   id: number;
   titulo: string;
@@ -97,10 +103,14 @@ const TakePoll: React.FC = () => {
 
   const getTexto = (p: Pregunta) => p.text || p.title || '';
 
-  const getOpciones = (p: Pregunta): string[] => {
+  // Devuelve opciones normalizadas con id y texto
+  const getOpciones = (p: Pregunta): OpcionNorm[] => {
     if (!p.options || p.options.length === 0) return [];
-    if (typeof p.options[0] === 'string') return p.options as string[];
-    return (p.options as Opcion[]).map(o => o.text);
+    if (typeof p.options[0] === 'string') {
+      // encuestas antiguas guardaron las opciones como strings planos — usamos el índice como id
+      return (p.options as string[]).map((text, i) => ({ id: String(i), text }));
+    }
+    return (p.options as Opcion[]).map(o => ({ id: o.id, text: o.text }));
   };
 
   const isMultiple = (type: string) =>
@@ -146,14 +156,8 @@ const TakePoll: React.FC = () => {
     try {
       if (tipo === 'encuesta') {
         await encuestaService.submitRespuestas(pollId, payload);
-        alert('¡Encuesta enviada exitosamente!');
       } else {
-        const result = await examenService.submitRespuestas(pollId, payload);
-        if (result.porcentaje !== undefined && result.porcentaje !== null) {
-          alert(`¡Examen enviado! Calificación: ${result.calificacion} / ${result.calificacion_max} pts (${result.porcentaje}%)`);
-        } else {
-          alert('¡Examen enviado exitosamente!');
-        }
+        await examenService.submitRespuestas(pollId, payload);
       }
       navigate(-1);
     } catch (err: any) {
@@ -243,16 +247,16 @@ const TakePoll: React.FC = () => {
           {/* Opciones múltiples */}
           {isMultiple(currentPregunta.type) && opciones.length > 0 && (
             <div className="options-container">
-              {opciones.map((opt, idx) => (
-                <label key={idx} className="option-label">
+              {opciones.map((opt) => (
+                <label key={opt.id} className="option-label">
                   <input
                     type={currentPregunta.type === 'checkbox' ? 'checkbox' : 'radio'}
                     name={currentPregunta.id}
-                    value={idx}
-                    checked={currentAnswer === idx}
-                    onChange={() => handleAnswer(currentPregunta.id, idx)}
+                    value={opt.id}
+                    checked={currentAnswer === opt.id}
+                    onChange={() => handleAnswer(currentPregunta.id, opt.id)}
                   />
-                  <span className="option-text">{opt}</span>
+                  <span className="option-text">{opt.text}</span>
                 </label>
               ))}
             </div>

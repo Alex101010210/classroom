@@ -399,6 +399,9 @@ const Examen: React.FC = () => {
                     {/* Options */}
                     {hasOptions(q.type) && (
                       <div className="ef-options">
+                        <p className="ef-options-hint">
+                          Haz clic en <span className="ef-options-hint-icon">✓</span> junto a una opción para marcarla como <strong>respuesta correcta</strong>.
+                        </p>
                         {q.options.map((opt, idx) => {
                           const isCorrect = q.correctAnswers.includes(opt.id);
                           return (

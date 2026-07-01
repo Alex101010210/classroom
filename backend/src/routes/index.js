@@ -1,14 +1,16 @@
 const express = require('express');
 const router = express.Router();
 
-const authRoutes       = require('./auth.routes');
-const classRoutes      = require('./class.routes');
-const profileRoutes    = require('./profile.routes');
-const enrollmentRoutes = require('./enrollment.routes');
-const encuestaRoutes   = require('./encuesta.routes');
-const examenRoutes     = require('./examen.routes');
-const pollRoutes       = require('./poll.routes');
-const taskRoutes       = require('./task.routes');
+const authRoutes           = require('./auth.routes');
+const classRoutes          = require('./class.routes');
+const profileRoutes        = require('./profile.routes');
+const enrollmentRoutes     = require('./enrollment.routes');
+const encuestaRoutes       = require('./encuesta.routes');
+const examenRoutes         = require('./examen.routes');
+const pollRoutes           = require('./poll.routes');
+const taskRoutes           = require('./task.routes');
+const { authenticateToken } = require('../middleware/auth.middleware');
+const respuestasController = require('../controllers/respuestasController');
 
 // Ruta de prueba
 router.get('/health', (req, res) => {
@@ -23,6 +25,9 @@ router.use('/profile',                 profileRoutes);
 router.use('/polls',                   pollRoutes);
 router.use('/encuestas',               encuestaRoutes);
 router.use('/examenes',                examenRoutes);
+
+// GET /api/mis-resultados — historial del alumno autenticado
+router.get('/mis-resultados', authenticateToken, respuestasController.getMisResultados);
 
 module.exports = router;
 

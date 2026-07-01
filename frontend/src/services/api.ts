@@ -355,6 +355,26 @@ export const examenService = {
   },
 };
 
+// ─── Historial del alumno ────────────────────────────────────────────────────
+
+export interface ResultadoItem {
+  id: number;
+  tipo: 'encuesta' | 'examen';
+  actividad_id: number;
+  titulo: string;
+  calificacion: number | null;
+  calificacion_max: number | null;
+  porcentaje: number | null;
+  submitted_at: string;
+}
+
+export const resultadosService = {
+  getMisResultados: async (): Promise<ResultadoItem[]> => {
+    const res = await api.get('/mis-resultados');
+    return res.data.resultados;
+  },
+};
+
 export default api;
 
 // Made with Bob

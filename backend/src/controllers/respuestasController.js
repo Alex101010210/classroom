@@ -131,6 +131,7 @@ exports.submitExamen = async (req, res) => {
       const pts = pregunta.points || 0;
       totalPts += pts;
       if (pregunta.correctAnswers && pregunta.correctAnswers.length > 0) {
+        // Pregunta con respuesta correcta definida: verificar si el alumno acertó
         const resp = respuestas.find(r => r.questionId === pregunta.id);
         if (resp) {
           const correctSet = new Set(pregunta.correctAnswers.map(String));
@@ -138,6 +139,9 @@ exports.submitExamen = async (req, res) => {
           const isCorrect  = correctSet.size === givenSet.size && [...correctSet].every(v => givenSet.has(v));
           if (isCorrect) obtenidos += pts;
         }
+      } else {
+        // Pregunta sin respuesta correcta definida (abierta/opinión): se otorgan los puntos automáticamente
+        obtenidos += pts;
       }
     });
 
@@ -197,3 +201,69 @@ exports.getExamenResponses = async (req, res) => {
 };
 
 // Made with Bob
+
+// GET /api/mis-resultados  — historial completo del alumno (encuestas + exámenes)
+exports.getMisResultados = async (req, res) => {
+  try {
+    const alumno_id = req.user.id;
+
+    // Respuestas de encuestas
+    const respEnc = await RespuestaEncuesta.findAll({
+      where: { alumno_id },
+      order: [['submitted_at', 'DESC']]
+    });
+
+    // Respuestas de exámenes
+    const respEx = await RespuestaExamen.findAll({
+      where: { alumno_id },
+      order: [['submitted_at', 'DESC']]
+    });
+
+    // Obtener títulos de encuestas
+    const encIds = [...new Set(respEnc.map(r => r.poll_id))];
+    const encuestas = encIds.length > 0
+      ? await Encuesta.findAll({ where: { id: encIds }, attributes: ['id', 'titulo'] })
+      : [];
+    const encMap = Object.fromEntries(encuestas.map(e => [e.id, e.titulo]));
+
+    // Obtener títulos de exámenes
+    const exIds = [...new Set(respEx.map(r => r.examen_id))];
+    const examenes = exIds.length > 0
+      ? await Examen.findAll({ where: { id: exIds }, attributes: ['id', 'titulo'] })
+      : [];
+    const exMap = Object.fromEntries(examenes.map(e => [e.id, e.titulo]));
+
+    const encResults = respEnc.map(r => ({
+      id:               r.id,
+      tipo:             'encuesta',
+      actividad_id:     r.poll_id,
+      titulo:           encMap[r.poll_id] || `Encuesta #${r.poll_id}`,
+      calificacion:     r.calificacion,
+      calificacion_max: r.calificacion_max,
+      porcentaje:       r.porcentaje,
+      submitted_at:     r.submitted_at
+    }));
+
+    const exResults = respEx.map(r => ({
+      id:               r.id,
+      tipo:             'examen',
+      actividad_id:     r.examen_id,
+      titulo:           exMap[r.examen_id] || `Examen #${r.examen_id}`,
+      calificacion:     r.calificacion,
+      calificacion_max: r.calificacion_max,
+      porcentaje:       r.porcentaje,
+      submitted_at:     r.submitted_at
+    }));
+
+    // Combinar y ordenar por fecha descendente
+    const todos = [...encResults, ...exResults].sort(
+      (a, b) => new Date(b.submitted_at).getTime() - new Date(a.submitted_at).getTime()
+    );
+
+    res.json({ resultados: todos });
+  } catch (error) {
+    console.error('Error al obtener historial:', error);
+    res.status(500).json({ message: 'Error al obtener historial', error: error.message });
+  }
+};
+
