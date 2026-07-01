@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faUserPlus, faClipboardList, faTrash, faPlus, faFileAlt, faPollH, faEye } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faUserPlus, faClipboardList, faTrash, faPlus, faFileAlt, faPollH, faEye, faChartBar } from '@fortawesome/free-solid-svg-icons';
 import { classService, enrollmentService, encuestaService, examenService, taskService, StudentEnrollment, EncuestaDB, ExamenDB, TaskData } from '../../services/api';
 import './ClassDetail.css';
 
@@ -399,6 +399,13 @@ const ClassDetail: React.FC = () => {
                         )}
                         <span className="exam-pts-badge">{totalPts} pts · {exam.preguntas?.length ?? 0} preguntas</span>
                         <button
+                          className="btn-view-small"
+                          onClick={() => navigate(`/teacher/examen/${exam.id}/resultados`)}
+                          title="Ver respuestas"
+                        >
+                          <FontAwesomeIcon icon={faChartBar} />
+                        </button>
+                        <button
                           className="btn-delete-small"
                           onClick={() => handleDeleteExam(exam.id)}
                           title="Eliminar examen"
@@ -438,13 +445,22 @@ const ClassDetail: React.FC = () => {
                 <div key={poll.id} className="task-card">
                   <div className="task-header">
                     <h3>{poll.titulo}</h3>
-                    <button
-                      className="btn-delete-small"
-                      onClick={() => handleDeletePoll(poll.id)}
-                      title="Eliminar encuesta"
-                    >
-                      <FontAwesomeIcon icon={faTrash} />
-                    </button>
+                    <div className="task-actions">
+                      <button
+                        className="btn-view-small"
+                        onClick={() => navigate(`/teacher/encuesta/${poll.id}/resultados`)}
+                        title="Ver respuestas"
+                      >
+                        <FontAwesomeIcon icon={faChartBar} />
+                      </button>
+                      <button
+                        className="btn-delete-small"
+                        onClick={() => handleDeletePoll(poll.id)}
+                        title="Eliminar encuesta"
+                      >
+                        <FontAwesomeIcon icon={faTrash} />
+                      </button>
+                    </div>
                   </div>
                   <div className="task-body">
                     {poll.descripcion && (
@@ -455,7 +471,7 @@ const ClassDetail: React.FC = () => {
                         <strong>Preguntas:</strong> {poll.preguntas.length}
                       </span>
                       <span className="task-deadline">
-                        <strong>Creada:</strong> {new Date(poll.creado_en).toLocaleDateString('es-MX')}
+                        <strong>Creada:</strong> {new Date(poll.created_at).toLocaleDateString('es-MX')}
                       </span>
                     </div>
                   </div>

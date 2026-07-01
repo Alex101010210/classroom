@@ -69,11 +69,20 @@ const TakePoll: React.FC = () => {
         if (tipo === 'encuesta') {
           const enc = await encuestaService.getById(pollId);
           setActividad(enc);
+          const yaRespondio = await encuestaService.checkRespondida(pollId);
+          if (yaRespondio) {
+            setLoadError('Ya respondiste esta encuesta. Tu respuesta ya fue registrada.');
+          }
         } else {
           const ex = await examenService.getById(pollId);
           setActividad(ex);
           if (ex.deadline && new Date(ex.deadline) < new Date()) {
             setLoadError('Este examen ha expirado.');
+          } else {
+            const yaRespondio = await examenService.checkRespondido(pollId);
+            if (yaRespondio) {
+              setLoadError('Ya presentaste este examen. Tu respuesta ya fue registrada.');
+            }
           }
         }
       } catch (err) {
@@ -131,9 +140,27 @@ const TakePoll: React.FC = () => {
   };
 
   const handleConfirmSubmit = async () => {
-    console.log('Respuestas enviadas:', answers);
-    alert('¡Actividad enviada exitosamente!');
-    navigate(-1);
+    if (!actividad || !pollId) return;
+    // Convertir answers {preguntaId: valor} → [{questionId, answer}]
+    const payload = Object.entries(answers).map(([questionId, answer]) => ({ questionId, answer }));
+    try {
+      if (tipo === 'encuesta') {
+        await encuestaService.submitRespuestas(pollId, payload);
+        alert('¡Encuesta enviada exitosamente!');
+      } else {
+        const result = await examenService.submitRespuestas(pollId, payload);
+        if (result.porcentaje !== undefined && result.porcentaje !== null) {
+          alert(`¡Examen enviado! Calificación: ${result.calificacion} / ${result.calificacion_max} pts (${result.porcentaje}%)`);
+        } else {
+          alert('¡Examen enviado exitosamente!');
+        }
+      }
+      navigate(-1);
+    } catch (err: any) {
+      const msg = err.response?.data?.message || 'Error al enviar';
+      alert(msg);
+      setShowConfirmation(false);
+    }
   };
 
   // ── Render estados ───────────────────────────────────────────

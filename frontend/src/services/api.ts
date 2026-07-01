@@ -230,7 +230,28 @@ export interface EncuestaDB {
   descripcion: string | null;
   preguntas: any[];
   activa: boolean;
-  creado_en: string;
+  created_at: string;
+  ya_respondida?: boolean;
+}
+
+export interface RespuestaAlumno {
+  id: number;
+  alumno: { id: number; nombre: string; apellido: string; email: string };
+  respuestas: { questionId: string; answer: string | number }[];
+  calificacion?: number | null;
+  calificacion_max?: number | null;
+  porcentaje?: number | null;
+  submitted_at: string;
+}
+
+export interface ResultadosEncuesta {
+  encuesta: { id: number; titulo: string; preguntas: any[] };
+  respuestas: RespuestaAlumno[];
+}
+
+export interface ResultadosExamen {
+  examen: { id: number; titulo: string; preguntas: any[] };
+  respuestas: RespuestaAlumno[];
 }
 
 export const encuestaService = {
@@ -257,6 +278,17 @@ export const encuestaService = {
   delete: async (id: number | string): Promise<void> => {
     await api.delete(`/encuestas/${id}`);
   },
+  submitRespuestas: async (id: number | string, respuestas: any[]): Promise<void> => {
+    await api.post(`/encuestas/${id}/responses`, { respuestas });
+  },
+  getResponses: async (id: number | string): Promise<ResultadosEncuesta> => {
+    const res = await api.get(`/encuestas/${id}/responses`);
+    return res.data;
+  },
+  checkRespondida: async (id: number | string): Promise<boolean> => {
+    const res = await api.get(`/encuestas/${id}/check`);
+    return res.data.ya_respondida;
+  },
 };
 
 // ─── Exámenes ─────────────────────────────────────────────────────────────────
@@ -281,7 +313,8 @@ export interface ExamenDB {
   deadline: string | null;
   one_attempt: boolean;
   activo: boolean;
-  creado_en: string;
+  created_at: string;
+  ya_respondido?: boolean;
 }
 
 export const examenService = {
@@ -307,6 +340,18 @@ export const examenService = {
   },
   delete: async (id: number | string): Promise<void> => {
     await api.delete(`/examenes/${id}`);
+  },
+  submitRespuestas: async (id: number | string, respuestas: any[]): Promise<{ calificacion?: number; calificacion_max?: number; porcentaje?: number }> => {
+    const res = await api.post(`/examenes/${id}/responses`, { respuestas });
+    return res.data;
+  },
+  getResponses: async (id: number | string): Promise<ResultadosExamen> => {
+    const res = await api.get(`/examenes/${id}/responses`);
+    return res.data;
+  },
+  checkRespondido: async (id: number | string): Promise<boolean> => {
+    const res = await api.get(`/examenes/${id}/check`);
+    return res.data.ya_respondido;
   },
 };
 

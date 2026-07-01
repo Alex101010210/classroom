@@ -23,11 +23,19 @@ const Examen = sequelize.define('Examen', {
     type: DataTypes.TEXT,
     allowNull: true
   },
-  // Preguntas almacenadas como JSON
+  // Preguntas almacenadas como JSON en columna TEXT
   preguntas: {
-    type: DataTypes.JSONB,
+    type: DataTypes.TEXT,
     allowNull: false,
-    defaultValue: []
+    defaultValue: '[]',
+    get() {
+      const raw = this.getDataValue('preguntas');
+      if (!raw) return [];
+      try { return typeof raw === 'string' ? JSON.parse(raw) : raw; } catch { return []; }
+    },
+    set(val) {
+      this.setDataValue('preguntas', typeof val === 'string' ? val : JSON.stringify(val));
+    }
   },
   color: {
     type: DataTypes.TEXT,
@@ -51,7 +59,7 @@ const Examen = sequelize.define('Examen', {
 }, {
   tableName: 'examenes',
   timestamps: true,
-  createdAt: 'creado_en',
+  createdAt: 'created_at',
   updatedAt: false
 });
 

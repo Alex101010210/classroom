@@ -47,7 +47,7 @@ const PollsList: React.FC = () => {
             title: e.titulo,
             description: e.descripcion || '',
             numPreguntas: e.preguntas?.length ?? 0,
-            status: 'pending' as ItemStatus,
+            status: (e.ya_respondida ? 'completed' : 'pending') as ItemStatus,
           })),
           ...examenes.map(e => ({
             id: e.id,
@@ -57,8 +57,11 @@ const PollsList: React.FC = () => {
             numPreguntas: e.preguntas?.length ?? 0,
             deadline: e.deadline,
             color: e.color,
-            status: (e.deadline && new Date(e.deadline) < new Date()
-              ? 'expired' : 'pending') as ItemStatus,
+            status: (e.ya_respondido
+              ? 'completed'
+              : e.deadline && new Date(e.deadline) < new Date()
+                ? 'expired'
+                : 'pending') as ItemStatus,
           })),
         ].sort((a, b) => {
           if (a.status === b.status) return 0;

@@ -18,6 +18,8 @@ import TeacherProfile from './pages/teacher/Profile';
 import Examen from './pages/teacher/Examen';
 import Encuestas from './pages/teacher/Encuestas';
 import TareaDetail from './pages/teacher/TareaDetail';
+import EncuestaResultados from './pages/teacher/EncuestaResultados';
+import ExamenResultados from './pages/teacher/ExamenResultados';
 
 function App() {
   return (
@@ -66,6 +68,12 @@ function App() {
         <Route path="/teacher/avisos" element={<Avisos />} />
         <Route path="/teacher/examen" element={<Examen />} />
         <Route path="/teacher/encuestas" element={<Encuestas />} />
+        <Route path="/teacher/encuesta/:encuestaId/resultados" element={
+          <ProtectedRoute><EncuestaResultados /></ProtectedRoute>
+        } />
+        <Route path="/teacher/examen/:examenId/resultados" element={
+          <ProtectedRoute><ExamenResultados /></ProtectedRoute>
+        } />
       </Routes>
     </Router>
   )

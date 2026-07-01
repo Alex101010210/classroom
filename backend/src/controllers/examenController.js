@@ -87,7 +87,7 @@ exports.getExamenesByClase = async (req, res) => {
 
     const examenes = await Examen.findAll({
       where: { clase_id, maestro_id, activo: true },
-      order: [['creado_en', 'DESC']]
+      order: [['created_at', 'DESC']]
     });
 
     res.json({ examenes });
@@ -101,14 +101,27 @@ exports.getExamenesByClase = async (req, res) => {
 exports.getExamenesByClaseAlumno = async (req, res) => {
   try {
     const { clase_id } = req.params;
+    const alumno_id = req.user.id;
+    const { RespuestaExamen } = require('../models/Respuestas');
 
     const examenes = await Examen.findAll({
       where: { clase_id, activo: true },
-      attributes: ['id', 'titulo', 'descripcion', 'preguntas', 'color', 'deadline', 'one_attempt', 'creado_en'],
-      order: [['creado_en', 'DESC']]
+      attributes: ['id', 'titulo', 'descripcion', 'preguntas', 'color', 'deadline', 'one_attempt', 'created_at'],
+      order: [['created_at', 'DESC']]
     });
 
-    res.json({ examenes });
+    const ids = examenes.map(e => e.id);
+    const respondidos = ids.length > 0
+      ? await RespuestaExamen.findAll({ where: { examen_id: ids, alumno_id }, attributes: ['examen_id'] })
+      : [];
+    const respondidoSet = new Set(respondidos.map(r => r.examen_id));
+
+    const result = examenes.map(e => ({
+      ...e.toJSON(),
+      ya_respondido: respondidoSet.has(e.id)
+    }));
+
+    res.json({ examenes: result });
   } catch (error) {
     console.error('Error al obtener exámenes:', error);
     res.status(500).json({ message: 'Error al obtener los exámenes', error: error.message });
