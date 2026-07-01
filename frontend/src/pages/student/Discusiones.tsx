@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faUser, faPlus, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faUser, faPaperPlane, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import { foroService, postForoService, PostForoData } from '../../services/api';
-import './Discusiones.css';
+import { authService } from '../../services/authService';
+import '../teacher/Discusiones.css';
 
 interface Foro {
   id: number;
@@ -11,7 +12,7 @@ interface Foro {
   pregunta: string;
 }
 
-const Discusiones: React.FC = () => {
+const StudentDiscusiones: React.FC = () => {
   const navigate = useNavigate();
   const { foroId } = useParams<{ foroId: string }>();
   const [foro, setForo] = useState<Foro | null>(null);
@@ -21,6 +22,12 @@ const Discusiones: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  const currentUser = authService.getCurrentUser();
+  const studentName = currentUser
+    ? `${currentUser.nombre} ${currentUser.apellido || ''}`.trim()
+    : 'Estudiante';
 
   useEffect(() => {
     if (!foroId) return;
@@ -30,7 +37,7 @@ const Discusiones: React.FC = () => {
         setLoading(true);
         const [foroData, postsData] = await Promise.all([
           foroService.getForoById(foroId),
-          postForoService.getPosts(foroId)
+          postForoService.getPosts(foroId),
         ]);
         setForo({ id: foroData.id, titulo: foroData.titulo, pregunta: foroData.pregunta });
         setPosts(postsData);
@@ -43,6 +50,16 @@ const Discusiones: React.FC = () => {
 
     cargarDatos();
   }, [foroId]);
+
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setShowUserMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, []);
 
   const handleEnviar = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,7 +80,7 @@ const Discusiones: React.FC = () => {
   const formatFecha = (dateString: string) => {
     return new Date(dateString).toLocaleString('es-MX', {
       year: 'numeric', month: 'long', day: 'numeric',
-      hour: '2-digit', minute: '2-digit'
+      hour: '2-digit', minute: '2-digit',
     });
   };
 
@@ -71,26 +88,25 @@ const Discusiones: React.FC = () => {
     <div className="discusiones-page">
       <header className="dashboard-header">
         <div className="header-logo">
-          <button className="btn-back" onClick={() => navigate('/teacher/foros-list')}>
+          <button className="btn-back" onClick={() => navigate('/student/foros-list')}>
             <FontAwesomeIcon icon={faArrowLeft} />
           </button>
+          <span className="header-logo-text">PollClass</span>
         </div>
         <div className="header-actions">
-          <button className="btn-header btn-add" onClick={() => navigate('/teacher/foro')}>
-            <FontAwesomeIcon icon={faPlus} />
-          </button>
-          <div className="user-menu-container">
+          <div className="user-menu-container" ref={userMenuRef}>
             <button className="btn-header btn-users" onClick={() => setShowUserMenu(!showUserMenu)}>
               <FontAwesomeIcon icon={faUser} />
             </button>
             {showUserMenu && (
               <div className="user-dropdown-menu">
-                <button className="user-menu-item" onClick={() => { setShowUserMenu(false); alert('Perfil - por implementar'); }}>
+                <div className="user-menu-name">{studentName}</div>
+                <button className="user-menu-item" onClick={() => { setShowUserMenu(false); navigate('/student/profile'); }}>
                   <FontAwesomeIcon icon={faUser} />
                   <span>Mi Perfil</span>
                 </button>
-                <button className="user-menu-item logout" onClick={() => { localStorage.clear(); navigate('/login'); }}>
-                  <FontAwesomeIcon icon={faArrowLeft} />
+                <button className="user-menu-item logout" onClick={() => { if (window.confirm('¿Estás seguro que deseas salir?')) { authService.logout(); navigate('/login'); } }}>
+                  <FontAwesomeIcon icon={faRightFromBracket} />
                   <span>Cerrar Sesión</span>
                 </button>
               </div>
@@ -163,6 +179,4 @@ const Discusiones: React.FC = () => {
   );
 };
 
-export default Discusiones;
-
-// Made with Bob
+export default StudentDiscusiones;

@@ -25,9 +25,9 @@ const Examen = sequelize.define('Examen', {
   },
   // Preguntas almacenadas como JSON
   preguntas: {
-    type: DataTypes.JSONB,
+    type: DataTypes.TEXT,
     allowNull: false,
-    defaultValue: []
+    defaultValue: '[]'
   },
   color: {
     type: DataTypes.TEXT,

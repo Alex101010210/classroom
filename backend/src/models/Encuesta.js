@@ -25,9 +25,9 @@ const Encuesta = sequelize.define('Encuesta', {
   },
   // Preguntas almacenadas como JSON
   preguntas: {
-    type: DataTypes.JSONB,
+    type: DataTypes.TEXT,
     allowNull: false,
-    defaultValue: []
+    defaultValue: '[]'
   },
   activa: {
     type: DataTypes.BOOLEAN,

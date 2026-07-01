@@ -12,8 +12,6 @@ const postForoRoutes = require('./postForo.routes');
 // const analyticsRoutes = require('./analytics.routes');
 const encuestaRoutes   = require('./encuesta.routes');
 const examenRoutes     = require('./examen.routes');
-const pollRoutes       = require('./poll.routes');
-const taskRoutes       = require('./task.routes');
 
 // Ruta de prueba
 router.get('/health', (req, res) => {
