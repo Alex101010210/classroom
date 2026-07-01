@@ -2,73 +2,72 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faUser, faPlus, faPaperPlane, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { foroService, postForoService, PostForoData } from '../../services/api';
 import './Discusiones.css';
 
 interface Foro {
-  id: string;
+  id: number;
   titulo: string;
-  preguntaDetonadora: string;
-}
-
-interface Comentario {
-  id: string;
-  foroId: string;
-  autor: string;
-  texto: string;
-  fecha: string;
+  pregunta: string;
 }
 
 const Discusiones: React.FC = () => {
   const navigate = useNavigate();
   const { foroId } = useParams<{ foroId: string }>();
   const [foro, setForo] = useState<Foro | null>(null);
-  const [comentarios, setComentarios] = useState<Comentario[]>([]);
+  const [posts, setPosts] = useState<PostForoData[]>([]);
   const [nuevoComentario, setNuevoComentario] = useState('');
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const savedForos = localStorage.getItem('foros');
-    if (savedForos) {
-      const foros: Foro[] = JSON.parse(savedForos);
-      const found = foros.find(f => f.id === foroId);
-      if (found) setForo(found);
-    }
+    if (!foroId) return;
 
-    const savedComentarios = localStorage.getItem('comentarios');
-    if (savedComentarios) {
-      const todos: Comentario[] = JSON.parse(savedComentarios);
-      setComentarios(todos.filter(c => c.foroId === foroId));
-    }
-  }, [foroId]);
-
-  const handleEnviar = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!nuevoComentario.trim()) return;
-
-    const nuevo: Comentario = {
-      id: Date.now().toString(),
-      foroId: foroId!,
-      autor: 'Maestro',
-      texto: nuevoComentario.trim(),
-      fecha: new Date().toISOString(),
+    const cargarDatos = async () => {
+      try {
+        setLoading(true);
+        const [foroData, postsData] = await Promise.all([
+          foroService.getForoById(foroId),
+          postForoService.getPosts(foroId)
+        ]);
+        setForo({ id: foroData.id, titulo: foroData.titulo, pregunta: foroData.pregunta });
+        setPosts(postsData);
+      } catch (err: any) {
+        setError(err.response?.data?.message || 'Error al cargar el foro');
+      } finally {
+        setLoading(false);
+      }
     };
 
-    const savedComentarios = localStorage.getItem('comentarios');
-    const todos: Comentario[] = savedComentarios ? JSON.parse(savedComentarios) : [];
-    todos.push(nuevo);
-    localStorage.setItem('comentarios', JSON.stringify(todos));
+    cargarDatos();
+  }, [foroId]);
 
-    setComentarios(prev => [...prev, nuevo]);
-    setNuevoComentario('');
+  const handleEnviar = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!nuevoComentario.trim() || !foroId) return;
+
+    try {
+      setIsSubmitting(true);
+      const newPost = await postForoService.createPost(foroId, nuevoComentario.trim());
+      setPosts(prev => [...prev, newPost]);
+      setNuevoComentario('');
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Error al enviar el comentario');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleEliminar = (comentarioId: string) => {
-    const savedComentarios = localStorage.getItem('comentarios');
-    if (!savedComentarios) return;
-    const todos: Comentario[] = JSON.parse(savedComentarios);
-    const actualizados = todos.filter(c => c.id !== comentarioId);
-    localStorage.setItem('comentarios', JSON.stringify(actualizados));
-    setComentarios(prev => prev.filter(c => c.id !== comentarioId));
+  const handleEliminar = async (postId: number) => {
+    if (!foroId) return;
+    try {
+      await postForoService.deletePost(foroId, postId);
+      setPosts(prev => prev.filter(p => p.id !== postId));
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Error al eliminar el comentario');
+    }
   };
 
   const formatFecha = (dateString: string) => {
@@ -111,52 +110,76 @@ const Discusiones: React.FC = () => {
       </header>
 
       <div className="discusiones-container">
-        {foro && (
-          <div className="discusiones-header">
-            <h1>{foro.titulo}</h1>
-            <p className="pregunta-detonadora">"{foro.preguntaDetonadora}"</p>
+        {loading && (
+          <div className="empty-discusiones">
+            <p>Cargando...</p>
           </div>
         )}
 
-        <div className="comentarios-lista">
-          {comentarios.length === 0 ? (
-            <div className="empty-discusiones">
-              <p>Aún no hay participaciones. ¡Sé el primero en comentar!</p>
-            </div>
-          ) : (
-            comentarios.map(c => (
-              <div key={c.id} className="comentario-card">
-                <div className="comentario-header">
-                  <span className="comentario-autor">{c.autor}</span>
-                  <div className="comentario-meta">
-                    <span className="comentario-fecha">{formatFecha(c.fecha)}</span>
-                    <button className="btn-eliminar-comentario" onClick={() => handleEliminar(c.id)} title="Eliminar">
-                      <FontAwesomeIcon icon={faTrash} />
-                    </button>
-                  </div>
-                </div>
-                <p className="comentario-texto">{c.texto}</p>
-              </div>
-            ))
-          )}
-        </div>
+        {error && (
+          <div className="empty-discusiones">
+            <p style={{ color: '#ef4444' }}>{error}</p>
+          </div>
+        )}
 
-        <form className="comentario-form" onSubmit={handleEnviar}>
-          <textarea
-            value={nuevoComentario}
-            onChange={e => setNuevoComentario(e.target.value)}
-            placeholder="Escribe tu participación..."
-            rows={3}
-            required
-          />
-          <button type="submit" className="btn-enviar">
-            <FontAwesomeIcon icon={faPaperPlane} />
-            <span>Enviar</span>
-          </button>
-        </form>
+        {!loading && !error && foro && (
+          <div className="discusiones-header">
+            <h1>{foro.titulo}</h1>
+            <p className="pregunta-detonadora">"{foro.pregunta}"</p>
+          </div>
+        )}
+
+        {!loading && !error && (
+          <div className="comentarios-lista">
+            {posts.length === 0 ? (
+              <div className="empty-discusiones">
+                <p>Aún no hay participaciones. ¡Sé el primero en comentar!</p>
+              </div>
+            ) : (
+              posts.map(post => (
+                <div key={post.id} className="comentario-card">
+                  <div className="comentario-header">
+                    <span className="comentario-autor">
+                      {post.autor.nombre} {post.autor.apellido}
+                    </span>
+                    <div className="comentario-meta">
+                      <span className="comentario-fecha">{formatFecha(post.fecha_publicacion)}</span>
+                      <button
+                        className="btn-eliminar-comentario"
+                        onClick={() => handleEliminar(post.id)}
+                        title="Eliminar"
+                      >
+                        <FontAwesomeIcon icon={faTrash} />
+                      </button>
+                    </div>
+                  </div>
+                  <p className="comentario-texto">{post.contenido}</p>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {!loading && !error && (
+          <form className="comentario-form" onSubmit={handleEnviar}>
+            <textarea
+              value={nuevoComentario}
+              onChange={e => setNuevoComentario(e.target.value)}
+              placeholder="Escribe tu participación..."
+              rows={3}
+              required
+            />
+            <button type="submit" className="btn-enviar" disabled={isSubmitting}>
+              <FontAwesomeIcon icon={faPaperPlane} />
+              <span>{isSubmitting ? 'Enviando...' : 'Enviar'}</span>
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );
 };
 
 export default Discusiones;
+
+// Made with Bob

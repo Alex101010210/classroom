@@ -9,6 +9,7 @@ const enrollmentRoutes = require('./enrollment.routes');
 const pollRoutes = require('./poll.routes');
 const taskRoutes = require('./task.routes');
 const foroRoutes = require('./foro.routes');
+const postForoRoutes = require('./postForo.routes');
 // const analyticsRoutes = require('./analytics.routes');
 
 // Ruta de prueba
@@ -24,6 +25,7 @@ router.use('/profile', profileRoutes);
 router.use('/polls', pollRoutes);
 router.use('/classes/:classId/tasks', taskRoutes);
 router.use('/foros', foroRoutes);
+router.use('/foros/:foroId/posts', postForoRoutes);
 // router.use('/analytics', analyticsRoutes);
 
 module.exports = router;

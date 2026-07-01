@@ -260,4 +260,38 @@ export const foroService = {
   },
 };
 
+// Tipos para posts de foro
+export interface PostForoData {
+  id: number;
+  foro_id: number;
+  usuario_id: number;
+  contenido: string;
+  fecha_publicacion: string;
+  autor: {
+    id: number;
+    nombre: string;
+    apellido: string;
+  };
+}
+
+// Servicios de Posts de Foro
+export const postForoService = {
+  // Obtener todos los posts de un foro
+  getPosts: async (foroId: string): Promise<PostForoData[]> => {
+    const response = await api.get(`/foros/${foroId}/posts`);
+    return response.data.posts;
+  },
+
+  // Crear post en un foro
+  createPost: async (foroId: string, contenido: string): Promise<PostForoData> => {
+    const response = await api.post(`/foros/${foroId}/posts`, { contenido });
+    return response.data.post;
+  },
+
+  // Eliminar post
+  deletePost: async (foroId: string, postId: number): Promise<void> => {
+    await api.delete(`/foros/${foroId}/posts/${postId}`);
+  },
+};
+
 // Made with Bob
