@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faUser, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { foroService } from '../../services/api';
 import './Foro.css';
 
 const Foro: React.FC = () => {
   const navigate = useNavigate();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     titulo: '',
     descripcion: '',
@@ -14,65 +16,39 @@ const Foro: React.FC = () => {
     preguntaDetonadora: '',
     fechaInicio: '',
     fechaLimite: '',
-    materialApoyo: null as File | null,
     enlace: ''
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFormData(prev => ({
-        ...prev,
-        materialApoyo: e.target.files![0]
-      }));
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      setIsSubmitting(true);
+      await foroService.createForo({
+        titulo: formData.titulo,
+        descrip_foro: formData.descripcion || undefined,
+        fecha_inicio: formData.fechaInicio,
+        obejtivo_foro: formData.objetivo,
+        pregunta: formData.preguntaDetonadora,
+        fecha_fin: formData.fechaLimite,
+        links: formData.enlace || undefined
+      });
+      alert('¡Foro creado exitosamente!');
+      navigate('/teacher/foros-list');
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Error al crear el foro');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Crear nuevo foro con ID único
-    const newForo = {
-      id: Date.now().toString(),
-      ...formData,
-      materialApoyo: formData.materialApoyo?.name || '',
-      createdAt: new Date().toISOString()
-    };
+  const handleBack = () => navigate('/teacher/foros-list');
 
-    // Obtener foros existentes del localStorage
-    const savedForos = localStorage.getItem('foros');
-    const foros = savedForos ? JSON.parse(savedForos) : [];
-    
-    // Agregar el nuevo foro
-    foros.push(newForo);
-    
-    // Guardar en localStorage
-    localStorage.setItem('foros', JSON.stringify(foros));
-    
-    // Mostrar mensaje de éxito
-    alert('¡Foro creado exitosamente!');
-    
-    // Redirigir a la lista de foros
-    navigate('/teacher/foros-list');
-  };
-  const handleForos = () => {
-    navigate('/teacher/foros-list');
-  }
-
-  const handleBack = () => {
-    navigate('/teacher/dashboard');
-  };
-
-  const handleUsers = () => {
-    setShowUserMenu(!showUserMenu);
-  };
+  const handleUsers = () => setShowUserMenu(!showUserMenu);
 
   const handleProfile = () => {
     setShowUserMenu(false);
@@ -88,7 +64,6 @@ const Foro: React.FC = () => {
 
   return (
     <div className="foro-page">
-      {/* Header - Mismo que Dashboard */}
       <header className="dashboard-header">
         <div className="header-logo">
           <button className="btn-back" onClick={handleBack}>
@@ -119,176 +94,150 @@ const Foro: React.FC = () => {
         </div>
       </header>
 
-      {/* Main Content */}
       <div className="foro-container">
         <div className="foro-header">
           <h1>Foro Académico</h1>
         </div>
 
-      <form className="foro-form" onSubmit={handleSubmit}>
-        {/* Título del foro */}
-        <div className="form-group">
-          <label htmlFor="titulo">
-            <span className="icon"></span>
-            Título del foro:
-          </label>
-          <input
-            type="text"
-            id="titulo"
-            name="titulo"
-            value={formData.titulo}
-            onChange={handleInputChange}
-            placeholder="Ingresa el título del foro"
-            required
-          />
-        </div>
-
-        {/* Descripción / Instrucciones */}
-        <div className="form-group">
-          <label htmlFor="descripcion">
-            <span className="icon"></span>
-            Descripción / Instrucciones:
-          </label>
-          <textarea
-            id="descripcion"
-            name="descripcion"
-            value={formData.descripcion}
-            onChange={handleInputChange}
-            placeholder="Describe el propósito del foro y las instrucciones para participar"
-            rows={4}
-            required
-          />
-        </div>
-
-        {/* Objetivo de aprendizaje */}
-        <div className="form-group">
-          <label htmlFor="objetivo">
-            <span className="icon"></span>
-            Objetivo de aprendizaje:
-          </label>
-          <textarea
-            id="objetivo"
-            name="objetivo"
-            value={formData.objetivo}
-            onChange={handleInputChange}
-            placeholder="¿Qué esperas que los estudiantes aprendan con este foro?"
-            rows={3}
-            required
-          />
-        </div>
-
-        {/* Pregunta detonadora */}
-        <div className="form-group">
-          <label htmlFor="preguntaDetonadora">
-            <span className="icon"></span>
-            Pregunta detonadora:
-          </label>
-          <textarea
-            id="preguntaDetonadora"
-            name="preguntaDetonadora"
-            value={formData.preguntaDetonadora}
-            onChange={handleInputChange}
-            placeholder="Plantea una pregunta que genere reflexión y discusión"
-            rows={3}
-            required
-          />
-        </div>
-
-        {/* Tipo de foro */}
-        <div className="form-group foro-type">
-          <label>
-            <span className="icon"></span>
-            Tipo de foro:
-          </label>
-          <div className="foro-type-badge">
-            <span className="badge-open">FORO ABIERTO</span>
-            <p className="foro-type-description">
-              Todos los estudiantes pueden ver y participar en las discusiones
-            </p>
+        <form className="foro-form" onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="titulo">
+              <span className="icon"></span>
+              Título del foro:
+            </label>
+            <input
+              type="text"
+              id="titulo"
+              name="titulo"
+              value={formData.titulo}
+              onChange={handleInputChange}
+              placeholder="Ingresa el título del foro"
+              required
+            />
           </div>
-        </div>
 
-        {/* Material de apoyo */}
-        <div className="form-group">
-          <label>
-            <span className="icon"></span>
-            Material de apoyo (opcional):
-          </label>
-          <div className="material-apoyo-container">
-            <div className="file-upload">
-              <input
-                type="file"
-                id="materialApoyo"
-                onChange={handleFileChange}
-                accept=".pdf,.doc,.docx,.ppt,.pptx"
-              />
-              <label htmlFor="materialApoyo" className="file-upload-label">
-              Subir archivo
+          <div className="form-group">
+            <label htmlFor="descripcion">
+              <span className="icon"></span>
+              Descripción / Instrucciones:
+            </label>
+            <textarea
+              id="descripcion"
+              name="descripcion"
+              value={formData.descripcion}
+              onChange={handleInputChange}
+              placeholder="Describe el propósito del foro y las instrucciones para participar"
+              rows={4}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="objetivo">
+              <span className="icon"></span>
+              Objetivo de aprendizaje:
+            </label>
+            <textarea
+              id="objetivo"
+              name="objetivo"
+              value={formData.objetivo}
+              onChange={handleInputChange}
+              placeholder="¿Qué esperas que los estudiantes aprendan con este foro?"
+              rows={3}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="preguntaDetonadora">
+              <span className="icon"></span>
+              Pregunta detonadora:
+            </label>
+            <textarea
+              id="preguntaDetonadora"
+              name="preguntaDetonadora"
+              value={formData.preguntaDetonadora}
+              onChange={handleInputChange}
+              placeholder="Plantea una pregunta que genere reflexión y discusión"
+              rows={3}
+              required
+            />
+          </div>
+
+          <div className="form-group foro-type">
+            <label>
+              <span className="icon"></span>
+              Tipo de foro:
+            </label>
+            <div className="foro-type-badge">
+              <span className="badge-open">FORO ABIERTO</span>
+              <p className="foro-type-description">
+                Todos los estudiantes pueden ver y participar en las discusiones
+              </p>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label>
+              <span className="icon"></span>
+              Material de apoyo (opcional):
+            </label>
+            <div className="material-apoyo-container">
+              <div className="enlace-input">
+                <input
+                  type="url"
+                  name="enlace"
+                  value={formData.enlace}
+                  onChange={handleInputChange}
+                  placeholder="Agregar enlace (URL)"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="form-group dates-container">
+            <div className="date-field">
+              <label htmlFor="fechaInicio">
+                <span className="icon"></span>
+                Fecha de inicio:
               </label>
-              {formData.materialApoyo && (
-                <span className="file-name">{formData.materialApoyo.name}</span>
-              )}
-            </div>
-            <div className="enlace-input">
               <input
-                type="url"
-                name="enlace"
-                value={formData.enlace}
+                type="date"
+                id="fechaInicio"
+                name="fechaInicio"
+                value={formData.fechaInicio}
                 onChange={handleInputChange}
-                placeholder="Agregar enlace (URL)"
+                required
+              />
+            </div>
+            <div className="date-field">
+              <label htmlFor="fechaLimite">
+                <span className="icon"></span>
+                Fecha límite:
+              </label>
+              <input
+                type="date"
+                id="fechaLimite"
+                name="fechaLimite"
+                value={formData.fechaLimite}
+                onChange={handleInputChange}
+                required
               />
             </div>
           </div>
-        </div>
 
-        {/* Fechas */}
-        <div className="form-group dates-container">
-          <div className="date-field">
-            <label htmlFor="fechaInicio">
-              <span className="icon"></span>
-              Fecha de inicio:
-            </label>
-            <input
-              type="date"
-              id="fechaInicio"
-              name="fechaInicio"
-              value={formData.fechaInicio}
-              onChange={handleInputChange}
-              required
-            />
+          <div className="form-actions">
+            <button type="button" className="btn-cancel" onClick={handleBack}>
+              Cancelar
+            </button>
+            <button type="submit" className="btn-submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Creando...' : 'Crear Foro'}
+            </button>
           </div>
-
-          <div className="date-field">
-            <label htmlFor="fechaLimite">
-              <span className="icon"></span>
-              Fecha límite:
-            </label>
-            <input
-              type="date"
-              id="fechaLimite"
-              name="fechaLimite"
-              value={formData.fechaLimite}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-        </div>
-
-        {/* Botones de acción */}
-        <div className="form-actions">
-          <button type="button" className="btn-cancel" onClick={handleForos}>
-            Cancelar
-          </button>
-          <button type="submit" className="btn-submit">
-            Crear Foro
-          </button>
-        </div>
-      </form>
+        </form>
       </div>
     </div>
   );
 };
 
 export default Foro;
-
-

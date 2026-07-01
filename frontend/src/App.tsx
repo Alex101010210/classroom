@@ -60,8 +60,12 @@ function App() {
         <Route path="/student/profile" element={
           <ProtectedRoute><StudentProfile /></ProtectedRoute>
         } />
-        <Route path="/teacher/foro" element={<Foro />} />
-        <Route path="/teacher/foros-list" element={<ForoDetail />} />
+        <Route path="/teacher/foro" element={
+          <ProtectedRoute><Foro /></ProtectedRoute>
+        } />
+        <Route path="/teacher/foros-list" element={
+          <ProtectedRoute><ForoDetail /></ProtectedRoute>
+        } />
         <Route path="/teacher/discusiones/:foroId" element={<Discusiones />} />
         <Route path="/teacher/avisos" element={<Avisos />} />
         <Route path="/teacher/examen" element={<Examen />} />

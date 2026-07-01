@@ -210,4 +210,54 @@ export const taskService = {
 
 export default api;
 
+// Tipos para foros
+export interface ForoData {
+  id: number;
+  clase_id: number;
+  titulo: string;
+  descrip_foro: string | null;
+  fecha_inicio: string;
+  activo_foro: boolean;
+  obejtivo_foro: string;
+  pregunta: string;
+  fecha_fin: string;
+  links: string | null;
+}
+
+export interface CreateForoPayload {
+  titulo: string;
+  descrip_foro?: string;
+  fecha_inicio: string;
+  obejtivo_foro: string;
+  pregunta: string;
+  fecha_fin: string;
+  links?: string;
+}
+
+// Servicios de Foros
+export const foroService = {
+  // Obtener todos los foros
+  getForos: async (): Promise<ForoData[]> => {
+    const response = await api.get('/foros');
+    return response.data.foros;
+  },
+
+  // Obtener un foro específico
+  getForoById: async (foroId: string): Promise<ForoData> => {
+    const response = await api.get(`/foros/${foroId}`);
+    return response.data.foro;
+  },
+
+  // Crear foro
+  createForo: async (payload: CreateForoPayload): Promise<ForoData> => {
+    const response = await api.post('/foros', payload);
+    return response.data.foro;
+  },
+
+  // Eliminar foro
+  deleteForo: async (foroId: string): Promise<void> => {
+    await api.delete(`/foros/${foroId}`);
+  },
+};
+
 // Made with Bob
