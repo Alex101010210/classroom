@@ -204,7 +204,7 @@ const ClassDetail: React.FC = () => {
           <FontAwesomeIcon icon={faArrowLeft} />
           <span>Volver al Dashboard</span>
         </button>
-        <h1>{classData.nombre_class}</h1>
+        <h1 className="titulo-header">{classData.nombre_class}</h1>
       </header>
 
       <div className="class-detail-content">

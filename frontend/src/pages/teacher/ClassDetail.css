@@ -4,9 +4,14 @@
 }
 
 .class-detail-header {
+  display: flex;
+  align-items: center;
   background: linear-gradient(135deg, #4A5AE8 0%, #5B6CF8 100%);
   padding: 16px 28px;
   box-shadow: 0 2px 8px rgba(74, 90, 232, 0.3);
+}
+.titulo-header{
+  margin-left: 27%;
 }
 
 .btn-back {
@@ -22,7 +27,6 @@
   font-weight: 600;
   color: #2c3158;
   transition: all 0.18s;
-  margin-bottom: 14px;
   box-shadow: 0 1px 4px rgba(0,0,0,0.12);
 }
 
@@ -36,7 +40,6 @@
   color: #ffffff;
   font-size: 1.35rem;
   font-weight: 700;
-  margin: 0;
   text-align: center;
 }
 
