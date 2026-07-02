@@ -131,7 +131,7 @@ const TeacherProfile: React.FC = () => {
           <FontAwesomeIcon icon={faArrowLeft} />
           <span>Volver al Dashboard</span>
         </button>
-        <h1>Mi Perfil</h1>
+        <h1 className='titulo-header'>Mi Perfil</h1>
       </header>
 
       <div className="profile-content">

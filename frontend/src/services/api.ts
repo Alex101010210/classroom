@@ -377,4 +377,88 @@ export const resultadosService = {
 
 export default api;
 
+// Tipos para foros
+export interface ForoData {
+  id: number;
+  clase_id: number;
+  titulo: string;
+  descrip_foro: string | null;
+  fecha_inicio: string;
+  activo_foro: boolean;
+  obejtivo_foro: string;
+  pregunta: string;
+  fecha_fin: string;
+  links: string | null;
+}
+
+export interface CreateForoPayload {
+  titulo: string;
+  descrip_foro?: string;
+  fecha_inicio: string;
+  obejtivo_foro: string;
+  pregunta: string;
+  fecha_fin: string;
+  links?: string;
+}
+
+// Servicios de Foros
+export const foroService = {
+  // Obtener todos los foros
+  getForos: async (): Promise<ForoData[]> => {
+    const response = await api.get('/foros');
+    return response.data.foros;
+  },
+
+  // Obtener un foro específico
+  getForoById: async (foroId: string): Promise<ForoData> => {
+    const response = await api.get(`/foros/${foroId}`);
+    return response.data.foro;
+  },
+
+  // Crear foro
+  createForo: async (payload: CreateForoPayload): Promise<ForoData> => {
+    const response = await api.post('/foros', payload);
+    return response.data.foro;
+  },
+
+  // Eliminar foro
+  deleteForo: async (foroId: string): Promise<void> => {
+    await api.delete(`/foros/${foroId}`);
+  },
+};
+
+// Tipos para posts de foro
+export interface PostForoData {
+  id: number;
+  foro_id: number;
+  usuario_id: number;
+  contenido: string;
+  fecha_publicacion: string;
+  autor: {
+    id: number;
+    nombre: string;
+    apellido: string;
+  };
+}
+
+// Servicios de Posts de Foro
+export const postForoService = {
+  // Obtener todos los posts de un foro
+  getPosts: async (foroId: string): Promise<PostForoData[]> => {
+    const response = await api.get(`/foros/${foroId}/posts`);
+    return response.data.posts;
+  },
+
+  // Crear post en un foro
+  createPost: async (foroId: string, contenido: string): Promise<PostForoData> => {
+    const response = await api.post(`/foros/${foroId}/posts`, { contenido });
+    return response.data.post;
+  },
+
+  // Eliminar post
+  deletePost: async (foroId: string, postId: number): Promise<void> => {
+    await api.delete(`/foros/${foroId}/posts/${postId}`);
+  },
+};
+
 // Made with Bob

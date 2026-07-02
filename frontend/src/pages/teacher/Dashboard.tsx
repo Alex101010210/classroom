@@ -32,7 +32,6 @@ const TeacherDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [isSubjectsOpen, setIsSubjectsOpen] = useState(false);
-  const [isForosOpen, setIsForosOpen] = useState(false);
   const [loadError, setLoadError] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -45,7 +44,6 @@ const TeacherDashboard: React.FC = () => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const userMenuRef   = useRef<HTMLDivElement>(null);
-  const forosRef      = useRef<HTMLDivElement>(null);
   const subjectsRef   = useRef<HTMLDivElement>(null);
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
@@ -67,9 +65,6 @@ const TeacherDashboard: React.FC = () => {
     const handleOutsideClick = (e: MouseEvent) => {
       if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
         setShowUserMenu(false);
-      }
-      if (forosRef.current && !forosRef.current.contains(e.target as Node)) {
-        setIsForosOpen(false);
       }
       if (subjectsRef.current && !subjectsRef.current.contains(e.target as Node)) {
         setIsSubjectsOpen(false);
@@ -123,13 +118,11 @@ const TeacherDashboard: React.FC = () => {
 
   const handleCreateForo = () => {
     setIsMobileMenuOpen(false);
-    setIsForosOpen(false);
     navigate('/teacher/foro');
   };
 
   const handleVerForos = () => {
     setIsMobileMenuOpen(false);
-    setIsForosOpen(false);
     navigate('/teacher/foros-list');
   };
 
@@ -300,16 +293,9 @@ const TeacherDashboard: React.FC = () => {
                                 aria-label="Opciones"
                               >
                                 <FontAwesomeIcon icon={faEllipsisV} />
-                              </button>
-                              {/*openMenuId === subject.id && (
+                              </button>{/*
+                              {openMenuId === subject.id && (
                                 <div className="menu-dropdown">
-                                  <button
-                                    className="menu-item"
-                                    onClick={(e) => { e.stopPropagation(); handleAddStudent(subject); }}
-                                  >
-                                    <FontAwesomeIcon icon={faUserPlus} />
-                                    <span>Agregar Alumno</span>
-                                  </button> 
                                   <button
                                     className="menu-item"
                                     onClick={(e) => { e.stopPropagation(); handleAddTask(subject); }}
@@ -324,6 +310,7 @@ const TeacherDashboard: React.FC = () => {
                                     <FontAwesomeIcon icon={faFileAlt} />
                                     <span>Agregar Examen</span>
                                   </button>
+                                  
                                   <button
                                     className="menu-item delete"
                                     onClick={(e) => { e.stopPropagation(); handleDeleteClass(subject); }}
@@ -332,7 +319,7 @@ const TeacherDashboard: React.FC = () => {
                                     <span>Eliminar</span>
                                   </button>
                                 </div>
-                              )*/}
+                              )}*/}
                             </div>
                           </div>
                         
@@ -385,34 +372,18 @@ const TeacherDashboard: React.FC = () => {
         <aside className={`dashboard-sidebar ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
           <div className="sidebar-tools-label">Herramientas</div>
           <nav className="sidebar-nav">
-            {/* Dropdown de Foros */}
-            <div className="foro-btn-container" ref={forosRef}>
-              <button
-                className={`sidebar-btn${isForosOpen ? ' sidebar-btn--active' : ''}`}
-                onClick={() => setIsForosOpen(!isForosOpen)}
-              >
-                <FontAwesomeIcon icon={faComments} />
-                Foros
-              </button>
-
-              {isForosOpen && (
-                <div className="foro-btn-dropdown">
-                  <button className="user-menu-item" onClick={handleVerForos}>
-                    <FontAwesomeIcon icon={faComments} />
-                    <span>Ver Foros</span>
-                  </button>
-                  <button className="user-menu-item" onClick={handleCreateForo}>
-                    <FontAwesomeIcon icon={faPenToSquare} />
-                    <span>Crear Foro</span>
-                  </button>
-                </div>
-              )}
-            </div>
-
             <button className="sidebar-btn" onClick={handleAvisos}>
               <FontAwesomeIcon icon={faClipboardList} />
               Avisos
             </button>
+                <button className="menu-item" onClick={handleVerForos}>
+                  <FontAwesomeIcon icon={faComments} />
+                  <span>Ver Foros</span>
+                </button>
+                <button className="menu-item" onClick={handleCreateForo}>
+                  <FontAwesomeIcon icon={faPenToSquare} />
+                  <span>Crear Foro</span>
+                </button>
 
             <div className="sidebar-dropdown" ref={subjectsRef}>
               <button
