@@ -6,6 +6,8 @@ import Clases from './pages/teacher/Clases';
 import ClassDetail from './pages/teacher/ClassDetail';
 import Foro from './pages/teacher/Foro';
 import ForoDetail from './pages/teacher/ForoDetail';
+import StudentForo from './pages/student/Foro';
+import StudentForoDetail from './pages/student/ForoDetail';
 import Discusiones from './pages/teacher/Discusiones';
 import Avisos from './pages/teacher/Avisos';
 import Login from './pages/Login';
@@ -18,9 +20,12 @@ import TeacherProfile from './pages/teacher/Profile';
 import Examen from './pages/teacher/Examen';
 import Encuestas from './pages/teacher/Encuestas';
 import TareaDetail from './pages/teacher/TareaDetail';
+<<<<<<< HEAD
 import EncuestaResultados from './pages/teacher/EncuestaResultados';
 import ExamenResultados from './pages/teacher/ExamenResultados';
 
+=======
+>>>>>>> ee341758299e6414c5635981724e167ae88ab3d9
 function App() {
   return (
     <Router>
@@ -61,6 +66,12 @@ function App() {
         } />
         <Route path="/student/profile" element={
           <ProtectedRoute><StudentProfile /></ProtectedRoute>
+        } />
+        <Route path="/student/foro" element={
+          <ProtectedRoute><StudentForo /></ProtectedRoute>
+        } />
+        <Route path="/student/foros-list" element={
+          <ProtectedRoute><StudentForoDetail /></ProtectedRoute>
         } />
         <Route path="/teacher/foro" element={<Foro />} />
         <Route path="/teacher/foros-list" element={<ForoDetail />} />

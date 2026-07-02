@@ -324,6 +324,55 @@
   font-style: italic;
 }
 
+/* Foros dropdown */
+.sd-foros-container {
+  position: relative;
+}
+
+.sd-nav-btn--active {
+  background: var(--background-dark);
+  color: #4A5AE8;
+}
+
+.sd-nav-btn--active svg:first-child { color: #4A5AE8; }
+
+.sd-foros-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background-color: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.sd-foros-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  text-align: left;
+  width: 100%;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.sd-foros-dropdown-item:hover {
+  background-color: #eef0fc;
+  color: #4A5AE8;
+}
+
+.sd-foros-dropdown-item svg { color: var(--text-secondary); font-size: 0.85rem; }
+.sd-foros-dropdown-item:hover svg { color: #4A5AE8; }
+
 /* Logout */
 .sd-nav-btn--logout { color: var(--danger); }
 .sd-nav-btn--logout:hover { background: #FEF2F2; color: var(--danger-dark); }
