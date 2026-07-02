@@ -20,12 +20,9 @@ import TeacherProfile from './pages/teacher/Profile';
 import Examen from './pages/teacher/Examen';
 import Encuestas from './pages/teacher/Encuestas';
 import TareaDetail from './pages/teacher/TareaDetail';
-<<<<<<< HEAD
 import EncuestaResultados from './pages/teacher/EncuestaResultados';
 import ExamenResultados from './pages/teacher/ExamenResultados';
 
-=======
->>>>>>> ee341758299e6414c5635981724e167ae88ab3d9
 function App() {
   return (
     <Router>
