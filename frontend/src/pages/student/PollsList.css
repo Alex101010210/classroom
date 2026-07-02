@@ -283,3 +283,60 @@
 }
 
 
+
+/* ── Avisos del maestro (vista alumno) ── */
+.student-avisos-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.student-aviso-card {
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  border-left: 5px solid #f59e0b;
+  border-radius: 10px;
+  padding: 16px 20px;
+}
+
+.student-aviso-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.student-aviso-icon {
+  color: #f59e0b;
+  font-size: 1rem;
+}
+
+.student-aviso-tag {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #92400e;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.student-aviso-fecha {
+  margin-left: auto;
+  font-size: 0.82rem;
+  color: #78716c;
+  font-weight: 500;
+}
+
+.student-aviso-mensaje {
+  font-size: 0.95rem;
+  color: #1c1917;
+  line-height: 1.6;
+  margin: 0 0 8px 0;
+  white-space: pre-wrap;
+}
+
+.student-aviso-atentamente {
+  font-size: 0.85rem;
+  color: #57534e;
+  margin: 0;
+}

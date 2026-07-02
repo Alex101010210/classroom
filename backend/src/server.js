@@ -10,6 +10,7 @@ require('./models/Enrollment');
 require('./models/UserProfile');
 require('./models/Encuesta');
 require('./models/Examen');
+require('./models/Aviso');
 
 const PORT = config.port;
 

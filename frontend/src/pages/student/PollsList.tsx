@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faCheckCircle, faClock, faTimesCircle, faFileAlt, faPollH } from '@fortawesome/free-solid-svg-icons';
-import { encuestaService, examenService } from '../../services/api';
+import { faArrowLeft, faCheckCircle, faClock, faTimesCircle, faFileAlt, faPollH, faBullhorn } from '@fortawesome/free-solid-svg-icons';
+import { encuestaService, examenService, avisoService, AvisoData } from '../../services/api';
 import './PollsList.css';
 
 type ItemStatus = 'pending' | 'completed' | 'expired';
@@ -24,6 +24,7 @@ const PollsList: React.FC = () => {
   const [items, setItems] = useState<ActivityItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [className, setClassName] = useState('');
+  const [avisos, setAvisos] = useState<AvisoData[]>([]);
 
   useEffect(() => {
     if (!classId) return;
@@ -34,6 +35,11 @@ const PollsList: React.FC = () => {
     if (found) setClassName(found.nombre_class || '');
 
     const fetchAll = async () => {
+      // Cargar avisos desde la API
+      avisoService.getByClase(classId)
+        .then(setAvisos)
+        .catch(() => setAvisos([]));
+
       try {
         const [encuestas, examenes] = await Promise.all([
           encuestaService.getByClaseAlumno(classId),
@@ -115,6 +121,12 @@ const PollsList: React.FC = () => {
   const formatDeadline = (dl: string) =>
     new Date(dl).toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' });
 
+  const formatFecha = (dateString: string) => {
+    if (!dateString) return '';
+    const [y, m, d] = dateString.split('-');
+    return `${d}/${m}/${y}`;
+  };
+
   return (
     <div className="polls-list-page">
       <header className="dashboard-header student">
@@ -134,6 +146,23 @@ const PollsList: React.FC = () => {
       </header>
 
       <div className="polls-content">
+        {/* Avisos de la clase */}
+        {avisos.length > 0 && (
+          <div className="student-avisos-section">
+            {[...avisos].reverse().map(aviso => (
+              <div key={aviso.id} className="student-aviso-card">
+                <div className="student-aviso-header">
+                  <FontAwesomeIcon icon={faBullhorn} className="student-aviso-icon" />
+                  <span className="student-aviso-tag">📢 Aviso</span>
+                  <span className="student-aviso-fecha">{formatFecha(aviso.fecha)}</span>
+                </div>
+                <p className="student-aviso-mensaje">{aviso.mensaje}</p>
+                <p className="student-aviso-atentamente"><em>Atentamente: {aviso.nombre_maestro}</em></p>
+              </div>
+            ))}
+          </div>
+        )}
+
         {isLoading ? (
           <div className="loading-state">
             <p>Cargando actividades...</p>

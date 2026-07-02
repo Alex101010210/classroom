@@ -133,10 +133,6 @@ const TeacherDashboard: React.FC = () => {
     navigate('/teacher/foros-list');
   };
 
-  const handleAvisos = () => {
-    setIsMobileMenuOpen(false);
-    navigate('/teacher/avisos');
-  };
 
   const toggleMenu = (subjectId: string, e: React.MouseEvent<HTMLButtonElement>) => {
     if (openMenuId === subjectId) {
@@ -354,9 +350,6 @@ const TeacherDashboard: React.FC = () => {
                               <FontAwesomeIcon icon={faUser} />
                               Total de alumnos: {subject.student_count ?? 0}
                             </p>
-                            <span className="status-badge" style={{ color: displayColor, borderColor: displayColor }}>
-                              Activa
-                            </span>
                           </div>
                         </div>
                       </div>
@@ -408,11 +401,6 @@ const TeacherDashboard: React.FC = () => {
                 </div>
               )}
             </div>
-
-            <button className="sidebar-btn" onClick={handleAvisos}>
-              <FontAwesomeIcon icon={faClipboardList} />
-              Avisos
-            </button>
 
             <div className="sidebar-dropdown" ref={subjectsRef}>
               <button

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faUserPlus, faClipboardList, faTrash, faPlus, faFileAlt, faPollH, faEye } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faUserPlus, faClipboardList, faTrash, faPlus, faFileAlt, faPollH, faEye, faBullhorn } from '@fortawesome/free-solid-svg-icons';
 import { classService, enrollmentService, encuestaService, examenService, taskService, StudentEnrollment, EncuestaDB, ExamenDB, TaskData } from '../../services/api';
 import './ClassDetail.css';
 
@@ -208,6 +208,17 @@ const ClassDetail: React.FC = () => {
       </header>
 
       <div className="class-detail-content">
+        {/* Botón de Avisos */}
+        <section className="avisos-section">
+          <button
+            className="btn-avisos"
+            onClick={() => navigate(`/teacher/avisos/${classId}`)}
+          >
+            <FontAwesomeIcon icon={faBullhorn} />
+            <span>Avisos</span>
+          </button>
+        </section>
+
         {/* Información */}
         <section className="class-info-section">
           <div className="info-card">

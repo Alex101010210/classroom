@@ -310,6 +310,32 @@ export const examenService = {
   },
 };
 
+// ─── Avisos ───────────────────────────────────────────────────────────────────
+
+export interface AvisoData {
+  id: number;
+  clase_id: number;
+  maestro_id: number;
+  fecha: string;
+  mensaje: string;
+  nombre_maestro: string;
+  creado_en: string;
+}
+
+export const avisoService = {
+  getByClase: async (classId: string | number): Promise<AvisoData[]> => {
+    const res = await api.get(`/classes/${classId}/avisos`);
+    return res.data.avisos;
+  },
+  create: async (classId: string | number, data: { fecha: string; mensaje: string; nombre_maestro: string }): Promise<AvisoData> => {
+    const res = await api.post(`/classes/${classId}/avisos`, data);
+    return res.data.aviso;
+  },
+  delete: async (classId: string | number, avisoId: number): Promise<void> => {
+    await api.delete(`/classes/${classId}/avisos/${avisoId}`);
+  },
+};
+
 export default api;
 
 // Made with Bob

@@ -9,20 +9,22 @@ const encuestaRoutes   = require('./encuesta.routes');
 const examenRoutes     = require('./examen.routes');
 const pollRoutes       = require('./poll.routes');
 const taskRoutes       = require('./task.routes');
+const avisosRoutes     = require('./avisos.routes');
 
 // Ruta de prueba
 router.get('/health', (req, res) => {
   res.json({ status: 'OK', message: 'API is running' });
 });
 
-router.use('/auth',                    authRoutes);
-router.use('/classes',                 classRoutes);
-router.use('/classes/:id/students',    enrollmentRoutes);
-router.use('/classes/:classId/tasks',  taskRoutes);
-router.use('/profile',                 profileRoutes);
-router.use('/polls',                   pollRoutes);
-router.use('/encuestas',               encuestaRoutes);
-router.use('/examenes',                examenRoutes);
+router.use('/auth',                      authRoutes);
+router.use('/classes',                   classRoutes);
+router.use('/classes/:id/students',      enrollmentRoutes);
+router.use('/classes/:classId/tasks',    taskRoutes);
+router.use('/classes/:classId/avisos',   avisosRoutes);
+router.use('/profile',                   profileRoutes);
+router.use('/polls',                     pollRoutes);
+router.use('/encuestas',                 encuestaRoutes);
+router.use('/examenes',                  examenRoutes);
 
 module.exports = router;
 
