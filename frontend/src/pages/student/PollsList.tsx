@@ -85,7 +85,10 @@ const PollsList: React.FC = () => {
       return;
     }
     if (item.status === 'completed') {
-      navigate(`/student/poll/${item.id}/results`);
+      // Los exámenes completados quedan bloqueados (botón gris), solo encuestas van a resultados
+      if (item.type === 'encuesta') {
+        navigate(`/student/poll/${item.id}/results`);
+      }
       return;
     }
     // pending — pasamos el tipo en state para que TakePoll sepa qué cargar
@@ -121,18 +124,18 @@ const PollsList: React.FC = () => {
   return (
     <div className="polls-list-page">
       <header className="dashboard-header student">
-        <div className="header-logo">
-          <h1>PollClass</h1>
+        <div className="header-actions">
+          <button className="btn-header btn-back" onClick={() => navigate('/student/dashboard')}>
+            <FontAwesomeIcon icon={faArrowLeft} />
+          </button>
         </div>
         <div className="header-info">
           <h2 className="page-title">
             Actividades{className ? ` — ${className}` : ''}
           </h2>
         </div>
-        <div className="header-actions">
-          <button className="btn-header btn-back" onClick={() => navigate('/student/dashboard')}>
-            <FontAwesomeIcon icon={faArrowLeft} />
-          </button>
+        <div className="header-logo">
+          <h1>PollClass</h1>
         </div>
       </header>
 
@@ -155,7 +158,6 @@ const PollsList: React.FC = () => {
               >
                 <div className="poll-card-header">
                   <h3>
-                    {typeIcon(item.type)}
                     {item.title}
                   </h3>
                   <div className="poll-status">
@@ -163,6 +165,11 @@ const PollsList: React.FC = () => {
                     <span>{statusText(item.status)}</span>
                   </div>
                 </div>
+
+                <span className={`type-badge type-badge--${item.type}`}>
+                  {typeIcon(item.type)}
+                  {item.type === 'examen' ? 'Examen' : 'Encuesta'}
+                </span>
 
                 {item.description && (
                   <p className="poll-description">{item.description}</p>
@@ -186,10 +193,11 @@ const PollsList: React.FC = () => {
                 <button
                   className="btn-action"
                   onClick={() => handleClick(item)}
-                  disabled={item.status === 'expired'}
+                  disabled={item.status === 'expired' || (item.type === 'examen' && item.status === 'completed')}
                 >
                   {item.status === 'pending'   && 'Responder'}
-                  {item.status === 'completed' && 'Ver Resultados'}
+                  {item.status === 'completed' && item.type === 'encuesta' && 'Ver Resultados'}
+                  {item.status === 'completed' && item.type === 'examen'   && 'Contestado'}
                   {item.status === 'expired'   && 'Expirada'}
                 </button>
               </div>

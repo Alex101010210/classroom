@@ -49,6 +49,7 @@ const TakePoll: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   const handleAutoSubmit = useCallback(() => {
     alert('¡Tiempo agotado! La encuesta se enviará automáticamente.');
@@ -150,7 +151,8 @@ const TakePoll: React.FC = () => {
   };
 
   const handleConfirmSubmit = async () => {
-    if (!actividad || !pollId) return;
+    if (!actividad || !pollId || submitted) return;
+    setSubmitted(true);
     // Convertir answers {preguntaId: valor} → [{questionId, answer}]
     const payload = Object.entries(answers).map(([questionId, answer]) => ({ questionId, answer }));
     try {
@@ -163,6 +165,7 @@ const TakePoll: React.FC = () => {
     } catch (err: any) {
       const msg = err.response?.data?.message || 'Error al enviar';
       alert(msg);
+      setSubmitted(false);
       setShowConfirmation(false);
     }
   };
@@ -195,10 +198,6 @@ const TakePoll: React.FC = () => {
     <div className="take-poll-page">
       {/* Header */}
       <header className="poll-header">
-        <button className="btn-back" onClick={() => navigate(-1)}>
-          <FontAwesomeIcon icon={faArrowLeft} />
-          <span>Volver</span>
-        </button>
         <div className="poll-header-info">
           <h1>{actividad.titulo}</h1>
           {timeRemaining !== null && (
@@ -208,6 +207,10 @@ const TakePoll: React.FC = () => {
             </div>
           )}
         </div>
+        <button className="btn-back" onClick={() => navigate(-1)}>
+          <FontAwesomeIcon icon={faArrowLeft} />
+          <span>Volver</span>
+        </button>
       </header>
 
       {/* Progress */}
@@ -313,8 +316,11 @@ const TakePoll: React.FC = () => {
             <p>Has respondido {answeredCount} de {actividad.preguntas.length} preguntas.</p>
             <p>Una vez enviada, no podrás modificar tus respuestas.</p>
             <div className="modal-actions">
-              <button className="btn-cancel" onClick={() => setShowConfirmation(false)}>Cancelar</button>
-              <button className="btn-confirm" onClick={handleConfirmSubmit}>Sí, Enviar</button>
+              <button className="btn-cancel" onClick={() => setShowConfirmation(false)} disabled={submitted}>Cancelar</button>
+              <button className="btn-confirm" onClick={handleConfirmSubmit} disabled={submitted}
+                style={submitted ? { backgroundColor: '#9ca3af', cursor: 'not-allowed', opacity: 0.7 } : {}}>
+                {submitted ? 'Enviando...' : 'Sí, Enviar'}
+              </button>
             </div>
           </div>
         </div>

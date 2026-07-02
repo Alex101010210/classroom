@@ -12,7 +12,6 @@ import {
   faUser,
   faComments,
   faPenToSquare,
-  faChartBar,
 } from '@fortawesome/free-solid-svg-icons';
 import { authService } from '../../services/authService';
 import { enrollmentService } from '../../services/api';
@@ -215,11 +214,6 @@ const StudentDashboard: React.FC = () => {
                   )}
                 </div>
               )}
-
-              <button className="sd-nav-btn" onClick={() => navigate('/student/results')}>
-                <FontAwesomeIcon icon={faChartBar} />
-                <span>Mis Resultados</span>
-              </button>
 
               {/* Foros */}
               <div className="sd-foros-container" ref={forosRef}>
