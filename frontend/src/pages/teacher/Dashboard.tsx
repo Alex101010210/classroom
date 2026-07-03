@@ -53,7 +53,7 @@ const TeacherDashboard: React.FC = () => {
     titulo_tarea: '',
     descrip_tarea: '',
     fecha_limite: '',
-    puntos_max_tarea: '100',
+    puntos_max_tarea: '10',
     entrega_tardia: false
   });
 

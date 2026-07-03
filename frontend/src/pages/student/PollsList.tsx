@@ -126,12 +126,12 @@ const PollsList: React.FC = () => {
 
   const formatDeadline = (dl: string) =>
     new Date(dl).toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' });
-
+/*
   const formatFecha = (dateString: string) => {
     if (!dateString) return '';
     const [y, m, d] = dateString.split('-');
     return `${d}/${m}/${y}`;
-  };
+  };*/
 
   return (
     <div className="polls-list-page">
@@ -146,7 +146,7 @@ const PollsList: React.FC = () => {
       </header>
 
       <div className="polls-content">
-        {/* Avisos de la clase */}
+        {/* Avisos de la clase 
         {avisos.length > 0 && (
           <div className="student-avisos-section">
             {[...avisos].reverse().map(aviso => (
@@ -161,7 +161,7 @@ const PollsList: React.FC = () => {
               </div>
             ))}
           </div>
-        )}
+        )}*/}
 
         {isLoading ? (
           <div className="loading-state">
