@@ -64,7 +64,6 @@ const Examen: React.FC = () => {
 
   const initQuestions: Question[] = existing?.preguntas?.length ? existing.preguntas : [newQuestion()];
 
-  const [activeTab, setActiveTab]     = useState<'preguntas' | 'respuestas'>('preguntas');
   const [examTitle, setExamTitle]     = useState<string>(existing?.titulo  ?? 'Examen sin título');
   const [examDesc, setExamDesc]       = useState<string>(existing?.descripcion ?? '');
   const [questions, setQuestions]     = useState<Question[]>(initQuestions);
@@ -256,28 +255,12 @@ const Examen: React.FC = () => {
         </div>
       </header>
 
-      {/* ─── Tabs ────────────────────────────── */}
-      <div className="ef-tabs-bar" style={{ backgroundColor: accentColor, opacity: 0.95 }}>
-        <button
-          className={`ef-tab ${activeTab === 'preguntas' ? 'ef-tab--active' : ''}`}
-          onClick={() => setActiveTab('preguntas')}
-        >
-          PREGUNTAS
-        </button>
-        <button
-          className={`ef-tab ${activeTab === 'respuestas' ? 'ef-tab--active' : ''}`}
-          onClick={() => setActiveTab('respuestas')}
-        >
-          RESPUESTAS
-        </button>
-      </div>
 
       {/* ─── Body ────────────────────────────── */}
       <div className="ef-body">
         <div className="ef-center-col">
 
-          {activeTab === 'preguntas' && (
-            <>
+          <>
               {/* Title card */}
               <div className="ef-card ef-title-card" style={{ borderTopColor: accentColor }}>
                 <div className="ef-title-row">
@@ -506,19 +489,11 @@ const Examen: React.FC = () => {
                   </div>
                 );
               })}
-            </>
-          )}
-
-          {activeTab === 'respuestas' && (
-            <div className="ef-card ef-empty-responses">
-              <p>Aún no hay respuestas para este examen.</p>
-            </div>
-          )}
+          </>
         </div>
 
         {/* ─── Right toolbar ───────────────── */}
-        {activeTab === 'preguntas' && (
-          <div className="ef-right-toolbar">
+        <div className="ef-right-toolbar">
             <button className="ef-toolbar-btn" onClick={addQuestion} title="Agregar nueva pregunta">
               <FontAwesomeIcon icon={faPlus} />
             </button>{/*}
@@ -529,8 +504,7 @@ const Examen: React.FC = () => {
             >
               <FontAwesomeIcon icon={faImage} />
             </button>*/}
-          </div>
-        )}
+        </div>
       </div>
 
       {/* ─── Vista previa modal ───────────── */}
