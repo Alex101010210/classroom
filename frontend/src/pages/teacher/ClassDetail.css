@@ -3,42 +3,7 @@
   background-color: #f0f2f8;
 }
 
-.class-detail-header {
-  background: linear-gradient(135deg, #4A5AE8 0%, #5B6CF8 100%);
-  padding: 16px 15px;
-  box-shadow: 0 2px 8px rgba(74, 90, 232, 0.3);
-}
-
-.btn-back {
-  background-color: #ffffff;
-  border: none;
-  padding: 9px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #2c3158;
-  transition: all 0.18s;
-  margin-bottom: 14px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
-}
-
-.btn-back:hover {
-  background-color: #f0f2f8;
-  transform: translateX(-3px);
-  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
-}
-
-.class-detail-header h1 {
-  color: #ffffff;
-  font-size: 1.35rem;
-  font-weight: 700;
-  margin: 0;
-  text-align: center;
-}
+/* class-detail-header → uses .app-header from global.css */
 
 .class-detail-content {
   padding: 28px 32px;

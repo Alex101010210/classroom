@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
+  faArrowLeft,
   faUser,
   faRightFromBracket,
   faBars,
@@ -89,32 +90,12 @@ const VerEncuestas: React.FC = () => {
   return (
     <div className="ve-page">
       {/* Header */}
-      <header className="dashboard-header">
-        <div className="header-logo">
-          <h1>Logo</h1>
-        </div>
-        <div className="header-actions">
-          <div className="user-menu-container" ref={userMenuRef}>
-            <button className="btn-header btn-users" onClick={() => setShowUserMenu(!showUserMenu)}>
-              <FontAwesomeIcon icon={faUser} />
-            </button>
-            {showUserMenu && (
-              <div className="user-dropdown-menu">
-                <button className="user-menu-item" onClick={() => { setShowUserMenu(false); navigate('/teacher/profile'); }}>
-                  <FontAwesomeIcon icon={faUser} />
-                  <span>Mi Perfil</span>
-                </button>
-                <button className="user-menu-item logout" onClick={handleLogout}>
-                  <FontAwesomeIcon icon={faRightFromBracket} />
-                  <span>Cerrar Sesión</span>
-                </button>
-              </div>
-            )}
-          </div>
-          <button className="hamburger-btn" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-            <FontAwesomeIcon icon={faBars} />
-          </button>
-        </div>
+      <header className="app-header">
+        <button className="app-header-back" onClick={() => navigate('/teacher/dashboard')}>
+          <FontAwesomeIcon icon={faArrowLeft} />
+          <span>Volver</span>
+        </button>
+        <h1 className="app-header-title">Encuestas</h1>
       </header>
 
       <div className="dashboard-content">

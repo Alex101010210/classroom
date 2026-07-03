@@ -210,19 +210,17 @@ const Examen: React.FC = () => {
       />
 
       {/* ─── Top bar ─────────────────────────── */}
-      <header className="ef-topbar" style={{ backgroundColor: accentColor }}>
-        <div className="ef-topbar-left">
-          <button className="ef-icon-btn" onClick={() => navigate('/teacher/dashboard')} title="Volver">
-            <FontAwesomeIcon icon={faArrowLeft} />
-          </button>
-          <span className="ef-topbar-title">{examTitle || 'Examen sin título'}</span>
-        </div>
-        <div className="ef-topbar-right">
-
+      <header className="app-header" style={{ background: `linear-gradient(135deg, ${accentColor} 0%, ${accentColor}cc 100%)` }}>
+        <button className="app-header-back" onClick={() => navigate(-1)}>
+          <FontAwesomeIcon icon={faArrowLeft} />
+          <span>Volver</span>
+        </button>
+        <h1 className="app-header-title">{examTitle || 'Examen sin título'}</h1>
+        <div className="app-header-actions">
           {/* Palette */}
           <div className="ef-palette-wrapper">
             <button
-              className="ef-icon-btn"
+              className="app-header-icon-btn"
               title="Paleta de colores"
               onClick={() => setShowPalette(v => !v)}
             >
@@ -246,18 +244,18 @@ const Examen: React.FC = () => {
           </div>
 
           {/* Vista previa */}
-          <button className="ef-icon-btn" title="Vista previa" onClick={() => setShowPreview(true)}>
+          <button className="app-header-icon-btn" title="Vista previa" onClick={() => setShowPreview(true)}>
             <FontAwesomeIcon icon={faEye} />
           </button>
 
-          <button className="ef-send-btn" style={{ color: accentColor }} onClick={handleSend}>
-            ENVIAR
+          <button className="app-header-btn" onClick={handleSend}>
+            GUARDAR
           </button>
         </div>
       </header>
 
       {/* ─── Tabs ────────────────────────────── */}
-      <div className="ef-tabs-bar" style={{ backgroundColor: accentColor }}>
+      <div className="ef-tabs-bar" style={{ backgroundColor: accentColor, opacity: 0.95 }}>
         <button
           className={`ef-tab ${activeTab === 'preguntas' ? 'ef-tab--active' : ''}`}
           onClick={() => setActiveTab('preguntas')}
@@ -399,6 +397,9 @@ const Examen: React.FC = () => {
                     {/* Options */}
                     {hasOptions(q.type) && (
                       <div className="ef-options">
+                        <p className="ef-options-hint">
+                          Haz clic en <span className="ef-options-hint-icon">✓</span> junto a una opción para marcarla como <strong>respuesta correcta</strong>.
+                        </p>
                         {q.options.map((opt, idx) => {
                           const isCorrect = q.correctAnswers.includes(opt.id);
                           return (

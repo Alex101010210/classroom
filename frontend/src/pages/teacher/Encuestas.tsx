@@ -117,21 +117,22 @@ const Encuestas: React.FC = () => {
     <div className="enc-page">
 
       {/* Top bar */}
-      <header className="enc-topbar">
-        <div className="enc-topbar-left">
-          <button className="enc-icon-btn" onClick={() => navigate('/teacher/dashboard')} title="Volver">
-            <FontAwesomeIcon icon={faArrowLeft} />
-          </button>
-          <FontAwesomeIcon icon={faPollH} className="enc-topbar-icon" />
-          <span className="enc-topbar-title">
-            {subject?.nombre_class || subject?.name
-              ? `Encuesta — ${subject.nombre_class || subject.name}`
-              : 'Nueva Encuesta'}
-          </span>
-        </div>
-        <button className="enc-save-btn" onClick={handleSave}>
-          GUARDAR
+      <header className="app-header">
+        <button className="app-header-back" onClick={() => navigate(-1)}>
+          <FontAwesomeIcon icon={faArrowLeft} />
+          <span>Volver</span>
         </button>
+        <h1 className="app-header-title">
+          <FontAwesomeIcon icon={faPollH} style={{ marginRight: 8, opacity: 0.85 }} />
+          {subject?.nombre_class || subject?.name
+            ? `Encuesta — ${subject.nombre_class || subject.name}`
+            : 'Nueva Encuesta'}
+        </h1>
+        <div className="app-header-actions">
+          <button className="app-header-btn" onClick={handleSave}>
+            GUARDAR
+          </button>
+        </div>
       </header>
 
       {/* Body */}

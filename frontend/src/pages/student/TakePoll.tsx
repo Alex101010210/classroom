@@ -21,6 +21,12 @@ interface Pregunta {
   points?: number;
 }
 
+// Opción normalizada con id siempre presente
+interface OpcionNorm {
+  id: string;
+  text: string;
+}
+
 interface Actividad {
   id: number;
   titulo: string;
@@ -43,6 +49,7 @@ const TakePoll: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   const handleAutoSubmit = useCallback(() => {
     alert('¡Tiempo agotado! La encuesta se enviará automáticamente.');
@@ -69,11 +76,20 @@ const TakePoll: React.FC = () => {
         if (tipo === 'encuesta') {
           const enc = await encuestaService.getById(pollId);
           setActividad(enc);
+          const yaRespondio = await encuestaService.checkRespondida(pollId);
+          if (yaRespondio) {
+            setLoadError('Ya respondiste esta encuesta. Tu respuesta ya fue registrada.');
+          }
         } else {
           const ex = await examenService.getById(pollId);
           setActividad(ex);
           if (ex.deadline && new Date(ex.deadline) < new Date()) {
             setLoadError('Este examen ha expirado.');
+          } else {
+            const yaRespondio = await examenService.checkRespondido(pollId);
+            if (yaRespondio) {
+              setLoadError('Ya presentaste este examen. Tu respuesta ya fue registrada.');
+            }
           }
         }
       } catch (err) {
@@ -88,10 +104,14 @@ const TakePoll: React.FC = () => {
 
   const getTexto = (p: Pregunta) => p.text || p.title || '';
 
-  const getOpciones = (p: Pregunta): string[] => {
+  // Devuelve opciones normalizadas con id y texto
+  const getOpciones = (p: Pregunta): OpcionNorm[] => {
     if (!p.options || p.options.length === 0) return [];
-    if (typeof p.options[0] === 'string') return p.options as string[];
-    return (p.options as Opcion[]).map(o => o.text);
+    if (typeof p.options[0] === 'string') {
+      // encuestas antiguas guardaron las opciones como strings planos — usamos el índice como id
+      return (p.options as string[]).map((text, i) => ({ id: String(i), text }));
+    }
+    return (p.options as Opcion[]).map(o => ({ id: o.id, text: o.text }));
   };
 
   const isMultiple = (type: string) =>
@@ -131,9 +151,23 @@ const TakePoll: React.FC = () => {
   };
 
   const handleConfirmSubmit = async () => {
-    console.log('Respuestas enviadas:', answers);
-    alert('¡Actividad enviada exitosamente!');
-    navigate(-1);
+    if (!actividad || !pollId || submitted) return;
+    setSubmitted(true);
+    // Convertir answers {preguntaId: valor} → [{questionId, answer}]
+    const payload = Object.entries(answers).map(([questionId, answer]) => ({ questionId, answer }));
+    try {
+      if (tipo === 'encuesta') {
+        await encuestaService.submitRespuestas(pollId, payload);
+      } else {
+        await examenService.submitRespuestas(pollId, payload);
+      }
+      navigate(-1);
+    } catch (err: any) {
+      const msg = err.response?.data?.message || 'Error al enviar';
+      alert(msg);
+      setSubmitted(false);
+      setShowConfirmation(false);
+    }
   };
 
   // ── Render estados ───────────────────────────────────────────
@@ -163,20 +197,18 @@ const TakePoll: React.FC = () => {
   return (
     <div className="take-poll-page">
       {/* Header */}
-      <header className="poll-header">
-        <button className="btn-back" onClick={() => navigate(-1)}>
+      <header className="app-header">
+        <button className="app-header-back" onClick={() => navigate(-1)}>
           <FontAwesomeIcon icon={faArrowLeft} />
           <span>Volver</span>
         </button>
-        <div className="poll-header-info">
-          <h1>{actividad.titulo}</h1>
-          {timeRemaining !== null && (
-            <div className={`timer ${timeRemaining < 300 ? 'warning' : ''}`}>
-              <FontAwesomeIcon icon={faClock} />
-              <span>{formatTime(timeRemaining)}</span>
-            </div>
-          )}
-        </div>
+        <h1 className="app-header-title">{actividad.titulo}</h1>
+        {timeRemaining !== null && (
+          <div className={`app-header-actions timer-badge ${timeRemaining < 300 ? 'timer-badge--warning' : ''}`}>
+            <FontAwesomeIcon icon={faClock} />
+            <span>{formatTime(timeRemaining)}</span>
+          </div>
+        )}
       </header>
 
       {/* Progress */}
@@ -216,16 +248,16 @@ const TakePoll: React.FC = () => {
           {/* Opciones múltiples */}
           {isMultiple(currentPregunta.type) && opciones.length > 0 && (
             <div className="options-container">
-              {opciones.map((opt, idx) => (
-                <label key={idx} className="option-label">
+              {opciones.map((opt) => (
+                <label key={opt.id} className="option-label">
                   <input
                     type={currentPregunta.type === 'checkbox' ? 'checkbox' : 'radio'}
                     name={currentPregunta.id}
-                    value={idx}
-                    checked={currentAnswer === idx}
-                    onChange={() => handleAnswer(currentPregunta.id, idx)}
+                    value={opt.id}
+                    checked={currentAnswer === opt.id}
+                    onChange={() => handleAnswer(currentPregunta.id, opt.id)}
                   />
-                  <span className="option-text">{opt}</span>
+                  <span className="option-text">{opt.text}</span>
                 </label>
               ))}
             </div>
@@ -282,8 +314,11 @@ const TakePoll: React.FC = () => {
             <p>Has respondido {answeredCount} de {actividad.preguntas.length} preguntas.</p>
             <p>Una vez enviada, no podrás modificar tus respuestas.</p>
             <div className="modal-actions">
-              <button className="btn-cancel" onClick={() => setShowConfirmation(false)}>Cancelar</button>
-              <button className="btn-confirm" onClick={handleConfirmSubmit}>Sí, Enviar</button>
+              <button className="btn-cancel" onClick={() => setShowConfirmation(false)} disabled={submitted}>Cancelar</button>
+              <button className="btn-confirm" onClick={handleConfirmSubmit} disabled={submitted}
+                style={submitted ? { backgroundColor: '#9ca3af', cursor: 'not-allowed', opacity: 0.7 } : {}}>
+                {submitted ? 'Enviando...' : 'Sí, Enviar'}
+              </button>
             </div>
           </div>
         </div>

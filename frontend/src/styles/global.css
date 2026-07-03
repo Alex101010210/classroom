@@ -30,7 +30,6 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-tight);
   color: var(--text-primary);
-  margin-bottom: var(--spacing-md);
 }
 
 h1 {
@@ -391,3 +390,105 @@ select:disabled {
 }
 
 /* Made with Bob */
+
+/* ═══════════════════════════════════════════════════════════
+   SISTEMA DE HEADER UNIFICADO — .app-header
+   Usar en todas las páginas internas (excepto Dashboard).
+   ═══════════════════════════════════════════════════════════ */
+
+.app-header {
+  background: linear-gradient(135deg, #4A5AE8 0%, #5B6CF8 100%);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 24px;
+  height: 60px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(74, 90, 232, 0.3);
+  flex-shrink: 0;
+}
+
+/* Botón volver (izquierda) */
+.app-header-back {
+  background: #ffffff;
+  border: none;
+  padding: 0 14px;
+  height: 36px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #2c3158;
+  transition: all 0.18s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.app-header-back:hover {
+  background-color: #eef0fc;
+  transform: translateX(-2px);
+}
+
+/* Título central */
+.app-header-title {
+  color: #ffffff;
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 0;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Zona derecha — acciones */
+.app-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* Botón de acción primaria en header (blanco sólido) */
+.app-header-btn {
+  background: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 0 16px;
+  height: 36px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #4A5AE8;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.15s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  white-space: nowrap;
+}
+.app-header-btn:hover { background: #eef0fc; }
+.app-header-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Botón icono circular en header */
+.app-header-icon-btn {
+  background: rgba(255,255,255,0.15);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  color: #ffffff;
+  font-size: 1rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+.app-header-icon-btn:hover { background: rgba(255,255,255,0.28); }

@@ -1,26 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faPlus, faCalendar, faUsers, faTrash, faUser, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faCalendar, faUsers, faUser, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import { authService } from '../../services/authService';
+import { foroService, ForoData } from '../../services/api';
 import '../teacher/ForoDetail.css';
-
-interface Foro {
-  id: string;
-  titulo: string;
-  descripcion: string;
-  objetivo: string;
-  preguntaDetonadora: string;
-  fechaInicio: string;
-  fechaLimite: string;
-  materialApoyo?: string;
-  enlace?: string;
-  createdAt: string;
-}
 
 const StudentForoDetail: React.FC = () => {
   const navigate = useNavigate();
-  const [foros, setForos] = useState<Foro[]>([]);
+  const [foros, setForos] = useState<ForoData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
@@ -30,10 +19,10 @@ const StudentForoDetail: React.FC = () => {
     : 'Estudiante';
 
   useEffect(() => {
-    const savedForos = localStorage.getItem('student_foros');
-    if (savedForos) {
-      setForos(JSON.parse(savedForos));
-    }
+    foroService.getForos()
+      .then(data => setForos(data))
+      .catch(() => setForos([]))
+      .finally(() => setIsLoading(false));
   }, []);
 
   useEffect(() => {
@@ -46,29 +35,12 @@ const StudentForoDetail: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleOutsideClick);
   }, []);
 
-  const handleBack = () => {
-    navigate('/student/dashboard');
-  };
-
-  const handleCreateForo = () => {
-    navigate('/student/foro');
-  };
-
-  const handleDeleteForo = (foroId: string) => {
-    if (window.confirm('¿Está seguro que desea eliminar este foro?')) {
-      const updatedForos = foros.filter(f => f.id !== foroId);
-      setForos(updatedForos);
-      localStorage.setItem('student_foros', JSON.stringify(updatedForos));
-    }
-  };
-
   const formatDate = (dateString: string) => {
     if (!dateString) return 'No especificada';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-MX', {
+    return new Date(dateString).toLocaleDateString('es-MX', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     });
   };
 
@@ -77,7 +49,7 @@ const StudentForoDetail: React.FC = () => {
       {/* Header */}
       <header className="dashboard-header">
         <div className="header-logo">
-          <button className="btn-back" onClick={handleBack}>
+          <button className="btn-back" onClick={() => navigate('/student/dashboard')}>
             <FontAwesomeIcon icon={faArrowLeft} />
           </button>
           <span className="header-logo-text">PollClass</span>
@@ -108,21 +80,15 @@ const StudentForoDetail: React.FC = () => {
       <div className="foro-detail-container">
         <div className="foro-detail-header">
           <h1>Foros Académicos</h1>
-          <button className="btn-create-foro" onClick={handleCreateForo}>
-            <FontAwesomeIcon icon={faPlus} />
-            <span>Crear Nuevo Foro</span>
-          </button>
         </div>
 
-        {foros.length === 0 ? (
+        {isLoading ? (
+          <div className="empty-state"><p>Cargando foros...</p></div>
+        ) : foros.length === 0 ? (
           <div className="empty-state">
             <div className="empty-icon"></div>
-            <h2>No hay foros creados</h2>
-            <p>Crea tu primer foro académico para comenzar las discusiones con otros estudiantes</p>
-            <button className="btn-create-first" onClick={handleCreateForo}>
-              <FontAwesomeIcon icon={faPlus} />
-              Crear Primer Foro
-            </button>
+            <h2>No hay foros disponibles</h2>
+            <p>Tu maestro aún no ha creado ningún foro académico.</p>
           </div>
         ) : (
           <div className="foros-grid">
@@ -130,51 +96,37 @@ const StudentForoDetail: React.FC = () => {
               <div key={foro.id} className="foro-card">
                 <div className="foro-card-header">
                   <h3>{foro.titulo}</h3>
-                  <button 
-                    className="btn-delete-foro"
-                    onClick={() => handleDeleteForo(foro.id)}
-                    title="Eliminar foro"
-                  >
-                    <FontAwesomeIcon icon={faTrash} />
-                  </button>
                 </div>
 
                 <div className="foro-card-body">
-                  <div className="foro-section">
-                    <h4>Descripción</h4>
-                    <p>{foro.descripcion}</p>
-                  </div>
-
-                  <div className="foro-section">
-                    <h4>Objetivo de Aprendizaje</h4>
-                    <p>{foro.objetivo}</p>
-                  </div>
-
+                  {foro.descrip_foro && (
+                    <div className="foro-section">
+                      <h4>Descripción</h4>
+                      <p>{foro.descrip_foro}</p>
+                    </div>
+                  )}
                   <div className="foro-section">
                     <h4>Pregunta Detonadora</h4>
-                    <p className="pregunta-detonadora">{foro.preguntaDetonadora}</p>
+                    <p className="pregunta-detonadora">{foro.pregunta}</p>
                   </div>
-
-                  {foro.enlace && (
+                  {foro.links && (
                     <div className="foro-section">
                       <h4>Material de Apoyo</h4>
-                      <a href={foro.enlace} target="_blank" rel="noopener noreferrer" className="material-link">
-                        {foro.enlace}
+                      <a href={foro.links} target="_blank" rel="noopener noreferrer" className="material-link">
+                        {foro.links}
                       </a>
                     </div>
                   )}
-
                   <div className="foro-meta">
                     <div className="meta-item">
                       <FontAwesomeIcon icon={faCalendar} />
-                      <span>Inicio: {formatDate(foro.fechaInicio)}</span>
+                      <span>Inicio: {formatDate(foro.fecha_inicio)}</span>
                     </div>
                     <div className="meta-item">
                       <FontAwesomeIcon icon={faCalendar} />
-                      <span>Límite: {formatDate(foro.fechaLimite)}</span>
+                      <span>Límite: {formatDate(foro.fecha_fin)}</span>
                     </div>
                   </div>
-
                   <div className="foro-badge">
                     <span className="badge-open">FORO ABIERTO</span>
                   </div>
@@ -183,7 +135,7 @@ const StudentForoDetail: React.FC = () => {
                 <div className="foro-card-footer">
                   <button className="btn-view-discussions" onClick={() => navigate(`/student/discusiones/${foro.id}`)}>
                     <FontAwesomeIcon icon={faUsers} />
-                    Ver Discusiones
+                    Participar
                   </button>
                 </div>
               </div>

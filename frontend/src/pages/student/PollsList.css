@@ -206,6 +206,32 @@
   color: var(--primary);
 }
 
+/* Etiqueta de tipo (Encuesta / Examen) */
+.type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  margin-bottom: 0.6rem;
+}
+
+.type-badge--encuesta {
+  background-color: #ede9fe;
+  color: #6d28d9;
+}
+
+.type-badge--examen {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+.type-icon {
+  font-size: 0.75rem;
+}
+
 .btn-action {
   width: 100%;
   padding: var(--spacing-md);

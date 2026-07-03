@@ -53,7 +53,7 @@ const PollsList: React.FC = () => {
             title: e.titulo,
             description: e.descripcion || '',
             numPreguntas: e.preguntas?.length ?? 0,
-            status: 'pending' as ItemStatus,
+            status: (e.ya_respondida ? 'completed' : 'pending') as ItemStatus,
           })),
           ...examenes.map(e => ({
             id: e.id,
@@ -63,8 +63,11 @@ const PollsList: React.FC = () => {
             numPreguntas: e.preguntas?.length ?? 0,
             deadline: e.deadline,
             color: e.color,
-            status: (e.deadline && new Date(e.deadline) < new Date()
-              ? 'expired' : 'pending') as ItemStatus,
+            status: (e.ya_respondido
+              ? 'completed'
+              : e.deadline && new Date(e.deadline) < new Date()
+                ? 'expired'
+                : 'pending') as ItemStatus,
           })),
         ].sort((a, b) => {
           if (a.status === b.status) return 0;
@@ -88,7 +91,10 @@ const PollsList: React.FC = () => {
       return;
     }
     if (item.status === 'completed') {
-      navigate(`/student/poll/${item.id}/results`);
+      // Los exámenes completados quedan bloqueados (botón gris), solo encuestas van a resultados
+      if (item.type === 'encuesta') {
+        navigate(`/student/poll/${item.id}/results`);
+      }
       return;
     }
     // pending — pasamos el tipo en state para que TakePoll sepa qué cargar
@@ -129,20 +135,14 @@ const PollsList: React.FC = () => {
 
   return (
     <div className="polls-list-page">
-      <header className="dashboard-header student">
-        <div className="header-logo">
-          <h1>PollClass</h1>
-        </div>
-        <div className="header-info">
-          <h2 className="page-title">
-            Actividades{className ? ` — ${className}` : ''}
-          </h2>
-        </div>
-        <div className="header-actions">
-          <button className="btn-header btn-back" onClick={() => navigate('/student/dashboard')}>
-            <FontAwesomeIcon icon={faArrowLeft} />
-          </button>
-        </div>
+      <header className="app-header">
+        <button className="app-header-back" onClick={() => navigate(`/student/class/${classId}/avisos`)}>
+          <FontAwesomeIcon icon={faArrowLeft} />
+          <span>Avisos</span>
+        </button>
+        <h1 className="app-header-title">
+          Actividades{className ? ` — ${className}` : ''}
+        </h1>
       </header>
 
       <div className="polls-content">
@@ -181,7 +181,6 @@ const PollsList: React.FC = () => {
               >
                 <div className="poll-card-header">
                   <h3>
-                    {typeIcon(item.type)}
                     {item.title}
                   </h3>
                   <div className="poll-status">
@@ -189,6 +188,11 @@ const PollsList: React.FC = () => {
                     <span>{statusText(item.status)}</span>
                   </div>
                 </div>
+
+                <span className={`type-badge type-badge--${item.type}`}>
+                  {typeIcon(item.type)}
+                  {item.type === 'examen' ? 'Examen' : 'Encuesta'}
+                </span>
 
                 {item.description && (
                   <p className="poll-description">{item.description}</p>
@@ -212,10 +216,11 @@ const PollsList: React.FC = () => {
                 <button
                   className="btn-action"
                   onClick={() => handleClick(item)}
-                  disabled={item.status === 'expired'}
+                  disabled={item.status === 'expired' || (item.type === 'examen' && item.status === 'completed')}
                 >
                   {item.status === 'pending'   && 'Responder'}
-                  {item.status === 'completed' && 'Ver Resultados'}
+                  {item.status === 'completed' && item.type === 'encuesta' && 'Ver Resultados'}
+                  {item.status === 'completed' && item.type === 'examen'   && 'Contestado'}
                   {item.status === 'expired'   && 'Expirada'}
                 </button>
               </div>

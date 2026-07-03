@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faUser, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import { authService } from '../../services/authService';
+import { foroService } from '../../services/api';
 import '../teacher/Foro.css';
 
 const StudentForo: React.FC = () => {
@@ -15,6 +16,7 @@ const StudentForo: React.FC = () => {
     ? `${currentUser.nombre} ${currentUser.apellido || ''}`.trim()
     : 'Estudiante';
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     titulo: '',
     descripcion: '',
@@ -37,23 +39,26 @@ const StudentForo: React.FC = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    const newForo = {
-      id: Date.now().toString(),
-      ...formData,
-      materialApoyo: formData.materialApoyo?.name || '',
-      createdAt: new Date().toISOString()
-    };
-
-    const savedForos = localStorage.getItem('student_foros');
-    const foros = savedForos ? JSON.parse(savedForos) : [];
-    foros.push(newForo);
-    localStorage.setItem('student_foros', JSON.stringify(foros));
-
-    alert('¡Foro creado exitosamente!');
-    navigate('/student/foros-list');
+    try {
+      setIsSubmitting(true);
+      await foroService.createForo({
+        titulo: formData.titulo,
+        descrip_foro: formData.descripcion || undefined,
+        fecha_inicio: formData.fechaInicio,
+        obejtivo_foro: formData.objetivo,
+        pregunta: formData.preguntaDetonadora,
+        fecha_fin: formData.fechaLimite,
+        links: formData.enlace || undefined
+      });
+      alert('¡Foro creado exitosamente!');
+      navigate('/student/foros-list');
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Error al crear el foro');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleBack = () => {
@@ -229,8 +234,8 @@ const StudentForo: React.FC = () => {
             <button type="button" className="btn-cancel" onClick={() => navigate('/student/foros-list')}>
               Cancelar
             </button>
-            <button type="submit" className="btn-submit">
-              Crear Foro
+            <button type="submit" className="btn-submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Creando...' : 'Crear Foro'}
             </button>
           </div>
         </form>

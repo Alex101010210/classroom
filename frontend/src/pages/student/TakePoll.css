@@ -7,52 +7,27 @@
   flex-direction: column;
 }
 
-/* Header */
-.poll-header {
-  background: linear-gradient(135deg, #4A5AE8 0%, #5B6CF8 100%);
-  padding: 14px 2rem;
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  box-shadow: 0 2px 8px rgba(74, 90, 232, 0.3);
-}
+/* poll-header removed — uses .app-header from global.css */
 
-.btn-back {
-  padding: 0.5rem 1rem;
-  background-color: rgba(255,255,255,0.9);
-  color: #2c3158;
-  border: none;
-  border-radius: 50px;
-  cursor: pointer;
+/* Timer badge within app-header */
+.timer-badge {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-  transition: all 0.18s ease;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
-}
-
-.btn-back:hover {
-  background-color: #f0f2f8;
-  transform: translateY(-1px);
-  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
-}
-
-.poll-header-info {
-  flex: 1;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.poll-header-info h1 {
-  color: #ffffff;
-  font-size: 1.4rem;
+  background-color: rgba(255,255,255,0.9);
+  color: #2c3158;
+  padding: 0 12px;
+  height: 32px;
+  border-radius: 20px;
+  font-size: 0.88rem;
   font-weight: 700;
-  margin: 0;
+}
+.timer-badge--warning {
+  background-color: #fef3c7;
+  color: #92400e;
 }
 
+/* keep the old .timer for backward compat in case anything still references it */
 .timer {
   display: flex;
   align-items: center;

@@ -6,36 +6,7 @@
   background-color: #f0f2f8;
 }
 
-/* Back Button in Header Logo */
-.header-logo {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.header-logo .btn-back {
-  width: 44px;
-  height: 44px;
-  min-width: 44px;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #ffffff;
-  border: none;
-  border-radius: 50%;
-  color: #2c3158;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.18s;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
-}
-
-.header-logo .btn-back:hover {
-  background-color: #f0f2f8;
-  transform: translateY(-1px);
-  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
-}
+/* Header → usa .app-header de global.css */
 
 /* Main Container */
 .foro-detail-container {

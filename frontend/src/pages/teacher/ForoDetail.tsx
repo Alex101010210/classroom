@@ -1,46 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faUser, faPlus, faCalendar, faUsers, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faUser, faPlus, faCalendar, faUsers } from '@fortawesome/free-solid-svg-icons';
+import { foroService, ForoData } from '../../services/api';
 import './ForoDetail.css';
-
-interface Foro {
-  id: string;
-  titulo: string;
-  descripcion: string;
-  objetivo: string;
-  preguntaDetonadora: string;
-  fechaInicio: string;
-  fechaLimite: string;
-  materialApoyo?: string;
-  enlace?: string;
-  createdAt: string;
-}
 
 const ForoDetail: React.FC = () => {
   const navigate = useNavigate();
-  const [foros, setForos] = useState<Foro[]>([]);
+  const [foros, setForos] = useState<ForoData[]>([]);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Cargar foros desde localStorage
-    const savedForos = localStorage.getItem('foros');
-    if (savedForos) {
-      setForos(JSON.parse(savedForos));
-    }
+    foroService.getForos()
+      .then(data => setForos(data))
+      .catch(() => setForos([]))
+      .finally(() => setIsLoading(false));
   }, []);
 
-  const handleBack = () => {
-    navigate('/teacher/dashboard');
-  };
-
-  const handleCreateForo = () => {
-    navigate('/teacher/foro');
-  };
-
-  const handleUsers = () => {
-    setShowUserMenu(!showUserMenu);
-  };
+  const handleBack = () => navigate('/teacher/dashboard');
+  const handleCreateForo = () => navigate('/teacher/foro');
+  const handleUsers = () => setShowUserMenu(!showUserMenu);
 
   const handleProfile = () => {
     setShowUserMenu(false);
@@ -54,18 +34,10 @@ const ForoDetail: React.FC = () => {
     }
   };
 
-  const handleDeleteForo = (foroId: string) => {
-    if (window.confirm('¿Está seguro que desea eliminar este foro?')) {
-      const updatedForos = foros.filter(f => f.id !== foroId);
-      setForos(updatedForos);
-      localStorage.setItem('foros', JSON.stringify(updatedForos));
-    }
-  };
 
   const formatDate = (dateString: string) => {
     if (!dateString) return 'No especificada';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-MX', {
+    return new Date(dateString).toLocaleDateString('es-MX', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -74,39 +46,20 @@ const ForoDetail: React.FC = () => {
 
   return (
     <div className="foro-detail-page">
-      {/* Header */}
-      <header className="dashboard-header">
-        <div className="header-logo">
-          <button className="btn-back" onClick={handleBack}>
-            <FontAwesomeIcon icon={faArrowLeft} />
-          </button>
-          <h1>Logo</h1>
-        </div>
-        <div className="header-actions">
-          <button className="btn-header btn-add" onClick={handleCreateForo}>
+      <header className="app-header">
+        <button className="app-header-back" onClick={handleBack}>
+          <FontAwesomeIcon icon={faArrowLeft} />
+          <span>Volver</span>
+        </button>
+        <h1 className="app-header-title">Foros Académicos</h1>
+        <div className="app-header-actions">
+          <button className="app-header-btn" onClick={handleCreateForo}>
             <FontAwesomeIcon icon={faPlus} />
+            Crear Foro
           </button>
-          <div className="user-menu-container">
-            <button className="btn-header btn-users" onClick={handleUsers}>
-              <FontAwesomeIcon icon={faUser} />
-            </button>
-            {showUserMenu && (
-              <div className="user-dropdown-menu">
-                <button className="user-menu-item" onClick={handleProfile}>
-                  <FontAwesomeIcon icon={faUser} />
-                  <span>Mi Perfil</span>
-                </button>
-                <button className="user-menu-item logout" onClick={handleLogout}>
-                  <FontAwesomeIcon icon={faArrowLeft} />
-                  <span>Cerrar Sesión</span>
-                </button>
-              </div>
-            )}
-          </div>
         </div>
       </header>
 
-      {/* Main Content */}
       <div className="foro-detail-container">
         <div className="foro-detail-header">
           <h1>Foros Académicos</h1>
@@ -116,7 +69,11 @@ const ForoDetail: React.FC = () => {
           </button>
         </div>
 
-        {foros.length === 0 ? (
+        {isLoading ? (
+          <div className="empty-state">
+            <p>Cargando foros...</p>
+          </div>
+        ) : foros.length === 0 ? (
           <div className="empty-state">
             <div className="empty-icon"></div>
             <h2>No hay foros creados</h2>
@@ -132,36 +89,32 @@ const ForoDetail: React.FC = () => {
               <div key={foro.id} className="foro-card">
                 <div className="foro-card-header">
                   <h3>{foro.titulo}</h3>
-                  <button 
-                    className="btn-delete-foro"
-                    onClick={() => handleDeleteForo(foro.id)}
-                    title="Eliminar foro"
-                  >
-                    <FontAwesomeIcon icon={faTrash} />
-                  </button>
+                  
                 </div>
 
                 <div className="foro-card-body">
-                  <div className="foro-section">
-                    <h4>Descripción</h4>
-                    <p>{foro.descripcion}</p>
-                  </div>
+                  {foro.descrip_foro && (
+                    <div className="foro-section">
+                      <h4>Descripción</h4>
+                      <p>{foro.descrip_foro}</p>
+                    </div>
+                  )}
 
                   <div className="foro-section">
                     <h4>Objetivo de Aprendizaje</h4>
-                    <p>{foro.objetivo}</p>
+                    <p>{foro.obejtivo_foro}</p>
                   </div>
 
                   <div className="foro-section">
                     <h4>Pregunta Detonadora</h4>
-                    <p className="pregunta-detonadora">{foro.preguntaDetonadora}</p>
+                    <p className="pregunta-detonadora">{foro.pregunta}</p>
                   </div>
 
-                  {foro.enlace && (
+                  {foro.links && (
                     <div className="foro-section">
                       <h4>Material de Apoyo</h4>
-                      <a href={foro.enlace} target="_blank" rel="noopener noreferrer" className="material-link">
-                        {foro.enlace}
+                      <a href={foro.links} target="_blank" rel="noopener noreferrer" className="material-link">
+                        {foro.links}
                       </a>
                     </div>
                   )}
@@ -169,11 +122,11 @@ const ForoDetail: React.FC = () => {
                   <div className="foro-meta">
                     <div className="meta-item">
                       <FontAwesomeIcon icon={faCalendar} />
-                      <span>Inicio: {formatDate(foro.fechaInicio)}</span>
+                      <span>Inicio: {formatDate(foro.fecha_inicio)}</span>
                     </div>
                     <div className="meta-item">
                       <FontAwesomeIcon icon={faCalendar} />
-                      <span>Límite: {formatDate(foro.fechaLimite)}</span>
+                      <span>Límite: {formatDate(foro.fecha_fin)}</span>
                     </div>
                   </div>
 
@@ -198,5 +151,3 @@ const ForoDetail: React.FC = () => {
 };
 
 export default ForoDetail;
-
-

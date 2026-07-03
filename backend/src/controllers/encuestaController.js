@@ -81,7 +81,7 @@ exports.getEncuestasByClase = async (req, res) => {
 
     const encuestas = await Encuesta.findAll({
       where: { clase_id, maestro_id, activa: true },
-      order: [['creado_en', 'DESC']]
+      order: [['created_at', 'DESC']]
     });
 
     res.json({ encuestas });
@@ -95,14 +95,27 @@ exports.getEncuestasByClase = async (req, res) => {
 exports.getEncuestasByClaseAlumno = async (req, res) => {
   try {
     const { clase_id } = req.params;
+    const alumno_id = req.user.id;
+    const { RespuestaEncuesta } = require('../models/Respuestas');
 
     const encuestas = await Encuesta.findAll({
       where: { clase_id, activa: true },
-      attributes: ['id', 'titulo', 'descripcion', 'preguntas', 'creado_en'],
-      order: [['creado_en', 'DESC']]
+      attributes: ['id', 'titulo', 'descripcion', 'preguntas', 'created_at'],
+      order: [['created_at', 'DESC']]
     });
 
-    res.json({ encuestas });
+    const ids = encuestas.map(e => e.id);
+    const respondidas = ids.length > 0
+      ? await RespuestaEncuesta.findAll({ where: { poll_id: ids, alumno_id }, attributes: ['poll_id'] })
+      : [];
+    const respondidaSet = new Set(respondidas.map(r => r.poll_id));
+
+    const result = encuestas.map(e => ({
+      ...e.toJSON(),
+      ya_respondida: respondidaSet.has(e.id)
+    }));
+
+    res.json({ encuestas: result });
   } catch (error) {
     console.error('Error al obtener encuestas:', error);
     res.status(500).json({ message: 'Error al obtener las encuestas', error: error.message });

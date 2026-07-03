@@ -80,13 +80,15 @@ const Avisos: React.FC = () => {
 
   return (
     <div className="avisos-page">
-      <header className="dashboard-header">
-        <div className="header-logo">
-          <button className="btn-back" onClick={() => navigate(`/teacher/class/${classId}`)}>
-            <FontAwesomeIcon icon={faArrowLeft} />
-          </button>
-          <h1>{className ? `Avisos — ${className}` : 'Avisos'}</h1>
-        </div>
+      <header className="app-header">
+        <button className="app-header-back" onClick={() => navigate(`/teacher/class/${classId}`)}>
+          <FontAwesomeIcon icon={faArrowLeft} />
+          <span>Volver a la clase</span>
+        </button>
+        <h1 className="app-header-title">
+          <FontAwesomeIcon icon={faBullhorn} style={{ marginRight: 8, opacity: 0.85 }} />
+          {className ? `Avisos — ${className}` : 'Avisos'}
+        </h1>
       </header>
 
       <div className="avisos-container">

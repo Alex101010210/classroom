@@ -230,7 +230,28 @@ export interface EncuestaDB {
   descripcion: string | null;
   preguntas: any[];
   activa: boolean;
-  creado_en: string;
+  created_at: string;
+  ya_respondida?: boolean;
+}
+
+export interface RespuestaAlumno {
+  id: number;
+  alumno: { id: number; nombre: string; apellido: string; email: string };
+  respuestas: { questionId: string; answer: string | number }[];
+  calificacion?: number | null;
+  calificacion_max?: number | null;
+  porcentaje?: number | null;
+  submitted_at: string;
+}
+
+export interface ResultadosEncuesta {
+  encuesta: { id: number; titulo: string; preguntas: any[] };
+  respuestas: RespuestaAlumno[];
+}
+
+export interface ResultadosExamen {
+  examen: { id: number; titulo: string; preguntas: any[] };
+  respuestas: RespuestaAlumno[];
 }
 
 export const encuestaService = {
@@ -257,6 +278,17 @@ export const encuestaService = {
   delete: async (id: number | string): Promise<void> => {
     await api.delete(`/encuestas/${id}`);
   },
+  submitRespuestas: async (id: number | string, respuestas: any[]): Promise<void> => {
+    await api.post(`/encuestas/${id}/responses`, { respuestas });
+  },
+  getResponses: async (id: number | string): Promise<ResultadosEncuesta> => {
+    const res = await api.get(`/encuestas/${id}/responses`);
+    return res.data;
+  },
+  checkRespondida: async (id: number | string): Promise<boolean> => {
+    const res = await api.get(`/encuestas/${id}/check`);
+    return res.data.ya_respondida;
+  },
 };
 
 // ─── Exámenes ─────────────────────────────────────────────────────────────────
@@ -281,7 +313,8 @@ export interface ExamenDB {
   deadline: string | null;
   one_attempt: boolean;
   activo: boolean;
-  creado_en: string;
+  created_at: string;
+  ya_respondido?: boolean;
 }
 
 export const examenService = {
@@ -307,6 +340,38 @@ export const examenService = {
   },
   delete: async (id: number | string): Promise<void> => {
     await api.delete(`/examenes/${id}`);
+  },
+  submitRespuestas: async (id: number | string, respuestas: any[]): Promise<{ calificacion?: number; calificacion_max?: number; porcentaje?: number }> => {
+    const res = await api.post(`/examenes/${id}/responses`, { respuestas });
+    return res.data;
+  },
+  getResponses: async (id: number | string): Promise<ResultadosExamen> => {
+    const res = await api.get(`/examenes/${id}/responses`);
+    return res.data;
+  },
+  checkRespondido: async (id: number | string): Promise<boolean> => {
+    const res = await api.get(`/examenes/${id}/check`);
+    return res.data.ya_respondido;
+  },
+};
+
+// ─── Historial del alumno ────────────────────────────────────────────────────
+
+export interface ResultadoItem {
+  id: number;
+  tipo: 'encuesta' | 'examen';
+  actividad_id: number;
+  titulo: string;
+  calificacion: number | null;
+  calificacion_max: number | null;
+  porcentaje: number | null;
+  submitted_at: string;
+}
+
+export const resultadosService = {
+  getMisResultados: async (): Promise<ResultadoItem[]> => {
+    const res = await api.get('/mis-resultados');
+    return res.data.resultados;
   },
 };
 
@@ -337,5 +402,89 @@ export const avisoService = {
 };
 
 export default api;
+
+// Tipos para foros
+export interface ForoData {
+  id: number;
+  clase_id: number;
+  titulo: string;
+  descrip_foro: string | null;
+  fecha_inicio: string;
+  activo_foro: boolean;
+  obejtivo_foro: string;
+  pregunta: string;
+  fecha_fin: string;
+  links: string | null;
+}
+
+export interface CreateForoPayload {
+  titulo: string;
+  descrip_foro?: string;
+  fecha_inicio: string;
+  obejtivo_foro: string;
+  pregunta: string;
+  fecha_fin: string;
+  links?: string;
+}
+
+// Servicios de Foros
+export const foroService = {
+  // Obtener todos los foros
+  getForos: async (): Promise<ForoData[]> => {
+    const response = await api.get('/foros');
+    return response.data.foros;
+  },
+
+  // Obtener un foro específico
+  getForoById: async (foroId: string): Promise<ForoData> => {
+    const response = await api.get(`/foros/${foroId}`);
+    return response.data.foro;
+  },
+
+  // Crear foro
+  createForo: async (payload: CreateForoPayload): Promise<ForoData> => {
+    const response = await api.post('/foros', payload);
+    return response.data.foro;
+  },
+
+  // Eliminar foro
+  deleteForo: async (foroId: string): Promise<void> => {
+    await api.delete(`/foros/${foroId}`);
+  },
+};
+
+// Tipos para posts de foro
+export interface PostForoData {
+  id: number;
+  foro_id: number;
+  usuario_id: number;
+  contenido: string;
+  fecha_publicacion: string;
+  autor: {
+    id: number;
+    nombre: string;
+    apellido: string;
+  };
+}
+
+// Servicios de Posts de Foro
+export const postForoService = {
+  // Obtener todos los posts de un foro
+  getPosts: async (foroId: string): Promise<PostForoData[]> => {
+    const response = await api.get(`/foros/${foroId}/posts`);
+    return response.data.posts;
+  },
+
+  // Crear post en un foro
+  createPost: async (foroId: string, contenido: string): Promise<PostForoData> => {
+    const response = await api.post(`/foros/${foroId}/posts`, { contenido });
+    return response.data.post;
+  },
+
+  // Eliminar post
+  deletePost: async (foroId: string, postId: number): Promise<void> => {
+    await api.delete(`/foros/${foroId}/posts/${postId}`);
+  },
+};
 
 // Made with Bob

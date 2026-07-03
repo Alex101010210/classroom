@@ -8,6 +8,8 @@ import Foro from './pages/teacher/Foro';
 import ForoDetail from './pages/teacher/ForoDetail';
 import StudentForo from './pages/student/Foro';
 import StudentForoDetail from './pages/student/ForoDetail';
+import StudentDiscusiones from './pages/student/Discusiones';
+import StudentAvisos from './pages/student/StudentAvisos';
 import Discusiones from './pages/teacher/Discusiones';
 import Avisos from './pages/teacher/Avisos';
 import Login from './pages/Login';
@@ -20,6 +22,9 @@ import TeacherProfile from './pages/teacher/Profile';
 import Examen from './pages/teacher/Examen';
 import Encuestas from './pages/teacher/Encuestas';
 import TareaDetail from './pages/teacher/TareaDetail';
+import EncuestaResultados from './pages/teacher/EncuestaResultados';
+import ExamenResultados from './pages/teacher/ExamenResultados';
+
 function App() {
   return (
     <Router>
@@ -44,6 +49,18 @@ function App() {
         <Route path="/teacher/profile" element={
           <ProtectedRoute><TeacherProfile /></ProtectedRoute>
         } />
+        <Route path="/teacher/foro" element={
+          <ProtectedRoute><Foro /></ProtectedRoute>
+        } />
+        <Route path="/teacher/foros-list" element={
+          <ProtectedRoute><ForoDetail /></ProtectedRoute>
+        } />
+        <Route path="/teacher/discusiones/:foroId" element={<Discusiones />} />
+        <Route path="/teacher/avisos/:classId" element={
+          <ProtectedRoute><Avisos /></ProtectedRoute>
+        } />
+        <Route path="/teacher/examen" element={<Examen />} />
+        <Route path="/teacher/encuestas" element={<Encuestas />} />
 
         {/* Rutas protegidas de Estudiante */}
         <Route path="/student/dashboard" element={
@@ -67,12 +84,18 @@ function App() {
         <Route path="/student/foros-list" element={
           <ProtectedRoute><StudentForoDetail /></ProtectedRoute>
         } />
-        <Route path="/teacher/foro" element={<Foro />} />
-        <Route path="/teacher/foros-list" element={<ForoDetail />} />
-        <Route path="/teacher/discusiones/:foroId" element={<Discusiones />} />
-        <Route path="/teacher/avisos/:classId" element={<Avisos />} />
-        <Route path="/teacher/examen" element={<Examen />} />
-        <Route path="/teacher/encuestas" element={<Encuestas />} />
+        <Route path="/teacher/encuesta/:encuestaId/resultados" element={
+          <ProtectedRoute><EncuestaResultados /></ProtectedRoute>
+        } />
+        <Route path="/teacher/examen/:examenId/resultados" element={
+          <ProtectedRoute><ExamenResultados /></ProtectedRoute>
+        } />
+        <Route path="/student/discusiones/:foroId" element={
+          <ProtectedRoute><StudentDiscusiones /></ProtectedRoute>
+        } />
+        <Route path="/student/class/:classId/avisos" element={
+          <ProtectedRoute><StudentAvisos /></ProtectedRoute>
+        } />
       </Routes>
     </Router>
   )

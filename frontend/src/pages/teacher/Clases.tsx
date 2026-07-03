@@ -109,12 +109,12 @@ const Clases: React.FC = () => {
 
   return (
     <div className="clases-page">
-      <header className="clases-header">
-        <button className="btn-back" onClick={handleBack}>
+      <header className="app-header">
+        <button className="app-header-back" onClick={handleBack}>
           <FontAwesomeIcon icon={faArrowLeft} />
           <span>Volver</span>
         </button>
-        <h1>Gestión de Materias</h1>
+        <h1 className="app-header-title">Gestión de Materias</h1>
       </header>
 
       <div className="clases-content">

@@ -108,12 +108,12 @@ const TeacherProfile: React.FC = () => {
   if (isLoading) {
     return (
       <div className="profile-page">
-        <header className="profile-header">
-          <button className="btn-back" onClick={handleBack}>
+        <header className="app-header">
+          <button className="app-header-back" onClick={handleBack}>
             <FontAwesomeIcon icon={faArrowLeft} />
-            <span>Volver al Dashboard</span>
+            <span>Volver</span>
           </button>
-          <h1>Mi Perfil</h1>
+          <h1 className="app-header-title">Mi Perfil</h1>
         </header>
         <div className="profile-content">
           <p className="loading-text">Cargando perfil...</p>
@@ -126,12 +126,12 @@ const TeacherProfile: React.FC = () => {
 
   return (
     <div className="profile-page">
-      <header className="profile-header">
-        <button className="btn-back" onClick={handleBack}>
+      <header className="app-header">
+        <button className="app-header-back" onClick={handleBack}>
           <FontAwesomeIcon icon={faArrowLeft} />
-          <span>Volver al Dashboard</span>
+          <span>Volver</span>
         </button>
-        <h1>Mi Perfil</h1>
+        <h1 className="app-header-title">Mi Perfil</h1>
       </header>
 
       <div className="profile-content">

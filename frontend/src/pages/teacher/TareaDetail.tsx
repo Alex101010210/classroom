@@ -123,15 +123,15 @@ const TareaDetail: React.FC = () => {
 
   return (
     <div className="tarea-detail-page">
-      <header className="tarea-detail-header">
-        <button className="btn-back" onClick={handleBack}>
+      <header className="app-header">
+        <button className="app-header-back" onClick={handleBack}>
           <FontAwesomeIcon icon={faArrowLeft} />
           <span>Volver a la Clase</span>
         </button>
-        <div className="tarea-header-title">
-          <FontAwesomeIcon icon={faClipboardList} />
-          <h1>{task.titulo_tarea}</h1>
-        </div>
+        <h1 className="app-header-title">
+          <FontAwesomeIcon icon={faClipboardList} style={{ marginRight: 8, opacity: 0.85 }} />
+          {task.titulo_tarea}
+        </h1>
       </header>
 
       <div className="tarea-detail-content">

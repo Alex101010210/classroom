@@ -1,88 +1,79 @@
+/* ─── Avisos Page ─────────────────────────────────────────── */
+
 .avisos-page {
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
   background-color: #f0f2f8;
 }
 
+/* avisos header → uses .app-header from global.css */
+
+/* ─── Main container ─────────────────────────────────────── */
+
 .avisos-container {
   max-width: 760px;
-  margin: 2rem auto;
-  padding: 0 1.5rem 3rem;
-  width: 100%;
+  margin: 0 auto;
+  padding: 32px 24px;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 28px;
 }
 
-/* Título de página */
 .avisos-page-header {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid #e5e7eb;
-}
-
-.avisos-page-header svg {
-  font-size: 1.4rem;
+  gap: 10px;
   color: #4A5AE8;
+  font-size: 1.35rem;
+  font-weight: 700;
 }
 
 .avisos-page-header h1 {
-  font-size: 1.6rem;
+  margin: 0;
+  font-size: 1.35rem;
   font-weight: 700;
   color: #1f2328;
-  margin: 0;
 }
 
-/* Tarjeta del formulario */
+/* ─── Form card ──────────────────────────────────────────── */
+
 .aviso-form-card {
-  background-color: #ffffff;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
   border-radius: 14px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
-  padding: 2rem;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
 }
 
 .aviso-form {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 16px;
 }
 
-/* Etiqueta "📢 Aviso" arriba del form */
 .aviso-preview-label {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 1rem;
+  gap: 8px;
+  font-size: 0.95rem;
   font-weight: 700;
   color: #4A5AE8;
-  background-color: #eef0fc;
-  border-left: 4px solid #4A5AE8;
-  padding: 0.6rem 1rem;
-  border-radius: 0 8px 8px 0;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #eef0fc;
 }
 
-.aviso-preview-label svg {
-  color: #4A5AE8;
-}
-
-/* Filas del formulario */
 .form-row {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 6px;
 }
 
 .form-row label {
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: #1f2328;
 }
 
-.form-row input[type="date"],
-.form-row input[type="text"],
+.form-row input,
 .form-row textarea {
   padding: 10px 12px;
   border: 1.5px solid #e5e7eb;
@@ -90,167 +81,170 @@
   font-size: 0.9rem;
   font-family: inherit;
   color: #1f2328;
-  background-color: #fafafa;
-  transition: border-color 0.18s ease, box-shadow 0.18s ease;
-  box-sizing: border-box;
-  width: 100%;
+  background: #fafafa;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  resize: vertical;
 }
 
-.form-row input[type="date"]:focus,
-.form-row input[type="text"]:focus,
+.form-row input:focus,
 .form-row textarea:focus {
   outline: none;
   border-color: #4A5AE8;
-  background-color: #fff;
   box-shadow: 0 0 0 3px rgba(74, 90, 232, 0.1);
+  background: #ffffff;
 }
 
-.form-row textarea {
-  resize: vertical;
-  min-height: 110px;
-  line-height: 1.65;
+.form-row input:disabled,
+.form-row textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-/* Fila "Atentamente" con línea separadora arriba */
-.atentamente-row {
-  padding-top: 1rem;
-  border-top: 1px dashed #e5e7eb;
+.atentamente-row input {
+  max-width: 360px;
 }
 
-/* Botones */
 .form-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 0.75rem;
-  margin-top: 0.5rem;
+  gap: 10px;
+  padding-top: 4px;
 }
 
 .btn-cancel {
-  padding: 10px 20px;
+  padding: 9px 18px;
+  background: transparent;
   border: 1.5px solid #e5e7eb;
   border-radius: 8px;
-  background-color: #f7f8fa;
-  color: #57606a;
   font-size: 0.9rem;
   font-weight: 600;
+  color: #57606a;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: all 0.15s;
 }
 
-.btn-cancel:hover {
-  background-color: #e5e7eb;
+.btn-cancel:hover:not(:disabled) {
+  border-color: #adb5bd;
+  background: #f7f8fa;
 }
 
 .btn-submit {
-  padding: 10px 20px;
+  padding: 9px 20px;
+  background: linear-gradient(135deg, #4A5AE8 0%, #5B6CF8 100%);
   border: none;
   border-radius: 8px;
-  background: linear-gradient(135deg, #4A5AE8 0%, #5B6CF8 100%);
-  color: #ffffff;
   font-size: 0.9rem;
   font-weight: 600;
+  color: #ffffff;
   cursor: pointer;
   transition: all 0.15s;
   box-shadow: 0 2px 6px rgba(74, 90, 232, 0.3);
 }
 
-.btn-submit:hover {
+.btn-submit:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(74, 90, 232, 0.4);
 }
 
-/* Sección de avisos publicados */
+.btn-submit:disabled,
+.btn-cancel:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ─── Published list ─────────────────────────────────────── */
+
 .avisos-publicados h2 {
-  font-size: 0.78rem;
+  font-size: 1rem;
   font-weight: 700;
-  color: #adb5bd;
-  margin: 0 0 1rem 0;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  color: #1f2328;
+  margin: 0 0 14px 0;
 }
 
 .avisos-lista {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 14px;
 }
 
-/* Tarjeta de aviso publicado */
 .aviso-card {
-  background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
-  padding: 1.25rem 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  animation: fadeInUp 0.3s ease-out;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
   border-left: 4px solid #4A5AE8;
+  border-radius: 12px;
+  padding: 16px 18px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  transition: box-shadow 0.18s, transform 0.15s;
+}
+
+.aviso-card:hover {
+  box-shadow: 0 4px 14px rgba(0,0,0,0.09);
+  transform: translateY(-1px);
 }
 
 .aviso-card-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 10px;
 }
 
 .aviso-tag {
+  font-size: 0.8rem;
   font-weight: 700;
-  font-size: 0.88rem;
   color: #4A5AE8;
+  background: #eef0fc;
+  border: 1px solid #c8cce8;
+  border-radius: 20px;
+  padding: 2px 10px;
 }
 
 .btn-eliminar-aviso {
-  background: none;
-  border: none;
-  color: #adb5bd;
+  background: transparent;
+  border: 1px solid #ef4444;
+  color: #ef4444;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
   cursor: pointer;
-  padding: 4px 6px;
-  border-radius: 4px;
-  font-size: 0.82rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.15s;
+  flex-shrink: 0;
 }
 
 .btn-eliminar-aviso:hover {
-  color: #ef4444;
-  background-color: rgba(239, 68, 68, 0.08);
+  background: #ef4444;
+  color: #ffffff;
 }
 
 .aviso-fecha {
-  margin: 0;
-  font-size: 0.88rem;
+  font-size: 0.83rem;
   color: #57606a;
+  margin: 0 0 6px 0;
 }
 
 .aviso-mensaje {
-  margin: 0;
   font-size: 0.92rem;
   color: #1f2328;
-  line-height: 1.65;
+  line-height: 1.6;
+  margin: 0 0 10px 0;
   white-space: pre-wrap;
 }
 
 .aviso-atentamente {
-  margin: 0;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: #57606a;
-  padding-top: 0.5rem;
-  border-top: 1px dashed #e5e7eb;
+  margin: 0;
+  text-align: right;
 }
 
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+/* ─── Responsive ─────────────────────────────────────────── */
 
-@media (max-width: 768px) {
+@media (max-width: 600px) {
   .avisos-container {
-    padding: 0 1rem 2rem;
-    margin: 1rem auto;
-  }
-
-  .aviso-form-card {
-    padding: 1.25rem;
+    padding: 20px 14px;
   }
 
   .form-actions {

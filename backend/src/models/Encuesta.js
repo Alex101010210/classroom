@@ -23,11 +23,19 @@ const Encuesta = sequelize.define('Encuesta', {
     type: DataTypes.TEXT,
     allowNull: true
   },
-  // Preguntas almacenadas como JSON
+  // Preguntas almacenadas como JSON en columna TEXT
   preguntas: {
-    type: DataTypes.JSONB,
+    type: DataTypes.TEXT,
     allowNull: false,
-    defaultValue: []
+    defaultValue: '[]',
+    get() {
+      const raw = this.getDataValue('preguntas');
+      if (!raw) return [];
+      try { return typeof raw === 'string' ? JSON.parse(raw) : raw; } catch { return []; }
+    },
+    set(val) {
+      this.setDataValue('preguntas', typeof val === 'string' ? val : JSON.stringify(val));
+    }
   },
   activa: {
     type: DataTypes.BOOLEAN,
@@ -37,8 +45,8 @@ const Encuesta = sequelize.define('Encuesta', {
 }, {
   tableName: 'encuestas',
   timestamps: true,
-  createdAt: 'creado_en',
-  updatedAt: false
+  createdAt: 'created_at',
+  updatedAt: 'updated_at'
 });
 
 module.exports = Encuesta;

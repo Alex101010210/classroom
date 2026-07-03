@@ -7,7 +7,6 @@ import {
   faXmark,
   faBookOpen,
   faClipboardList,
-  faChartBar,
   faChevronDown,
   faChevronUp,
   faUser,
@@ -92,7 +91,7 @@ const StudentDashboard: React.FC = () => {
 
   const handleClassClick = (cls: Class) => {
     setIsMobileMenuOpen(false);
-    navigate(`/student/class/${cls.id}/polls`);
+    navigate(`/student/class/${cls.id}/avisos`);
   };
 
   const getDisplayName = (cls: Class) =>
@@ -215,11 +214,6 @@ const StudentDashboard: React.FC = () => {
                   )}
                 </div>
               )}
-
-              <button className="sd-nav-btn" onClick={() => navigate('/student/profile')}>
-                <FontAwesomeIcon icon={faChartBar} />
-                <span>Mis Resultados</span>
-              </button>
 
               {/* Foros */}
               <div className="sd-foros-container" ref={forosRef}>
