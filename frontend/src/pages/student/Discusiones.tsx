@@ -119,7 +119,7 @@ const StudentDiscusiones: React.FC = () => {
         {!loading && !error && (
           <div className="comentarios-lista">
             {posts.length === 0 ? (
-              <div className="empty-discusiones">
+              <div className="empty-discusiones"> 
                 <p>Aún no hay participaciones. ¡Sé el primero en comentar!</p>
               </div>
             ) : (

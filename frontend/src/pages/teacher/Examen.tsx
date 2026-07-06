@@ -2,8 +2,8 @@ import React, { useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faArrowLeft, faPalette, faEye,
-  faPlus, faImage,
+  faArrowLeft, faPalette, 
+  faPlus,
   faCopy, faTrash, faTimes,
   faClock, faUserCheck
 } from '@fortawesome/free-solid-svg-icons';
@@ -64,7 +64,6 @@ const Examen: React.FC = () => {
 
   const initQuestions: Question[] = existing?.preguntas?.length ? existing.preguntas : [newQuestion()];
 
-  const [activeTab, setActiveTab]     = useState<'preguntas' | 'respuestas'>('preguntas');
   const [examTitle, setExamTitle]     = useState<string>(existing?.titulo  ?? 'Examen sin título');
   const [examDesc, setExamDesc]       = useState<string>(existing?.descripcion ?? '');
   const [questions, setQuestions]     = useState<Question[]>(initQuestions);
@@ -146,11 +145,11 @@ const Examen: React.FC = () => {
     });
   };
 
-  /* ── image upload ──────────────────────────────── */
+  /* ── image upload ──────────────────────────────── 
   const triggerImageUpload = (qId: string) => {
     setPendingImgQId(qId);
     imgInputRef.current?.click();
-  };
+  };*/
 
   const handleImageFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -210,13 +209,15 @@ const Examen: React.FC = () => {
       />
 
       {/* ─── Top bar ─────────────────────────── */}
-      <header className="app-header" style={{ background: `linear-gradient(135deg, ${accentColor} 0%, ${accentColor}cc 100%)` }}>
-        <button className="app-header-back" onClick={() => navigate(-1)}>
-          <FontAwesomeIcon icon={faArrowLeft} />
-          <span>Volver</span>
-        </button>
-        <h1 className="app-header-title">{examTitle || 'Examen sin título'}</h1>
-        <div className="app-header-actions">
+      <header className="ef-topbar" style={{ backgroundColor: accentColor }}>
+        <div className="ef-topbar-left">
+          <button className="ef-icon-btn" onClick={() => navigate(-1)} title="Volver">
+            <FontAwesomeIcon icon={faArrowLeft} />
+          </button>
+          <span className="ef-topbar-title">{examTitle || 'Examen sin título'}</span>
+        </div>
+        <div className="ef-topbar-right">
+
           {/* Palette */}
           <div className="ef-palette-wrapper">
             <button
@@ -243,10 +244,10 @@ const Examen: React.FC = () => {
             )}
           </div>
 
-          {/* Vista previa */}
-          <button className="app-header-icon-btn" title="Vista previa" onClick={() => setShowPreview(true)}>
+          {/* Vista previa 
+          <button className="ef-icon-btn" title="Vista previa" onClick={() => setShowPreview(true)}>
             <FontAwesomeIcon icon={faEye} />
-          </button>
+          </button>*/}
 
           <button className="app-header-btn" onClick={handleSend}>
             GUARDAR
@@ -254,28 +255,12 @@ const Examen: React.FC = () => {
         </div>
       </header>
 
-      {/* ─── Tabs ────────────────────────────── */}
-      <div className="ef-tabs-bar" style={{ backgroundColor: accentColor, opacity: 0.95 }}>
-        <button
-          className={`ef-tab ${activeTab === 'preguntas' ? 'ef-tab--active' : ''}`}
-          onClick={() => setActiveTab('preguntas')}
-        >
-          PREGUNTAS
-        </button>
-        <button
-          className={`ef-tab ${activeTab === 'respuestas' ? 'ef-tab--active' : ''}`}
-          onClick={() => setActiveTab('respuestas')}
-        >
-          RESPUESTAS
-        </button>
-      </div>
 
       {/* ─── Body ────────────────────────────── */}
       <div className="ef-body">
         <div className="ef-center-col">
 
-          {activeTab === 'preguntas' && (
-            <>
+          <>
               {/* Title card */}
               <div className="ef-card ef-title-card" style={{ borderTopColor: accentColor }}>
                 <div className="ef-title-row">
@@ -380,7 +365,7 @@ const Examen: React.FC = () => {
                       </select>
                     </div>
 
-                    {/* Image attached to question */}
+                    {/* Image attached to question 
                     {q.imageUrl && (
                       <div className="ef-q-image-wrapper">
                         <img src={q.imageUrl} alt="Imagen de pregunta" className="ef-q-image" />
@@ -392,7 +377,7 @@ const Examen: React.FC = () => {
                           <FontAwesomeIcon icon={faTimes} />
                         </button>
                       </div>
-                    )}
+                    )}*/}
 
                     {/* Options */}
                     {hasOptions(q.type) && (
@@ -504,31 +489,22 @@ const Examen: React.FC = () => {
                   </div>
                 );
               })}
-            </>
-          )}
-
-          {activeTab === 'respuestas' && (
-            <div className="ef-card ef-empty-responses">
-              <p>Aún no hay respuestas para este examen.</p>
-            </div>
-          )}
+          </>
         </div>
 
         {/* ─── Right toolbar ───────────────── */}
-        {activeTab === 'preguntas' && (
-          <div className="ef-right-toolbar">
+        <div className="ef-right-toolbar">
             <button className="ef-toolbar-btn" onClick={addQuestion} title="Agregar nueva pregunta">
               <FontAwesomeIcon icon={faPlus} />
-            </button>
+            </button>{/*}
             <button
               className="ef-toolbar-btn"
               title="Agregar imagen a la pregunta activa"
               onClick={() => triggerImageUpload(activeQId)}
             >
               <FontAwesomeIcon icon={faImage} />
-            </button>
-          </div>
-        )}
+            </button>*/}
+        </div>
       </div>
 
       {/* ─── Vista previa modal ───────────── */}
