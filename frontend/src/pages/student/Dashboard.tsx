@@ -107,17 +107,27 @@ const StudentDashboard: React.FC = () => {
         <div className="sd-header-logo">
           <span className="sd-logo-text">PollClass</span>
         </div>
-        <div className="sd-header-user">
-          <span className="sd-user-name">{studentName}</span>
-          <span className="sd-user-badge">Alumno</span>
+        <div className="sd-header-right">
+          <div className="sd-header-user">
+            <span className="sd-user-name">{studentName}</span>
+            <span className="sd-user-badge">Alumno</span>
+          </div>
+          <button
+            className="sd-profile-btn"
+            onClick={() => navigate('/student/profile')}
+            aria-label="Mi Perfil"
+            title="Mi Perfil"
+          >
+            <FontAwesomeIcon icon={faUser} />
+          </button>
+          <button
+            className="sd-hamburger"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Menú"
+          >
+            <FontAwesomeIcon icon={isMobileMenuOpen ? faXmark : faBars} />
+          </button>
         </div>
-        <button
-          className="sd-hamburger"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          aria-label="Menú"
-        >
-          <FontAwesomeIcon icon={isMobileMenuOpen ? faXmark : faBars} />
-        </button>
       </header>
 
       <div className="sd-body">
@@ -243,10 +253,6 @@ const StudentDashboard: React.FC = () => {
                 )}
               </div>
 
-              <button className="sd-nav-btn" onClick={() => navigate('/student/profile')}>
-                <FontAwesomeIcon icon={faUser} />
-                <span>Mi Perfil</span>
-              </button>
             </div>
 
             <div className="sd-nav-section sd-nav-section--bottom">

@@ -80,10 +80,10 @@ const StudentProfile: React.FC = () => {
 
         {/* Tarjeta usuario */}
         <div className="sp-card sp-user-card">
-          <div className="sp-avatar">
-            <FontAwesomeIcon icon={faUser} />
-          </div>
-          <div className="sp-user-info">
+          <div className="sp-section-header">
+            <div className="sp-avatar" style={{ margin: '0 auto 0.75rem' }}>
+              <FontAwesomeIcon icon={faUser} />
+            </div>
             <h2 className="sp-user-name">
               {user ? `${user.nombre} ${user.apellido}` : '—'}
             </h2>

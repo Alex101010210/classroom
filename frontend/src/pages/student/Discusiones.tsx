@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faUser, faPaperPlane, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faUser, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import { foroService, postForoService, PostForoData } from '../../services/api';
-import { authService } from '../../services/authService';
 import '../teacher/Discusiones.css';
 
 interface Foro {
@@ -18,16 +17,9 @@ const StudentDiscusiones: React.FC = () => {
   const [foro, setForo] = useState<Foro | null>(null);
   const [posts, setPosts] = useState<PostForoData[]>([]);
   const [nuevoComentario, setNuevoComentario] = useState('');
-  const [showUserMenu, setShowUserMenu] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const userMenuRef = useRef<HTMLDivElement>(null);
-
-  const currentUser = authService.getCurrentUser();
-  const studentName = currentUser
-    ? `${currentUser.nombre} ${currentUser.apellido || ''}`.trim()
-    : 'Estudiante';
 
   useEffect(() => {
     if (!foroId) return;
@@ -50,16 +42,6 @@ const StudentDiscusiones: React.FC = () => {
 
     cargarDatos();
   }, [foroId]);
-
-  useEffect(() => {
-    const handleOutsideClick = (e: MouseEvent) => {
-      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
-        setShowUserMenu(false);
-      }
-    };
-    document.addEventListener('mousedown', handleOutsideClick);
-    return () => document.removeEventListener('mousedown', handleOutsideClick);
-  }, []);
 
   const handleEnviar = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,6 +76,16 @@ const StudentDiscusiones: React.FC = () => {
         <h1 className="app-header-title">
           {foro ? foro.titulo : 'Discusión'}
         </h1>
+        <div className="app-header-actions">
+          <button
+            className="app-header-icon-btn"
+            onClick={() => navigate('/student/profile')}
+            aria-label="Mi Perfil"
+            title="Mi Perfil"
+          >
+            <FontAwesomeIcon icon={faUser} />
+          </button>
+        </div>
       </header>
 
       <div className="discusiones-container">

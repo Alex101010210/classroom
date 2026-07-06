@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faCheckCircle, faClock, faTimesCircle, faFileAlt, faPollH, faBullhorn } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faCheckCircle, faClock, faTimesCircle, faFileAlt, faPollH, faBullhorn, faUser } from '@fortawesome/free-solid-svg-icons';
 import { encuestaService, examenService, avisoService, AvisoData } from '../../services/api';
 import './PollsList.css';
 
@@ -144,6 +144,16 @@ const PollsList: React.FC = () => {
         <h1 className="app-header-title">
           Actividades{className ? ` — ${className}` : ''}
         </h1>
+        <div className="app-header-actions">
+          <button
+            className="app-header-icon-btn"
+            onClick={() => navigate('/student/profile')}
+            aria-label="Mi Perfil"
+            title="Mi Perfil"
+          >
+            <FontAwesomeIcon icon={faUser} />
+          </button>
+        </div>
       </header>
 
       <div className="polls-content">

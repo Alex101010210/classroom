@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faBullhorn } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faBullhorn, faUser } from '@fortawesome/free-solid-svg-icons';
 import { avisoService, AvisoData } from '../../services/api';
 import './StudentAvisos.css';
 
@@ -51,6 +51,14 @@ const StudentAvisos: React.FC = () => {
             onClick={() => navigate(`/student/class/${classId}/polls`)}
           >
             Ver actividades
+          </button>
+          <button
+            className="app-header-icon-btn"
+            onClick={() => navigate('/student/profile')}
+            aria-label="Mi Perfil"
+            title="Mi Perfil"
+          >
+            <FontAwesomeIcon icon={faUser} />
           </button>
         </div>
       </header>

@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faCalendar, faUsers, faUser, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
-import { authService } from '../../services/authService';
+import { faArrowLeft, faCalendar, faUsers, faUser } from '@fortawesome/free-solid-svg-icons';
 import { foroService, ForoData } from '../../services/api';
 import '../teacher/ForoDetail.css';
 
@@ -10,29 +9,12 @@ const StudentForoDetail: React.FC = () => {
   const navigate = useNavigate();
   const [foros, setForos] = useState<ForoData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [showUserMenu, setShowUserMenu] = useState(false);
-  const userMenuRef = useRef<HTMLDivElement>(null);
-
-  const currentUser = authService.getCurrentUser();
-  const studentName = currentUser
-    ? `${currentUser.nombre} ${currentUser.apellido || ''}`.trim()
-    : 'Estudiante';
 
   useEffect(() => {
     foroService.getForos()
       .then(data => setForos(data))
       .catch(() => setForos([]))
       .finally(() => setIsLoading(false));
-  }, []);
-
-  useEffect(() => {
-    const handleOutsideClick = (e: MouseEvent) => {
-      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
-        setShowUserMenu(false);
-      }
-    };
-    document.addEventListener('mousedown', handleOutsideClick);
-    return () => document.removeEventListener('mousedown', handleOutsideClick);
   }, []);
 
   const formatDate = (dateString: string) => {
@@ -47,39 +29,28 @@ const StudentForoDetail: React.FC = () => {
   return (
     <div className="foro-detail-page">
       {/* Header */}
-      <header className="dashboard-header">
-        <div className="header-logo">
-          <button className="btn-back" onClick={() => navigate('/student/dashboard')}>
-            <FontAwesomeIcon icon={faArrowLeft} />
+      <header className="app-header">
+        <button className="app-header-back" onClick={() => navigate('/student/dashboard')}>
+          <FontAwesomeIcon icon={faArrowLeft} />
+          <span>Volver</span>
+        </button>
+        <h1 className="app-header-title">Foros Académicos</h1>
+        <div className="app-header-actions">
+          <button
+            className="app-header-icon-btn"
+            onClick={() => navigate('/student/profile')}
+            aria-label="Mi Perfil"
+            title="Mi Perfil"
+          >
+            <FontAwesomeIcon icon={faUser} />
           </button>
-          <span className="header-logo-text">PollClass</span>
-        </div>
-        <div className="header-actions">
-          <div className="user-menu-container" ref={userMenuRef}>
-            <button className="btn-header btn-users" onClick={() => setShowUserMenu(!showUserMenu)}>
-              <FontAwesomeIcon icon={faUser} />
-            </button>
-            {showUserMenu && (
-              <div className="user-dropdown-menu">
-                <div className="user-menu-name">{studentName}</div>
-                <button className="user-menu-item" onClick={() => { setShowUserMenu(false); navigate('/student/profile'); }}>
-                  <FontAwesomeIcon icon={faUser} />
-                  <span>Mi Perfil</span>
-                </button>
-                <button className="user-menu-item logout" onClick={() => { if (window.confirm('¿Estás seguro que deseas salir?')) { authService.logout(); navigate('/login'); } }}>
-                  <FontAwesomeIcon icon={faRightFromBracket} />
-                  <span>Cerrar Sesión</span>
-                </button>
-              </div>
-            )}
-          </div>
         </div>
       </header>
 
       {/* Main Content */}
       <div className="foro-detail-container">
         <div className="foro-detail-header">
-          <h1>Foros Académicos</h1>
+          <h1>Foros</h1>
         </div>
 
         {isLoading ? (
