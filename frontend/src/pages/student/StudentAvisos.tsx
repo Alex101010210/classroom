@@ -75,7 +75,7 @@ const StudentAvisos: React.FC = () => {
             {avisos.map(aviso => (
               <div key={aviso.id} className="sa-aviso-card">
                 <div className="sa-aviso-top">
-                  <span className="sa-aviso-tag">📢 Aviso</span>
+                  <span className="sa-aviso-tag">Aviso</span>
                   <span className="sa-aviso-fecha">{formatFecha(aviso.fecha)}</span>
                 </div>
                 <p className="sa-aviso-mensaje">{aviso.mensaje}</p>

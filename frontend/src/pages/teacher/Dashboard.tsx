@@ -246,7 +246,7 @@ const TeacherDashboard: React.FC = () => {
               <div className="welcome-banner-text">
                 <span className="welcome-label">Panel del Maestro</span>
                 <h1 className="welcome-title">
-                  Bienvenido, <span>{teacherName}</span> 👋
+                  Bienvenido, <span>{teacherName}</span>
                 </h1>
                 <p className="welcome-subtitle">
                   Tienes <strong>{subjects.length}</strong> {subjects.length === 1 ? 'materia activa' : 'materias activas'} este ciclo.

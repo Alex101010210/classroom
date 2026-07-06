@@ -91,9 +91,10 @@ const PollsList: React.FC = () => {
       return;
     }
     if (item.status === 'completed') {
-      // Los exámenes completados quedan bloqueados (botón gris), solo encuestas van a resultados
       if (item.type === 'encuesta') {
         navigate(`/student/poll/${item.id}/results`);
+      } else {
+        navigate(`/student/examen/${item.id}/resultado`);
       }
       return;
     }
@@ -216,11 +217,11 @@ const PollsList: React.FC = () => {
                 <button
                   className="btn-action"
                   onClick={() => handleClick(item)}
-                  disabled={item.status === 'expired' || (item.type === 'examen' && item.status === 'completed')}
+                  disabled={item.status === 'expired'}
                 >
                   {item.status === 'pending'   && 'Responder'}
                   {item.status === 'completed' && item.type === 'encuesta' && 'Ver Resultados'}
-                  {item.status === 'completed' && item.type === 'examen'   && 'Contestado'}
+                  {item.status === 'completed' && item.type === 'examen'   && 'Ver mi calificación'}
                   {item.status === 'expired'   && 'Expirada'}
                 </button>
               </div>

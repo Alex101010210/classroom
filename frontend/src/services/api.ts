@@ -353,6 +353,20 @@ export const examenService = {
     const res = await api.get(`/examenes/${id}/check`);
     return res.data.ya_respondido;
   },
+  getMiRespuesta: async (id: number | string): Promise<{
+    examen: { id: number; titulo: string; preguntas: any[] };
+    respuesta: {
+      id: number;
+      respuestas: { questionId: string; answer: string | number }[];
+      calificacion: number | null;
+      calificacion_max: number | null;
+      porcentaje: number | null;
+      submitted_at: string;
+    };
+  }> => {
+    const res = await api.get(`/examenes/${id}/mi-respuesta`);
+    return res.data;
+  },
 };
 
 // ─── Historial del alumno ────────────────────────────────────────────────────

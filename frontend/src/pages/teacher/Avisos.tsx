@@ -101,8 +101,7 @@ const Avisos: React.FC = () => {
         <div className="aviso-form-card">
           <form className="aviso-form" onSubmit={handleSubmit}>
             <div className="aviso-preview-label">
-              <FontAwesomeIcon icon={faBullhorn} />
-              <span>📢 Aviso</span>
+              <span>Aviso</span>
             </div>
 
             <div className="form-row">
