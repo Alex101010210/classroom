@@ -1,21 +1,12 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faUser, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
-import { authService } from '../../services/authService';
+import { faArrowLeft, faUser } from '@fortawesome/free-solid-svg-icons';
 import { foroService } from '../../services/api';
 import '../teacher/Foro.css';
 
 const StudentForo: React.FC = () => {
   const navigate = useNavigate();
-  const [showUserMenu, setShowUserMenu] = useState(false);
-  const userMenuRef = useRef<HTMLDivElement>(null);
-
-  const currentUser = authService.getCurrentUser();
-  const studentName = currentUser
-    ? `${currentUser.nombre} ${currentUser.apellido || ''}`.trim()
-    : 'Estudiante';
-
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     titulo: '',
@@ -61,56 +52,31 @@ const StudentForo: React.FC = () => {
     }
   };
 
-  const handleBack = () => {
-    navigate('/student/dashboard');
-  };
-
-  useEffect(() => {
-    const handleOutsideClick = (e: MouseEvent) => {
-      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
-        setShowUserMenu(false);
-      }
-    };
-    document.addEventListener('mousedown', handleOutsideClick);
-    return () => document.removeEventListener('mousedown', handleOutsideClick);
-  }, []);
-
   return (
     <div className="foro-page">
       {/* Header */}
-      <header className="dashboard-header">
-        <div className="header-logo">
-          <button className="btn-back" onClick={handleBack}>
-            <FontAwesomeIcon icon={faArrowLeft} />
+      <header className="app-header">
+        <button className="app-header-back" onClick={() => navigate('/student/dashboard')}>
+          <FontAwesomeIcon icon={faArrowLeft} />
+          <span>Volver</span>
+        </button>
+        <h1 className="app-header-title">Foro Académico</h1>
+        <div className="app-header-actions">
+          <button
+            className="app-header-icon-btn"
+            onClick={() => navigate('/student/profile')}
+            aria-label="Mi Perfil"
+            title="Mi Perfil"
+          >
+            <FontAwesomeIcon icon={faUser} />
           </button>
-          <span className="header-logo-text">PollClass</span>
-        </div>
-        <div className="header-actions">
-          <div className="user-menu-container" ref={userMenuRef}>
-            <button className="btn-header btn-users" onClick={() => setShowUserMenu(!showUserMenu)}>
-              <FontAwesomeIcon icon={faUser} />
-            </button>
-            {showUserMenu && (
-              <div className="user-dropdown-menu">
-                <div className="user-menu-name">{studentName}</div>
-                <button className="user-menu-item" onClick={() => { setShowUserMenu(false); navigate('/student/profile'); }}>
-                  <FontAwesomeIcon icon={faUser} />
-                  <span>Mi Perfil</span>
-                </button>
-                <button className="user-menu-item logout" onClick={() => { if (window.confirm('¿Estás seguro que deseas salir?')) { authService.logout(); navigate('/login'); } }}>
-                  <FontAwesomeIcon icon={faRightFromBracket} />
-                  <span>Cerrar Sesión</span>
-                </button>
-              </div>
-            )}
-          </div>
         </div>
       </header>
 
       {/* Main Content */}
       <div className="foro-container">
         <div className="foro-header">
-          <h1>Foro Académico</h1>
+          <h1>Crear Foro</h1>
         </div>
 
         <form className="foro-form" onSubmit={handleSubmit}>

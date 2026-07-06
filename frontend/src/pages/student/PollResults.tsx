@@ -61,12 +61,12 @@ const PollResults: React.FC = () => {
 
   return (
     <div className="poll-results-page">
-      <header className="pr-header">
-        <button className="pr-btn-back" onClick={() => navigate('/student/dashboard')}>
+      <header className="app-header">
+        <button className="app-header-back" onClick={() => navigate('/student/dashboard')}>
           <FontAwesomeIcon icon={faArrowLeft} />
           <span>Inicio</span>
         </button>
-        <h1>Resultados de la encuesta</h1>
+        <h1 className="app-header-title">Resultados de la encuesta</h1>
       </header>
 
       <div className="pr-content">
@@ -94,7 +94,7 @@ const PollResults: React.FC = () => {
 
         {/* Respuestas */}
         <div className="pr-answers">
-          <h2>Tus respuestas</h2>
+          <h3 className="pr-answers-title">Tus respuestas</h3>
           {result.answers.map((ans, idx) => (
             <div
               key={ans.questionId}

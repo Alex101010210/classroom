@@ -6,7 +6,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: var(--background);
+  background-color: #f0f2f8;
   font-family: var(--font-family);
 }
 
@@ -27,6 +27,12 @@
 
 .sd-header-logo { flex: 1; }
 
+.sd-header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
 .sd-logo-text {
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);
@@ -39,6 +45,23 @@
   align-items: center;
   gap: var(--spacing-sm);
 }
+
+.sd-profile-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border: none;
+  background: rgba(255,255,255,0.15);
+  color: #ffffff;
+  border-radius: var(--border-radius-full);
+  cursor: pointer;
+  font-size: var(--font-size-base);
+  transition: background var(--transition-fast);
+  flex-shrink: 0;
+}
+.sd-profile-btn:hover { background: rgba(255,255,255,0.3); }
 
 .sd-user-name {
   font-size: var(--font-size-sm);
@@ -392,6 +415,7 @@
 @media (max-width: 768px) {
   .sd-hamburger { display: flex; }
   .sd-header-user { display: none; }
+  .sd-profile-btn { display: flex; }
 
   .sd-sidebar {
     position: fixed;
