@@ -18,6 +18,18 @@ const TareaDetail: React.FC = () => {
   const [saveError, setSaveError] = useState('');
   const [saveSuccess, setSaveSuccess] = useState('');
 
+  // Límites de fecha: hoy (sin pasado) y máximo 3 años hacia adelante
+  const now = new Date();
+  const minDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+    .toISOString()
+    .slice(0, 16); // "YYYY-MM-DDTHH:MM"
+  const maxDate = new Date(now);
+  maxDate.setFullYear(maxDate.getFullYear() + 3);
+  const maxDateTime = new Date(maxDate.getTime() - maxDate.getTimezoneOffset() * 60000)
+    .toISOString()
+    .slice(0, 16);
+
+
   // Campos editables
   const [editDescripcion, setEditDescripcion] = useState('');
   const [editFechaLimite, setEditFechaLimite] = useState('');
@@ -211,6 +223,8 @@ const TareaDetail: React.FC = () => {
                     id="edit-fecha"
                     value={editFechaLimite}
                     onChange={(e) => setEditFechaLimite(e.target.value)}
+                    min={minDateTime}
+                    max={maxDateTime}
                     required
                     disabled={isSaving}
                   />

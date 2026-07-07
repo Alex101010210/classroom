@@ -57,6 +57,17 @@ const TeacherDashboard: React.FC = () => {
     entrega_tardia: false
   });
 
+  // Límites de fecha: hoy (sin pasado) y máximo 3 años hacia adelante
+  const now = new Date();
+  const minDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+    .toISOString()
+    .slice(0, 16); // "YYYY-MM-DDTHH:MM"
+  const maxDate = new Date(now);
+  maxDate.setFullYear(maxDate.getFullYear() + 3);
+  const maxDateTime = new Date(maxDate.getTime() - maxDate.getTimezoneOffset() * 60000)
+    .toISOString()
+    .slice(0, 16);
+
   useEffect(() => {
     loadClasses();
   }, []);
@@ -246,7 +257,7 @@ const TeacherDashboard: React.FC = () => {
               <div className="welcome-banner-text">
                 <span className="welcome-label">Panel del Maestro</span>
                 <h1 className="welcome-title">
-                  Bienvenido, <span>{teacherName}</span> 
+                  Bienvenido, <span>{teacherName}</span>
                 </h1>
                 <p className="welcome-subtitle">
                   Tienes <strong>{subjects.length}</strong> {subjects.length === 1 ? 'materia activa' : 'materias activas'} este ciclo.
@@ -461,6 +472,8 @@ const TeacherDashboard: React.FC = () => {
                   id="taskDeadline"
                   value={taskForm.fecha_limite}
                   onChange={(e) => setTaskForm({...taskForm, fecha_limite: e.target.value})}
+                  min={minDateTime}
+                  max={maxDateTime}
                   required
                   disabled={isSubmittingTask}
                 />

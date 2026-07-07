@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faUser, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { foroService } from '../../services/api';
 import './Foro.css';
 
 const Foro: React.FC = () => {
   const navigate = useNavigate();
-  const [showUserMenu, setShowUserMenu] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     titulo: '',
@@ -23,6 +22,18 @@ const Foro: React.FC = () => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
+  
+  // Límites de fecha: hoy (sin pasado) y máximo 3 años hacia adelante — solo fecha (YYYY-MM-DD)
+  const now = new Date();
+  const minDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+    .toISOString()
+    .slice(0, 10); // "YYYY-MM-DD"
+  const maxDateObj = new Date(now);
+  maxDateObj.setFullYear(maxDateObj.getFullYear() + 3);
+  const maxDate = new Date(maxDateObj.getTime() - maxDateObj.getTimezoneOffset() * 60000)
+    .toISOString()
+    .slice(0, 10);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,19 +59,6 @@ const Foro: React.FC = () => {
 
   const handleBack = () => navigate('/teacher/foros-list');
 
-  const handleUsers = () => setShowUserMenu(!showUserMenu);
-
-  const handleProfile = () => {
-    setShowUserMenu(false);
-    alert('Perfil de usuario - Funcionalidad por implementar');
-  };
-
-  const handleLogout = () => {
-    if (window.confirm('¿Está seguro que desea salir?')) {
-      localStorage.clear();
-      navigate('/login');
-    }
-  };
 
   return (
     <div className="foro-page">
@@ -185,6 +183,8 @@ const Foro: React.FC = () => {
                 name="fechaInicio"
                 value={formData.fechaInicio}
                 onChange={handleInputChange}
+                min={minDate}
+                max={maxDate}
                 required
               />
             </div>
@@ -199,6 +199,8 @@ const Foro: React.FC = () => {
                 name="fechaLimite"
                 value={formData.fechaLimite}
                 onChange={handleInputChange}
+                min={minDate}
+                max={maxDate}
                 required
               />
             </div>

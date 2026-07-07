@@ -18,6 +18,9 @@ router.get('/alumno/:clase_id', examenController.getExamenesByClaseAlumno);
 // GET    /api/examenes/:id/check              — alumno verifica si ya respondió — debe ir ANTES de /:id
 router.get('/:id/check', respuestasController.checkExamen);
 
+// GET    /api/examenes/:id/mi-respuesta       — alumno ve su propia respuesta y calificación — debe ir ANTES de /:id
+router.get('/:id/mi-respuesta', respuestasController.getMiRespuestaExamen);
+
 // POST   /api/examenes/:id/responses          — alumno envía respuestas — debe ir ANTES de /:id
 router.post('/:id/responses', respuestasController.submitExamen);
 

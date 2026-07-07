@@ -24,6 +24,7 @@ import Encuestas from './pages/teacher/Encuestas';
 import TareaDetail from './pages/teacher/TareaDetail';
 import EncuestaResultados from './pages/teacher/EncuestaResultados';
 import ExamenResultados from './pages/teacher/ExamenResultados';
+import ExamenResultadoAlumno from './pages/student/ExamenResultadoAlumno';
 
 function App() {
   return (
@@ -95,6 +96,9 @@ function App() {
         } />
         <Route path="/student/class/:classId/avisos" element={
           <ProtectedRoute><StudentAvisos /></ProtectedRoute>
+        } />
+        <Route path="/student/examen/:examenId/resultado" element={
+          <ProtectedRoute><ExamenResultadoAlumno /></ProtectedRoute>
         } />
       </Routes>
     </Router>

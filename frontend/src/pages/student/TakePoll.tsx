@@ -50,6 +50,7 @@ const TakePoll: React.FC = () => {
   const [loadError, setLoadError] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [resultado, setResultado] = useState<{ calificacion?: number; calificacion_max?: number; porcentaje?: number } | null>(null);
 
   const handleAutoSubmit = useCallback(async () => {
     alert('¡Tiempo agotado! Tu actividad se enviará automáticamente.');
@@ -170,10 +171,13 @@ const TakePoll: React.FC = () => {
     try {
       if (tipo === 'encuesta') {
         await encuestaService.submitRespuestas(pollId, payload);
+        setShowConfirmation(false);
+        navigate(-1);
       } else {
-        await examenService.submitRespuestas(pollId, payload);
+        const res = await examenService.submitRespuestas(pollId, payload);
+        setShowConfirmation(false);
+        setResultado(res);
       }
-      navigate(-1);
     } catch (err: any) {
       const msg = err.response?.data?.message || 'Error al enviar';
       alert(msg);
@@ -181,6 +185,49 @@ const TakePoll: React.FC = () => {
       setShowConfirmation(false);
     }
   };
+
+  const getScoreColor = (pct: number) => {
+    if (pct >= 80) return '#10B981';
+    if (pct >= 60) return '#F59E0B';
+    return '#EF4444';
+  };
+
+  // ── Pantalla de resultado del examen ────────────────────────
+  if (resultado !== null) {
+    return (
+      <div className="take-poll-page">
+        <header className="app-header">
+          <h1 className="app-header-title">{actividad?.titulo}</h1>
+        </header>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 1.5rem', gap: '1.5rem' }}>
+          <FontAwesomeIcon icon={faCheckCircle} style={{ fontSize: '3.5rem', color: '#10B981' }} />
+          <h2 style={{ margin: 0, color: '#1f2328' }}>¡Examen enviado!</h2>
+
+          {resultado.porcentaje != null ? (
+            <div style={{ textAlign: 'center', background: '#f7f8fa', borderRadius: 12, padding: '1.5rem 2.5rem', border: '1px solid #e5e7eb' }}>
+              <p style={{ margin: '0 0 0.5rem', color: '#57606a', fontSize: '0.9rem' }}>Tu calificación</p>
+              <p style={{ margin: 0, fontSize: '3rem', fontWeight: 700, color: getScoreColor(resultado.porcentaje) }}>
+                {resultado.porcentaje}%
+              </p>
+              <p style={{ margin: '0.5rem 0 0', color: '#57606a', fontSize: '0.95rem' }}>
+                {resultado.calificacion} / {resultado.calificacion_max} puntos
+              </p>
+            </div>
+          ) : (
+            <p style={{ color: '#57606a', textAlign: 'center' }}>Tu examen fue enviado exitosamente.</p>
+          )}
+
+          <button
+            className="btn-submit"
+            style={{ marginTop: '1rem' }}
+            onClick={() => navigate(-1)}
+          >
+            Volver a actividades
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // ── Render estados ───────────────────────────────────────────
   if (isLoading) {

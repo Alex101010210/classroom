@@ -99,6 +99,35 @@ exports.getEncuestaResponses = async (req, res) => {
 
 // ── EXÁMENES ──────────────────────────────────────────────────────────────────
 
+// GET /api/examenes/:id/mi-respuesta  — alumno consulta su propia respuesta y calificación
+exports.getMiRespuestaExamen = async (req, res) => {
+  try {
+    const alumno_id = req.user.id;
+    const { id } = req.params;
+
+    const examen = await Examen.findOne({ where: { id, activo: true } });
+    if (!examen) return res.status(404).json({ message: 'Examen no encontrado' });
+
+    const respuesta = await RespuestaExamen.findOne({ where: { examen_id: id, alumno_id } });
+    if (!respuesta) return res.status(404).json({ message: 'No has presentado este examen' });
+
+    res.json({
+      examen: { id: examen.id, titulo: examen.titulo, preguntas: examen.preguntas },
+      respuesta: {
+        id:               respuesta.id,
+        respuestas:       respuesta.respuestas,
+        calificacion:     respuesta.calificacion,
+        calificacion_max: respuesta.calificacion_max,
+        porcentaje:       respuesta.porcentaje,
+        submitted_at:     respuesta.submitted_at
+      }
+    });
+  } catch (error) {
+    console.error('Error al obtener respuesta del examen:', error);
+    res.status(500).json({ message: 'Error al obtener la respuesta', error: error.message });
+  }
+};
+
 // GET /api/examenes/:id/check  — alumno verifica si ya respondió
 exports.checkExamen = async (req, res) => {
   try {
