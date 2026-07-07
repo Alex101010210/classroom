@@ -1,5 +1,7 @@
 const PostForo = require('../models/PostForo');
+const Foro = require('../models/Foro');
 const User = require('../models/User');
+const { getIO } = require('../socket/pollSocket');
 
 // Obtener todos los posts de un foro (con nombre del autor)
 exports.getPosts = async (req, res) => {
@@ -35,6 +37,18 @@ exports.createPost = async (req, res) => {
       return res.status(400).json({ message: 'El contenido del post es requerido' });
     }
 
+    // Verificar que el foro no haya pasado su fecha límite
+    const foro = await Foro.findByPk(foroId);
+    if (!foro) {
+      return res.status(404).json({ message: 'Foro no encontrado' });
+    }
+    if (new Date() < new Date(foro.fecha_inicio)) {
+      return res.status(403).json({ message: 'Este foro aún no ha iniciado. Podrás participar a partir del ' + new Date(foro.fecha_inicio).toLocaleDateString('es-MX') + '.' });
+    }
+    if (new Date() > new Date(foro.fecha_fin)) {
+      return res.status(403).json({ message: 'Este foro ya cerró. No se aceptan más respuestas.' });
+    }
+
     const newPost = await PostForo.create({
       foro_id: foroId,
       usuario_id: req.user.id,
@@ -51,6 +65,13 @@ exports.createPost = async (req, res) => {
         }
       ]
     });
+
+    // Emitir el nuevo post a todos en la sala del foro en tiempo real
+    try {
+      getIO().to(`forum-${foroId}`).emit('forum:new-post', postConAutor);
+    } catch (_) {
+      // Socket no inicializado aún en tests; no bloquear la respuesta
+    }
 
     res.status(201).json({ message: 'Post creado exitosamente', post: postConAutor });
   } catch (error) {

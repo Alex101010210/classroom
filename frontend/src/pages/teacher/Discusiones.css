@@ -176,6 +176,51 @@
   box-shadow: 0 4px 12px rgba(74, 90, 232, 0.4);
 }
 
+/* Indicador de conexión en tiempo real */
+.socket-status {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.02em;
+  transition: all 0.3s;
+}
+
+.socket-status--on {
+  color: #16a34a;
+  background-color: rgba(22, 163, 74, 0.1);
+}
+
+.socket-status--on svg {
+  font-size: 0.45rem;
+  animation: pulse-dot 1.8s ease-in-out infinite;
+}
+
+.socket-status--off {
+  color: #9ca3af;
+  background-color: rgba(156, 163, 175, 0.1);
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+/* Aviso de foro cerrado */
+.foro-cerrado-aviso {
+  text-align: center;
+  padding: 1rem 1.5rem;
+  background-color: #f7f8fa;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  color: #57606a;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }

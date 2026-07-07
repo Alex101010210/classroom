@@ -1,5 +1,8 @@
 const Foro = require('../models/Foro');
 
+function toLocalMidnight(dateStr) {
+  return new Date(dateStr + 'T00:00:00-06:00');
+}
 // Crear foro
 exports.createForo = async (req, res) => {
   try {
@@ -14,6 +17,9 @@ exports.createForo = async (req, res) => {
     if (!fecha_fin) {
       return res.status(400).json({ message: 'La fecha fin es requerida' });
     }
+    if (new Date(fecha_inicio) >= new Date(fecha_fin)) {
+      return res.status(400).json({ message: 'La fecha de inicio debe ser anterior a la fecha límite' });
+    }
     if (!obejtivo_foro || obejtivo_foro.trim() === '') {
       return res.status(400).json({ message: 'El objetivo del foro es requerido' });
     }
@@ -21,14 +27,15 @@ exports.createForo = async (req, res) => {
       return res.status(400).json({ message: 'La pregunta detonadora es requerida' });
     }
 
+
     const newForo = await Foro.create({
       titulo: titulo.trim(),
       descrip_foro: descrip_foro ? descrip_foro.trim() : null,
-      fecha_inicio: new Date(fecha_inicio),
+      fecha_inicio: toLocalMidnight(fecha_inicio),
+      fecha_fin: toLocalMidnight(fecha_fin),
       activo_foro: true,
       obejtivo_foro: obejtivo_foro.trim(),
       pregunta: pregunta.trim(),
-      fecha_fin: new Date(fecha_fin),
       links: links || null
     });
 
@@ -39,13 +46,18 @@ exports.createForo = async (req, res) => {
   }
 };
 
-// Obtener todos los foros
+// Obtener todos los foros (abiertos primero, luego cerrados; dentro de cada grupo por fecha de inicio DESC)
 exports.getForos = async (req, res) => {
   try {
     const foros = await Foro.findAll({
       order: [['fecha_inicio', 'DESC']]
     });
-    res.json({ foros });
+
+    const now = new Date();
+    const abiertos = foros.filter(f => new Date(f.fecha_fin) >= now);
+    const cerrados = foros.filter(f => new Date(f.fecha_fin) < now);
+
+    res.json({ foros: [...abiertos, ...cerrados] });
   } catch (error) {
     console.error('Error al obtener foros:', error);
     res.status(500).json({ message: 'Error al obtener los foros', error: error.message });

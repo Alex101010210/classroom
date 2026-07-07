@@ -86,17 +86,8 @@ const PollsList: React.FC = () => {
   }, [classId]);
 
   const handleClick = (item: ActivityItem) => {
-    if (item.status === 'expired') {
-      alert('Esta actividad ha expirado');
-      return;
-    }
-    if (item.status === 'completed') {
-      // Los exámenes completados quedan bloqueados (botón gris), solo encuestas van a resultados
-      if (item.type === 'encuesta') {
-        navigate(`/student/poll/${item.id}/results`);
-      }
-      return;
-    }
+    if (item.status === 'expired') return;
+    if (item.status === 'completed') return;
     // pending — pasamos el tipo en state para que TakePoll sepa qué cargar
     navigate(`/student/poll/${item.id}`, { state: { type: item.type } });
   };
@@ -223,16 +214,20 @@ const PollsList: React.FC = () => {
                   </div>
                 </div>
 
-                <button
-                  className="btn-action"
-                  onClick={() => handleClick(item)}
-                  disabled={item.status === 'expired' || (item.type === 'examen' && item.status === 'completed')}
-                >
-                  {item.status === 'pending'   && 'Responder'}
-                  {item.status === 'completed' && item.type === 'encuesta' && 'Ver Resultados'}
-                  {item.status === 'completed' && item.type === 'examen'   && 'Contestado'}
-                  {item.status === 'expired'   && 'Expirada'}
-                </button>
+                {item.status === 'completed' ? (
+                  <p className="activity-registered-msg">
+                    Tu respuesta fue registrada
+                  </p>
+                ) : (
+                  <button
+                    className="btn-action"
+                    onClick={() => handleClick(item)}
+                    disabled={item.status === 'expired'}
+                  >
+                    {item.status === 'pending'  && 'Responder'}
+                    {item.status === 'expired'  && 'Expirada'}
+                  </button>
+                )}
               </div>
             ))}
           </div>

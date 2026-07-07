@@ -81,18 +81,8 @@ const EncuestaResultados: React.FC = () => {
 
   const { encuesta, respuestas, totalRespuestas, questionStats } = data;
 
-  // Texto de una opción dado su id o índice
-  const getOptionText = (pregunta: any, answer: string | number): string => {
-    if (pregunta.type === 'short') return String(answer);
-    const opts: any[] = pregunta.options || [];
-    if (opts.length === 0) return String(answer);
-    const idx = typeof answer === 'number' ? answer : parseInt(String(answer), 10);
-    if (!isNaN(idx) && opts[idx] !== undefined) {
-      return typeof opts[idx] === 'string' ? opts[idx] : opts[idx].text;
-    }
-    const found = opts.find(o => o.id === String(answer));
-    return found ? (found.text || String(answer)) : String(answer);
-  };
+  // Answers are stored as the option text directly
+  const getOptionText = (_pregunta: any, answer: string | number): string => String(answer);
 
   const alumnoActual = selected !== null ? respuestas[selected] : null;
 

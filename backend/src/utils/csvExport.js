@@ -30,9 +30,7 @@ function toCsv(rows) {
 function buildEncuestaCsv(encuesta, respuestas) {
   const rows = respuestas.map(r => {
     const base = {
-      encuesta_id: encuesta.id,
       encuesta_titulo: encuesta.titulo,
-      alumno_id: r.alumno.id,
       alumno_nombre: `${r.alumno.nombre} ${r.alumno.apellido}`.trim(),
       alumno_email: r.alumno.email,
       enviado_en: r.submitted_at
@@ -48,6 +46,34 @@ function buildEncuestaCsv(encuesta, respuestas) {
   return toCsv(rows);
 }
 
-module.exports = { toCsv, buildEncuestaCsv };
+/**
+ * Builds CSV rows for an examen's responses (includes calificacion and porcentaje).
+ * @param {{ id, titulo, preguntas: any[] }} examen
+ * @param {Array<{ id, alumno, respuestas, calificacion, calificacion_max, porcentaje, submitted_at }>} respuestas
+ * @returns {string}
+ */
+function buildExamenCsv(examen, respuestas) {
+  const rows = respuestas.map(r => {
+    const base = {
+      examen_titulo: examen.titulo,
+      alumno_nombre: `${r.alumno.nombre} ${r.alumno.apellido}`.trim(),
+      alumno_email: r.alumno.email,
+      calificacion: r.calificacion !== null && r.calificacion !== undefined ? r.calificacion : '',
+      calificacion_max: r.calificacion_max !== null && r.calificacion_max !== undefined ? r.calificacion_max : '',
+      porcentaje: r.porcentaje !== null && r.porcentaje !== undefined ? `${r.porcentaje}%` : '',
+      enviado_en: r.submitted_at
+    };
+    // One column per question
+    (examen.preguntas || []).forEach((preg, i) => {
+      const resp = r.respuestas.find(rs => rs.questionId === preg.id);
+      base[`p${i + 1}_${(preg.title || preg.text || 'pregunta').replace(/[,"\n]/g, ' ').substring(0, 40)}`] =
+        resp !== undefined ? String(resp.answer) : '';
+    });
+    return base;
+  });
+  return toCsv(rows);
+}
+
+module.exports = { toCsv, buildEncuestaCsv, buildExamenCsv };
 
 // Made with Bob

@@ -255,6 +255,35 @@
   box-shadow: 0 2px 6px rgba(74, 90, 232, 0.3);
 }
 
+.badge-closed {
+  display: inline-block;
+  background: #e5e7eb;
+  color: #57606a;
+  padding: 3px 12px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.5px;
+}
+
+.foro-card--cerrado {
+  opacity: 0.72;
+}
+
+.foro-card--cerrado .foro-card-header {
+  background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
+}
+
+.foro-card--cerrado .btn-view-discussions {
+  background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
+  box-shadow: none;
+}
+
+.foro-card--cerrado .btn-view-discussions:hover {
+  transform: none;
+  box-shadow: none;
+}
+
 .foro-card-footer {
   padding: 0.75rem 1.25rem;
   background-color: #f7f8fa;

@@ -1,14 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faUser, faPlus, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faUser, faPlus, faPaperPlane, faCircle } from '@fortawesome/free-solid-svg-icons';
 import { foroService, postForoService, PostForoData } from '../../services/api';
+import { useForoSocket } from '../../hooks/useForoSocket';
 import './Discusiones.css';
 
 interface Foro {
   id: number;
   titulo: string;
   pregunta: string;
+  fecha_inicio: string;
+  fecha_fin: string;
 }
 
 const Discusiones: React.FC = () => {
@@ -21,6 +24,7 @@ const Discusiones: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!foroId) return;
@@ -32,7 +36,7 @@ const Discusiones: React.FC = () => {
           foroService.getForoById(foroId),
           postForoService.getPosts(foroId)
         ]);
-        setForo({ id: foroData.id, titulo: foroData.titulo, pregunta: foroData.pregunta });
+        setForo({ id: foroData.id, titulo: foroData.titulo, pregunta: foroData.pregunta, fecha_inicio: foroData.fecha_inicio, fecha_fin: foroData.fecha_fin });
         setPosts(postsData);
       } catch (err: any) {
         setError(err.response?.data?.message || 'Error al cargar el foro');
@@ -44,14 +48,32 @@ const Discusiones: React.FC = () => {
     cargarDatos();
   }, [foroId]);
 
+  // Scroll automático al último mensaje
+  useEffect(() => {
+    if (listRef.current) {
+      listRef.current.scrollTop = listRef.current.scrollHeight;
+    }
+  }, [posts]);
+
+  // Callback estable para recibir nuevos posts por socket
+  const handleSocketPost = useCallback((post: PostForoData) => {
+    setPosts(prev => {
+      // Evitar duplicado comparando como string (BIGINT puede llegar como string desde JSON)
+      const exists = prev.some(p => String(p.id) === String(post.id));
+      return exists ? prev : [...prev, post];
+    });
+  }, []);
+
+  const { connected } = useForoSocket({ foroId, onNewPost: handleSocketPost });
+
   const handleEnviar = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!nuevoComentario.trim() || !foroId) return;
 
     try {
       setIsSubmitting(true);
-      const newPost = await postForoService.createPost(foroId, nuevoComentario.trim());
-      setPosts(prev => [...prev, newPost]);
+      await postForoService.createPost(foroId, nuevoComentario.trim());
+      // No agregar aquí: el socket emite el post a todos incluyendo al emisor
       setNuevoComentario('');
     } catch (err: any) {
       alert(err.response?.data?.message || 'Error al enviar el comentario');
@@ -77,6 +99,12 @@ const Discusiones: React.FC = () => {
         <h1 className="app-header-title">
           {foro ? foro.titulo : 'Discusión'}
         </h1>
+        <div className="app-header-actions">
+          <span className={`socket-status ${connected ? 'socket-status--on' : 'socket-status--off'}`} title={connected ? 'En vivo' : 'Reconectando...'}>
+            <FontAwesomeIcon icon={faCircle} />
+            {connected ? 'En vivo' : 'Conectando...'}
+          </span>
+        </div>
       </header>
 
       <div className="discusiones-container">
@@ -100,7 +128,7 @@ const Discusiones: React.FC = () => {
         )}
 
         {!loading && !error && (
-          <div className="comentarios-lista">
+          <div className="comentarios-lista" ref={listRef}>
             {posts.length === 0 ? (
               <div className="empty-discusiones">
                 <p>Aún no hay participaciones. ¡Sé el primero en comentar!</p>
@@ -123,21 +151,41 @@ const Discusiones: React.FC = () => {
           </div>
         )}
 
-        {!loading && !error && (
-          <form className="comentario-form" onSubmit={handleEnviar}>
-            <textarea
-              value={nuevoComentario}
-              onChange={e => setNuevoComentario(e.target.value)}
-              placeholder="Escribe tu participación..."
-              rows={3}
-              required
-            />
-            <button type="submit" className="btn-enviar" disabled={isSubmitting}>
-              <FontAwesomeIcon icon={faPaperPlane} />
-              <span>{isSubmitting ? 'Enviando...' : 'Enviar'}</span>
-            </button>
-          </form>
-        )}
+        {!loading && !error && (() => {
+          const now = new Date();
+          const noIniciado = foro ? now < new Date(foro.fecha_inicio) : false;
+          const cerrado    = foro ? now > new Date(foro.fecha_fin)    : false;
+          if (noIniciado) {
+            return (
+              <div className="foro-cerrado-aviso">
+                Este foro aún no ha iniciado. Podrás participar a partir del{' '}
+                {new Date(foro!.fecha_inicio).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })}.
+              </div>
+            );
+          }
+          if (cerrado) {
+            return (
+              <div className="foro-cerrado-aviso">
+                Este foro está cerrado. Ya no se aceptan nuevas participaciones.
+              </div>
+            );
+          }
+          return (
+            <form className="comentario-form" onSubmit={handleEnviar}>
+              <textarea
+                value={nuevoComentario}
+                onChange={e => setNuevoComentario(e.target.value)}
+                placeholder="Escribe tu participación..."
+                rows={3}
+                required
+              />
+              <button type="submit" className="btn-enviar" disabled={isSubmitting}>
+                <FontAwesomeIcon icon={faPaperPlane} />
+                <span>{isSubmitting ? 'Enviando...' : 'Enviar'}</span>
+              </button>
+            </form>
+          );
+        })()}
       </div>
     </div>
   );

@@ -43,8 +43,8 @@ const TakePoll: React.FC = () => {
 
   const [actividad, setActividad] = useState<Actividad | null>(null);
   const [currentIdx, setCurrentIdx] = useState(0);
-  // answers: map preguntaId → respuesta (string o índice)
-  const [answers, setAnswers] = useState<Record<string, string | number>>({});
+  // answers: map preguntaId → respuesta (string, number o string[] para checkbox)
+  const [answers, setAnswers] = useState<Record<string, string | number | string[]>>({});
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
@@ -137,8 +137,26 @@ const TakePoll: React.FC = () => {
     setAnswers(prev => ({ ...prev, [preguntaId]: value }));
   };
 
+  const handleCheckboxToggle = (preguntaId: string, value: string) => {
+    setAnswers(prev => {
+      const current = prev[preguntaId];
+      const arr: string[] = Array.isArray(current) ? current : [];
+      const next = arr.includes(value)
+        ? arr.filter(v => v !== value)
+        : [...arr, value];
+      return { ...prev, [preguntaId]: next };
+    });
+  };
+
+  const isAnswered = (preguntaId: string) => {
+    const a = answers[preguntaId];
+    if (a === undefined || a === '') return false;
+    if (Array.isArray(a)) return a.length > 0;
+    return true;
+  };
+
   const answeredCount = actividad
-    ? actividad.preguntas.filter(p => answers[p.id] !== undefined && answers[p.id] !== '').length
+    ? actividad.preguntas.filter(p => isAnswered(p.id)).length
     : 0;
 
   const getProgress = () => {
@@ -154,7 +172,7 @@ const TakePoll: React.FC = () => {
 
   const handleSubmit = () => {
     const unanswered = actividad?.preguntas.filter(
-      p => p.required && (answers[p.id] === undefined || answers[p.id] === '')
+      p => p.required && !isAnswered(p.id)
     );
     if (unanswered && unanswered.length > 0) {
       alert(`Faltan ${unanswered.length} pregunta(s) requerida(s).`);
@@ -304,21 +322,50 @@ const TakePoll: React.FC = () => {
 
           <h2 className="question-text">{getTexto(currentPregunta)}</h2>
 
-          {/* Opciones múltiples */}
-          {isMultiple(currentPregunta.type) && opciones.length > 0 && (
+          {/* Opciones múltiples — radio */}
+          {isMultiple(currentPregunta.type) && currentPregunta.type !== 'checkbox' && opciones.length > 0 && (
             <div className="options-container">
               {opciones.map((opt) => (
-                <label key={opt.id} className="option-label">
+                <label
+                  key={opt.id}
+                  className={`option-label${currentAnswer === opt.text ? ' option-label--selected' : ''}`}
+                >
                   <input
-                    type={currentPregunta.type === 'checkbox' ? 'checkbox' : 'radio'}
+                    type="radio"
                     name={currentPregunta.id}
-                    value={opt.id}
-                    checked={currentAnswer === opt.id}
-                    onChange={() => handleAnswer(currentPregunta.id, opt.id)}
+                    value={opt.text}
+                    checked={currentAnswer === opt.text}
+                    onChange={() => handleAnswer(currentPregunta.id, opt.text)}
                   />
                   <span className="option-text">{opt.text}</span>
                 </label>
               ))}
+            </div>
+          )}
+
+          {/* Opciones múltiples — checkbox (selección múltiple) */}
+          {currentPregunta.type === 'checkbox' && opciones.length > 0 && (
+            <div className="options-container">
+              <p className="checkbox-hint">Puedes seleccionar una o varias opciones.</p>
+              {opciones.map((opt) => {
+                const selected = Array.isArray(currentAnswer)
+                  ? (currentAnswer as string[]).includes(opt.text)
+                  : false;
+                return (
+                  <label
+                    key={opt.id}
+                    className={`option-label option-label--checkbox${selected ? ' option-label--selected' : ''}`}
+                  >
+                    <input
+                      type="checkbox"
+                      value={opt.text}
+                      checked={selected}
+                      onChange={() => handleCheckboxToggle(currentPregunta.id, opt.text)}
+                    />
+                    <span className="option-text">{opt.text}</span>
+                  </label>
+                );
+              })}
             </div>
           )}
 
@@ -345,7 +392,7 @@ const TakePoll: React.FC = () => {
           {actividad.preguntas.map((_, idx) => (
             <button
               key={idx}
-              className={`indicator ${idx === currentIdx ? 'active' : ''} ${answers[actividad.preguntas[idx].id] !== undefined && answers[actividad.preguntas[idx].id] !== '' ? 'answered' : ''}`}
+              className={`indicator ${idx === currentIdx ? 'active' : ''} ${isAnswered(actividad.preguntas[idx].id) ? 'answered' : ''}`}
               onClick={() => setCurrentIdx(idx)}
             >
               {idx + 1}

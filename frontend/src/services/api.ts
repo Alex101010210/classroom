@@ -369,6 +369,22 @@ export const examenService = {
   },
 };
 
+// ─── Analytics de examen ─────────────────────────────────────────────────────
+
+export interface ExamenAnalyticsData {
+  examen: { id: number; titulo: string; preguntas: any[] };
+  totalRespuestas: number;
+  questionStats: import('../components/analytics/ResultsChart').QuestionStat[];
+  respuestas: RespuestaAlumno[];
+}
+
+export const analyticsService = {
+  getExamenStats: async (examenId: number | string): Promise<ExamenAnalyticsData> => {
+    const res = await api.get(`/analytics/examen/${examenId}`);
+    return res.data;
+  },
+};
+
 // ─── Historial del alumno ────────────────────────────────────────────────────
 
 export interface ResultadoItem {

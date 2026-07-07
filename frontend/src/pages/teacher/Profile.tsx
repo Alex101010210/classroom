@@ -67,7 +67,7 @@ const TeacherProfile: React.FC = () => {
   }, []);
 
   const handleBack = () => {
-    navigate('/teacher/dashboard');
+    navigate(-1);
   };
 
   const handleEdit = () => {

@@ -24,7 +24,7 @@ interface Question {
   options: Option[];
   required: boolean;
   points: number;
-  correctAnswers: string[];   // option ids marked as correct
+  correctAnswers: string[];   // option texts marked as correct
   imageUrl?: string | null;
 }
 
@@ -95,11 +95,15 @@ const Examen: React.FC = () => {
     ));
 
   const removeOption = (qId: string, optId: string) =>
-    setQuestions(qs => qs.map(q =>
-      q.id === qId
-        ? { ...q, options: q.options.filter(o => o.id !== optId), correctAnswers: q.correctAnswers.filter(id => id !== optId) }
-        : q
-    ));
+    setQuestions(qs => qs.map(q => {
+      if (q.id !== qId) return q;
+      const removed = q.options.find(o => o.id === optId);
+      return {
+        ...q,
+        options: q.options.filter(o => o.id !== optId),
+        correctAnswers: removed ? q.correctAnswers.filter(t => t !== removed.text) : q.correctAnswers,
+      };
+    }));
     
   // Límites de fecha: hoy (sin pasado) y máximo 3 años hacia adelante
   const now = new Date();
@@ -114,15 +118,16 @@ const Examen: React.FC = () => {
 
 
   // For 'multiple' / 'dropdown' only one correct answer; for 'checkbox' multiple allowed
-  const toggleCorrect = (qId: string, optId: string, type: QuestionType) =>
+  // Uses option text (not id) so it matches what TakePoll stores in answers
+  const toggleCorrect = (qId: string, optText: string, type: QuestionType) =>
     setQuestions(qs => qs.map(q => {
       if (q.id !== qId) return q;
       if (type === 'checkbox') {
-        const already = q.correctAnswers.includes(optId);
-        return { ...q, correctAnswers: already ? q.correctAnswers.filter(id => id !== optId) : [...q.correctAnswers, optId] };
+        const already = q.correctAnswers.includes(optText);
+        return { ...q, correctAnswers: already ? q.correctAnswers.filter(t => t !== optText) : [...q.correctAnswers, optText] };
       }
       // single-select: toggle off if same, else replace
-      return { ...q, correctAnswers: q.correctAnswers[0] === optId ? [] : [optId] };
+      return { ...q, correctAnswers: q.correctAnswers[0] === optText ? [] : [optText] };
     }));
 
   const addQuestion = () => {
@@ -400,7 +405,7 @@ const Examen: React.FC = () => {
                           Haz clic en <span className="ef-options-hint-icon">✓</span> junto a una opción para marcarla como <strong>respuesta correcta</strong>.
                         </p>
                         {q.options.map((opt, idx) => {
-                          const isCorrect = q.correctAnswers.includes(opt.id);
+                          const isCorrect = q.correctAnswers.includes(opt.text);
                           return (
                           <div
                             key={opt.id}
@@ -411,7 +416,7 @@ const Examen: React.FC = () => {
                               className={`ef-correct-btn ${isCorrect ? 'ef-correct-btn--active' : ''}`}
                               title={isCorrect ? 'Desmarcar respuesta correcta' : 'Marcar como respuesta correcta'}
                               style={isCorrect ? { color: accentColor, borderColor: accentColor } : undefined}
-                              onClick={e => { e.stopPropagation(); toggleCorrect(q.id, opt.id, q.type); }}
+                              onClick={e => { e.stopPropagation(); toggleCorrect(q.id, opt.text, q.type); }}
                             >
                               {isCorrect ? '✓' : q.type === 'checkbox' ? '☐' : '○'}
                             </button>
@@ -555,7 +560,7 @@ const Examen: React.FC = () => {
                   {(q.type === 'multiple' || q.type === 'checkbox' || q.type === 'dropdown') && (
                     <div className="ef-preview-options">
                       {q.options.map((opt, oi) => {
-                        const correct = q.correctAnswers.includes(opt.id);
+                        const correct = q.correctAnswers.includes(opt.text);
                         return (
                           <label key={opt.id} className={`ef-preview-option ${correct ? 'ef-preview-option--correct' : ''}`}>
                             <input

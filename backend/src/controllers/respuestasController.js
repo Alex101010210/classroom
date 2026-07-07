@@ -263,41 +263,49 @@ exports.getMisResultados = async (req, res) => {
       order: [['submitted_at', 'DESC']]
     });
 
-    // Obtener títulos de encuestas
+    // Obtener títulos de encuestas ACTIVAS (excluir soft-deleted)
     const encIds = [...new Set(respEnc.map(r => r.poll_id))];
     const encuestas = encIds.length > 0
-      ? await Encuesta.findAll({ where: { id: encIds }, attributes: ['id', 'titulo'] })
+      ? await Encuesta.findAll({ where: { id: encIds, activa: true }, attributes: ['id', 'titulo'] })
       : [];
-    const encMap = Object.fromEntries(encuestas.map(e => [e.id, e.titulo]));
+    const encActiveIds = new Set(encuestas.map(e => String(e.id)));
+    const encMap = Object.fromEntries(encuestas.map(e => [String(e.id), e.titulo]));
 
-    // Obtener títulos de exámenes
+    // Obtener títulos de exámenes ACTIVOS (excluir soft-deleted)
     const exIds = [...new Set(respEx.map(r => r.examen_id))];
     const examenes = exIds.length > 0
-      ? await Examen.findAll({ where: { id: exIds }, attributes: ['id', 'titulo'] })
+      ? await Examen.findAll({ where: { id: exIds, activo: true }, attributes: ['id', 'titulo'] })
       : [];
-    const exMap = Object.fromEntries(examenes.map(e => [e.id, e.titulo]));
+    const exActiveIds = new Set(examenes.map(e => String(e.id)));
+    const exMap = Object.fromEntries(examenes.map(e => [String(e.id), e.titulo]));
 
-    const encResults = respEnc.map(r => ({
-      id:               r.id,
-      tipo:             'encuesta',
-      actividad_id:     r.poll_id,
-      titulo:           encMap[r.poll_id] || `Encuesta #${r.poll_id}`,
-      calificacion:     r.calificacion,
-      calificacion_max: r.calificacion_max,
-      porcentaje:       r.porcentaje,
-      submitted_at:     r.submitted_at
-    }));
+    // Solo incluir respuestas cuya encuesta siga activa
+    const encResults = respEnc
+      .filter(r => encActiveIds.has(String(r.poll_id)))
+      .map(r => ({
+        id:               r.id,
+        tipo:             'encuesta',
+        actividad_id:     r.poll_id,
+        titulo:           encMap[String(r.poll_id)],
+        calificacion:     r.calificacion,
+        calificacion_max: r.calificacion_max,
+        porcentaje:       r.porcentaje,
+        submitted_at:     r.submitted_at
+      }));
 
-    const exResults = respEx.map(r => ({
-      id:               r.id,
-      tipo:             'examen',
-      actividad_id:     r.examen_id,
-      titulo:           exMap[r.examen_id] || `Examen #${r.examen_id}`,
-      calificacion:     r.calificacion,
-      calificacion_max: r.calificacion_max,
-      porcentaje:       r.porcentaje,
-      submitted_at:     r.submitted_at
-    }));
+    // Solo incluir respuestas cuyo examen siga activo
+    const exResults = respEx
+      .filter(r => exActiveIds.has(String(r.examen_id)))
+      .map(r => ({
+        id:               r.id,
+        tipo:             'examen',
+        actividad_id:     r.examen_id,
+        titulo:           exMap[String(r.examen_id)],
+        calificacion:     r.calificacion,
+        calificacion_max: r.calificacion_max,
+        porcentaje:       r.porcentaje,
+        submitted_at:     r.submitted_at
+      }));
 
     // Combinar y ordenar por fecha descendente
     const todos = [...encResults, ...exResults].sort(

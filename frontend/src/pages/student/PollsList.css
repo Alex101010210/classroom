@@ -276,6 +276,20 @@
   border: 1px solid #6ee7b7;
 }
 
+.activity-registered-msg {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1rem;
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  margin: 0;
+  background-color: #d1fae5;
+  color: #065f46;
+  border: 1px solid #6ee7b7;
+}
+
 .activity-status-banner--expired {
   background-color: #fee2e2;
   color: #991b1b;

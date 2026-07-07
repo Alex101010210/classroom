@@ -29,8 +29,8 @@ const UserProfile = sequelize.define('UserProfile', {
   timestamps: false
 });
 
-// Asociación: cada perfil pertenece a un usuario
-UserProfile.belongsTo(User, { foreignKey: 'id_usuario' });
+// Asociación lógica sin constraint físico en DB (evita ALTER TABLE DROP CONSTRAINT en sync)
+UserProfile.belongsTo(User, { foreignKey: 'id_usuario', constraints: false });
 
 module.exports = UserProfile;
 
