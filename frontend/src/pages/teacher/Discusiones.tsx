@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faUser, faPlus, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faUser, faPlus, faPaperPlane, faCircle } from '@fortawesome/free-solid-svg-icons';
 import { foroService, postForoService, PostForoData } from '../../services/api';
+import { useForoSocket } from '../../hooks/useForoSocket';
 import './Discusiones.css';
 
 interface Foro {
@@ -21,6 +22,7 @@ const Discusiones: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!foroId) return;
@@ -44,14 +46,32 @@ const Discusiones: React.FC = () => {
     cargarDatos();
   }, [foroId]);
 
+  // Scroll automático al último mensaje
+  useEffect(() => {
+    if (listRef.current) {
+      listRef.current.scrollTop = listRef.current.scrollHeight;
+    }
+  }, [posts]);
+
+  // Callback estable para recibir nuevos posts por socket
+  const handleSocketPost = useCallback((post: PostForoData) => {
+    setPosts(prev => {
+      // Evitar duplicado comparando como string (BIGINT puede llegar como string desde JSON)
+      const exists = prev.some(p => String(p.id) === String(post.id));
+      return exists ? prev : [...prev, post];
+    });
+  }, []);
+
+  const { connected } = useForoSocket({ foroId, onNewPost: handleSocketPost });
+
   const handleEnviar = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!nuevoComentario.trim() || !foroId) return;
 
     try {
       setIsSubmitting(true);
-      const newPost = await postForoService.createPost(foroId, nuevoComentario.trim());
-      setPosts(prev => [...prev, newPost]);
+      await postForoService.createPost(foroId, nuevoComentario.trim());
+      // No agregar aquí: el socket emite el post a todos incluyendo al emisor
       setNuevoComentario('');
     } catch (err: any) {
       alert(err.response?.data?.message || 'Error al enviar el comentario');
@@ -77,6 +97,12 @@ const Discusiones: React.FC = () => {
         <h1 className="app-header-title">
           {foro ? foro.titulo : 'Discusión'}
         </h1>
+        <div className="app-header-actions">
+          <span className={`socket-status ${connected ? 'socket-status--on' : 'socket-status--off'}`} title={connected ? 'En vivo' : 'Reconectando...'}>
+            <FontAwesomeIcon icon={faCircle} />
+            {connected ? 'En vivo' : 'Conectando...'}
+          </span>
+        </div>
       </header>
 
       <div className="discusiones-container">
@@ -100,7 +126,7 @@ const Discusiones: React.FC = () => {
         )}
 
         {!loading && !error && (
-          <div className="comentarios-lista">
+          <div className="comentarios-lista" ref={listRef}>
             {posts.length === 0 ? (
               <div className="empty-discusiones">
                 <p>Aún no hay participaciones. ¡Sé el primero en comentar!</p>

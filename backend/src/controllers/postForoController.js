@@ -1,5 +1,6 @@
 const PostForo = require('../models/PostForo');
 const User = require('../models/User');
+const { getIO } = require('../socket/pollSocket');
 
 // Obtener todos los posts de un foro (con nombre del autor)
 exports.getPosts = async (req, res) => {
@@ -51,6 +52,13 @@ exports.createPost = async (req, res) => {
         }
       ]
     });
+
+    // Emitir el nuevo post a todos en la sala del foro en tiempo real
+    try {
+      getIO().to(`forum-${foroId}`).emit('forum:new-post', postConAutor);
+    } catch (_) {
+      // Socket no inicializado aún en tests; no bloquear la respuesta
+    }
 
     res.status(201).json({ message: 'Post creado exitosamente', post: postConAutor });
   } catch (error) {

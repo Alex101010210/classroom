@@ -33,6 +33,19 @@ const initSocket = (server) => {
 
     socket.on('leave-encuesta', (encuestaId) => {
       socket.leave(`encuesta-${encuestaId}`);
+      console.log(`Client ${socket.id} left encuesta ${encuestaId}`);
+    });
+
+    // Join a forum room
+    socket.on('join-forum', (foroId) => {
+      socket.join(`forum-${foroId}`);
+      console.log(`Client ${socket.id} joined forum ${foroId}`);
+    });
+
+    // Leave a forum room
+    socket.on('leave-forum', (foroId) => {
+      socket.leave(`forum-${foroId}`);
+      console.log(`Client ${socket.id} left forum ${foroId}`);
     });
 
     socket.on('disconnect', () => {
@@ -51,5 +64,3 @@ const getIO = () => {
 };
 
 module.exports = { initSocket, getIO };
-
-// Made with Bob
