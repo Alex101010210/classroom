@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faUser, faPlus, faPaperPlane, faCircle } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faPaperPlane, faCircle } from '@fortawesome/free-solid-svg-icons';
 import { foroService, postForoService, PostForoData } from '../../services/api';
 import { useForoSocket } from '../../hooks/useForoSocket';
 import './Discusiones.css';
@@ -20,7 +20,6 @@ const Discusiones: React.FC = () => {
   const [foro, setForo] = useState<Foro | null>(null);
   const [posts, setPosts] = useState<PostForoData[]>([]);
   const [nuevoComentario, setNuevoComentario] = useState('');
-  const [showUserMenu, setShowUserMenu] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

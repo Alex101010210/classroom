@@ -174,12 +174,14 @@ const TeacherDashboard: React.FC = () => {
     navigate('/teacher/encuestas', { state: { subject } });
   };
 
-  const handleDeleteClass = (subject: Subject) => {
-    if (window.confirm(`¿Está seguro que desea eliminar la clase "${subject.name}"? Esta acción no se puede deshacer.`)) {
-      const updatedSubjects = subjects.filter(s => s.id !== subject.id);
-      setSubjects(updatedSubjects);
-      localStorage.setItem('subjects', JSON.stringify(updatedSubjects));
-      alert('Clase eliminada exitosamente');
+  const handleDeleteClass = async (subject: Subject) => {
+    if (window.confirm(`¿Está seguro que desea eliminar la clase "${subject.nombre_class || subject.name}"? Esta acción no se puede deshacer.`)) {
+      try {
+        await classService.deleteClass(subject.id);
+        setSubjects(prev => prev.filter(s => s.id !== subject.id));
+      } catch (error: any) {
+        alert(error.response?.data?.message || 'Error al eliminar la clase');
+      }
     }
     setOpenMenuId(null);
   };

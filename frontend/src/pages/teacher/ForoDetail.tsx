@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faUser, faPlus, faCalendar, faUsers } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faPlus, faCalendar, faUsers } from '@fortawesome/free-solid-svg-icons';
 import { foroService, ForoData } from '../../services/api';
 import './ForoDetail.css';
 
@@ -10,7 +10,6 @@ const isForoAbierto = (fechaFin: string) => new Date() <= new Date(fechaFin);
 const ForoDetail: React.FC = () => {
   const navigate = useNavigate();
   const [foros, setForos] = useState<ForoData[]>([]);
-  const [showUserMenu, setShowUserMenu] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -22,19 +21,6 @@ const ForoDetail: React.FC = () => {
 
   const handleBack = () => navigate('/teacher/dashboard');
   const handleCreateForo = () => navigate('/teacher/foro');
-  const handleUsers = () => setShowUserMenu(!showUserMenu);
-
-  const handleProfile = () => {
-    setShowUserMenu(false);
-    alert('Perfil de usuario - Funcionalidad por implementar');
-  };
-
-  const handleLogout = () => {
-    if (window.confirm('¿Está seguro que desea salir?')) {
-      localStorage.clear();
-      navigate('/login');
-    }
-  };
 
 
   const formatDate = (dateString: string) => {
@@ -65,10 +51,6 @@ const ForoDetail: React.FC = () => {
       <div className="foro-detail-container">
         <div className="foro-detail-header">
           <h1>Foros Académicos</h1>
-          <button className="btn-create-foro" onClick={handleCreateForo}>
-            <FontAwesomeIcon icon={faPlus} />
-            <span>Crear Nuevo Foro</span>
-          </button>
         </div>
 
         {isLoading ? (

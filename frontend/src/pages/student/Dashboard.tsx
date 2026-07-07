@@ -46,6 +46,12 @@ const StudentDashboard: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    const onFocus = () => loadClasses();
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, []);
+
+  useEffect(() => {
     const handleOutsideClick = (e: MouseEvent) => {
       if (forosRef.current && !forosRef.current.contains(e.target as Node)) {
         setIsForosOpen(false);
