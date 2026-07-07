@@ -37,6 +37,10 @@ const Foro: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (formData.fechaInicio && formData.fechaLimite && formData.fechaInicio >= formData.fechaLimite) {
+      alert('La fecha de inicio debe ser anterior a la fecha límite.');
+      return;
+    }
     try {
       setIsSubmitting(true);
       await foroService.createForo({
@@ -199,7 +203,7 @@ const Foro: React.FC = () => {
                 name="fechaLimite"
                 value={formData.fechaLimite}
                 onChange={handleInputChange}
-                min={minDate}
+                min={formData.fechaInicio || minDate}
                 max={maxDate}
                 required
               />

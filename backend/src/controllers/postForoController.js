@@ -1,4 +1,5 @@
 const PostForo = require('../models/PostForo');
+const Foro = require('../models/Foro');
 const User = require('../models/User');
 const { getIO } = require('../socket/pollSocket');
 
@@ -34,6 +35,18 @@ exports.createPost = async (req, res) => {
 
     if (!contenido || contenido.trim() === '') {
       return res.status(400).json({ message: 'El contenido del post es requerido' });
+    }
+
+    // Verificar que el foro no haya pasado su fecha límite
+    const foro = await Foro.findByPk(foroId);
+    if (!foro) {
+      return res.status(404).json({ message: 'Foro no encontrado' });
+    }
+    if (new Date() < new Date(foro.fecha_inicio)) {
+      return res.status(403).json({ message: 'Este foro aún no ha iniciado. Podrás participar a partir del ' + new Date(foro.fecha_inicio).toLocaleDateString('es-MX') + '.' });
+    }
+    if (new Date() > new Date(foro.fecha_fin)) {
+      return res.status(403).json({ message: 'Este foro ya cerró. No se aceptan más respuestas.' });
     }
 
     const newPost = await PostForo.create({

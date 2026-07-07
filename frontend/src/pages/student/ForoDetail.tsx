@@ -5,6 +5,8 @@ import { faArrowLeft, faCalendar, faUsers, faUser } from '@fortawesome/free-soli
 import { foroService, ForoData } from '../../services/api';
 import '../teacher/ForoDetail.css';
 
+const isForoAbierto = (fechaFin: string) => new Date() <= new Date(fechaFin);
+
 const StudentForoDetail: React.FC = () => {
   const navigate = useNavigate();
   const [foros, setForos] = useState<ForoData[]>([]);
@@ -63,54 +65,60 @@ const StudentForoDetail: React.FC = () => {
           </div>
         ) : (
           <div className="foros-grid">
-            {foros.map((foro) => (
-              <div key={foro.id} className="foro-card">
-                <div className="foro-card-header">
-                  <h3>{foro.titulo}</h3>
-                </div>
+            {foros.map((foro) => {
+              const abierto = isForoAbierto(foro.fecha_fin);
+              return (
+                <div key={foro.id} className={`foro-card${abierto ? '' : ' foro-card--cerrado'}`}>
+                  <div className="foro-card-header">
+                    <h3>{foro.titulo}</h3>
+                  </div>
 
-                <div className="foro-card-body">
-                  {foro.descrip_foro && (
+                  <div className="foro-card-body">
+                    {foro.descrip_foro && (
+                      <div className="foro-section">
+                        <h4>Descripción</h4>
+                        <p>{foro.descrip_foro}</p>
+                      </div>
+                    )}
                     <div className="foro-section">
-                      <h4>Descripción</h4>
-                      <p>{foro.descrip_foro}</p>
+                      <h4>Pregunta Detonadora</h4>
+                      <p className="pregunta-detonadora">{foro.pregunta}</p>
                     </div>
-                  )}
-                  <div className="foro-section">
-                    <h4>Pregunta Detonadora</h4>
-                    <p className="pregunta-detonadora">{foro.pregunta}</p>
+                    {foro.links && (
+                      <div className="foro-section">
+                        <h4>Material de Apoyo</h4>
+                        <a href={foro.links} target="_blank" rel="noopener noreferrer" className="material-link">
+                          {foro.links}
+                        </a>
+                      </div>
+                    )}
+                    <div className="foro-meta">
+                      <div className="meta-item">
+                        <FontAwesomeIcon icon={faCalendar} />
+                        <span>Inicio: {formatDate(foro.fecha_inicio)}</span>
+                      </div>
+                      <div className="meta-item">
+                        <FontAwesomeIcon icon={faCalendar} />
+                        <span>Límite: {formatDate(foro.fecha_fin)}</span>
+                      </div>
+                    </div>
+                    <div className="foro-badge">
+                      {abierto
+                        ? <span className="badge-open">ABIERTO</span>
+                        : <span className="badge-closed">CERRADO</span>
+                      }
+                    </div>
                   </div>
-                  {foro.links && (
-                    <div className="foro-section">
-                      <h4>Material de Apoyo</h4>
-                      <a href={foro.links} target="_blank" rel="noopener noreferrer" className="material-link">
-                        {foro.links}
-                      </a>
-                    </div>
-                  )}
-                  <div className="foro-meta">
-                    <div className="meta-item">
-                      <FontAwesomeIcon icon={faCalendar} />
-                      <span>Inicio: {formatDate(foro.fecha_inicio)}</span>
-                    </div>
-                    <div className="meta-item">
-                      <FontAwesomeIcon icon={faCalendar} />
-                      <span>Límite: {formatDate(foro.fecha_fin)}</span>
-                    </div>
-                  </div>
-                  <div className="foro-badge">
-                    <span className="badge-open">FORO ABIERTO</span>
-                  </div>
-                </div>
 
-                <div className="foro-card-footer">
-                  <button className="btn-view-discussions" onClick={() => navigate(`/student/discusiones/${foro.id}`)}>
-                    <FontAwesomeIcon icon={faUsers} />
-                    Participar
-                  </button>
+                  <div className="foro-card-footer">
+                    <button className="btn-view-discussions" onClick={() => navigate(`/student/discusiones/${foro.id}`)}>
+                      <FontAwesomeIcon icon={faUsers} />
+                      {abierto ? 'Participar' : 'Ver Discusión'}
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

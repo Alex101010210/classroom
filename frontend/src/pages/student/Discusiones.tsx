@@ -10,6 +10,8 @@ interface Foro {
   id: number;
   titulo: string;
   pregunta: string;
+  fecha_inicio: string;
+  fecha_fin: string;
 }
 
 const StudentDiscusiones: React.FC = () => {
@@ -33,7 +35,7 @@ const StudentDiscusiones: React.FC = () => {
           foroService.getForoById(foroId),
           postForoService.getPosts(foroId),
         ]);
-        setForo({ id: foroData.id, titulo: foroData.titulo, pregunta: foroData.pregunta });
+        setForo({ id: foroData.id, titulo: foroData.titulo, pregunta: foroData.pregunta, fecha_inicio: foroData.fecha_inicio, fecha_fin: foroData.fecha_fin });
         setPosts(postsData);
       } catch (err: any) {
         setError(err.response?.data?.message || 'Error al cargar el foro');
@@ -154,21 +156,41 @@ const StudentDiscusiones: React.FC = () => {
           </div>
         )}
 
-        {!loading && !error && (
-          <form className="comentario-form" onSubmit={handleEnviar}>
-            <textarea
-              value={nuevoComentario}
-              onChange={e => setNuevoComentario(e.target.value)}
-              placeholder="Escribe tu participación..."
-              rows={3}
-              required
-            />
-            <button type="submit" className="btn-enviar" disabled={isSubmitting}>
-              <FontAwesomeIcon icon={faPaperPlane} />
-              <span>{isSubmitting ? 'Enviando...' : 'Enviar'}</span>
-            </button>
-          </form>
-        )}
+        {!loading && !error && (() => {
+          const now = new Date();
+          const noIniciado = foro ? now < new Date(foro.fecha_inicio) : false;
+          const cerrado    = foro ? now > new Date(foro.fecha_fin)    : false;
+          if (noIniciado) {
+            return (
+              <div className="foro-cerrado-aviso">
+                Este foro aún no ha iniciado. Podrás participar a partir del{' '}
+                {new Date(foro!.fecha_inicio).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })}.
+              </div>
+            );
+          }
+          if (cerrado) {
+            return (
+              <div className="foro-cerrado-aviso">
+                Este foro está cerrado. Ya no se aceptan nuevas participaciones.
+              </div>
+            );
+          }
+          return (
+            <form className="comentario-form" onSubmit={handleEnviar}>
+              <textarea
+                value={nuevoComentario}
+                onChange={e => setNuevoComentario(e.target.value)}
+                placeholder="Escribe tu participación..."
+                rows={3}
+                required
+              />
+              <button type="submit" className="btn-enviar" disabled={isSubmitting}>
+                <FontAwesomeIcon icon={faPaperPlane} />
+                <span>{isSubmitting ? 'Enviando...' : 'Enviar'}</span>
+              </button>
+            </form>
+          );
+        })()}
       </div>
     </div>
   );

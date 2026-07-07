@@ -209,6 +209,18 @@
   50%       { opacity: 0.3; }
 }
 
+/* Aviso de foro cerrado */
+.foro-cerrado-aviso {
+  text-align: center;
+  padding: 1rem 1.5rem;
+  background-color: #f7f8fa;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  color: #57606a;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }

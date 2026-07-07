@@ -69,7 +69,7 @@ const StudentProfile: React.FC = () => {
   return (
     <div className="sp-page">
       <header className="app-header">
-        <button className="app-header-back" onClick={() => navigate('/student/dashboard')}>
+        <button className="app-header-back" onClick={() => navigate(-1)}>
           <FontAwesomeIcon icon={faArrowLeft} />
           <span>Volver</span>
         </button>
