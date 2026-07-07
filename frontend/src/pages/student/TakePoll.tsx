@@ -51,10 +51,22 @@ const TakePoll: React.FC = () => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const handleAutoSubmit = useCallback(() => {
-    alert('¡Tiempo agotado! La encuesta se enviará automáticamente.');
+  const handleAutoSubmit = useCallback(async () => {
+    alert('¡Tiempo agotado! Tu actividad se enviará automáticamente.');
+    if (actividad && pollId) {
+      try {
+        const payload = Object.entries(answers).map(([questionId, answer]) => ({ questionId, answer }));
+        if (tipo === 'encuesta') {
+          await encuestaService.submitRespuestas(pollId, payload);
+        } else {
+          await examenService.submitRespuestas(pollId, payload);
+        }
+      } catch {
+        // Si ya fue enviada o falla el servidor, continuamos de todas formas
+      }
+    }
     navigate(-1);
-  }, [navigate]);
+  }, [navigate, actividad, pollId, answers, tipo]);
 
   // Timer
   useEffect(() => {

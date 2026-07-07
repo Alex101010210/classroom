@@ -11,6 +11,10 @@ require('./models/UserProfile');
 require('./models/Encuesta');
 require('./models/Examen');
 require('./models/Aviso');
+require('./models/Respuestas');   // crea respuestas_encuestas y respuestas_examenes
+require('./models/Task');
+require('./models/Foro');
+require('./models/PostForo');
 
 const PORT = config.port;
 

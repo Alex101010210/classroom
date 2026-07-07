@@ -25,6 +25,16 @@ const initSocket = (server) => {
       console.log(`Client ${socket.id} left poll ${pollId}`);
     });
 
+    // Join an encuesta results room (for real-time teacher dashboard)
+    socket.on('join-encuesta', (encuestaId) => {
+      socket.join(`encuesta-${encuestaId}`);
+      console.log(`Client ${socket.id} joined encuesta ${encuestaId}`);
+    });
+
+    socket.on('leave-encuesta', (encuestaId) => {
+      socket.leave(`encuesta-${encuestaId}`);
+    });
+
     socket.on('disconnect', () => {
       console.log('Client disconnected:', socket.id);
     });

@@ -86,17 +86,7 @@ const PollsList: React.FC = () => {
   }, [classId]);
 
   const handleClick = (item: ActivityItem) => {
-    if (item.status === 'expired') {
-      alert('Esta actividad ha expirado');
-      return;
-    }
-    if (item.status === 'completed') {
-      // Los exámenes completados quedan bloqueados (botón gris), solo encuestas van a resultados
-      if (item.type === 'encuesta') {
-        navigate(`/student/poll/${item.id}/results`);
-      }
-      return;
-    }
+    if (item.status !== 'pending') return;
     // pending — pasamos el tipo en state para que TakePoll sepa qué cargar
     navigate(`/student/poll/${item.id}`, { state: { type: item.type } });
   };
@@ -223,16 +213,27 @@ const PollsList: React.FC = () => {
                   </div>
                 </div>
 
-                <button
-                  className="btn-action"
-                  onClick={() => handleClick(item)}
-                  disabled={item.status === 'expired' || (item.type === 'examen' && item.status === 'completed')}
-                >
-                  {item.status === 'pending'   && 'Responder'}
-                  {item.status === 'completed' && item.type === 'encuesta' && 'Ver Resultados'}
-                  {item.status === 'completed' && item.type === 'examen'   && 'Contestado'}
-                  {item.status === 'expired'   && 'Expirada'}
-                </button>
+                {item.status === 'pending' && (
+                  <button className="btn-action" onClick={() => handleClick(item)}>
+                    Responder
+                  </button>
+                )}
+
+                {item.status === 'completed' && (
+                  <div className="activity-status-banner activity-status-banner--completed">
+                    <FontAwesomeIcon icon={faCheckCircle} />
+                    <span>
+                      {item.type === 'encuesta' ? 'Encuesta enviada' : 'Examen enviado'}
+                    </span>
+                  </div>
+                )}
+
+                {item.status === 'expired' && (
+                  <div className="activity-status-banner activity-status-banner--expired">
+                    <FontAwesomeIcon icon={faTimesCircle} />
+                    <span>Vencida — no disponible</span>
+                  </div>
+                )}
               </div>
             ))}
           </div>

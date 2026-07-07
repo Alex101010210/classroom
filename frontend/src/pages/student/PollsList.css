@@ -258,6 +258,30 @@
   opacity: 0.6;
 }
 
+/* Banners de estado final (reemplaza al botón cuando la actividad está completada o vencida) */
+.activity-status-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1rem;
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  margin-top: auto;
+}
+
+.activity-status-banner--completed {
+  background-color: #d1fae5;
+  color: #065f46;
+  border: 1px solid #6ee7b7;
+}
+
+.activity-status-banner--expired {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .polls-content {

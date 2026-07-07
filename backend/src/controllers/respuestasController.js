@@ -3,6 +3,7 @@ const Examen   = require('../models/Examen');
 const { RespuestaEncuesta, RespuestaExamen } = require('../models/Respuestas');
 const User     = require('../models/User');
 const Enrollment = require('../models/Enrollment');
+const { getIO } = require('../socket/pollSocket');
 
 // ── ENCUESTAS ─────────────────────────────────────────────────────────────────
 
@@ -40,6 +41,20 @@ exports.submitEncuesta = async (req, res) => {
     if (existente) return res.status(409).json({ message: 'Ya respondiste esta encuesta' });
 
     const r = await RespuestaEncuesta.create({ poll_id: id, alumno_id, respuestas });
+
+    // Notificar en tiempo real al panel del maestro
+    try {
+      const alumno = await User.findOne({ where: { id: alumno_id }, attributes: ['id', 'nombre', 'apellido'] });
+      getIO().to(`encuesta-${id}`).emit('nueva-respuesta', {
+        encuestaId: id,
+        alumno: alumno
+          ? { id: alumno_id, nombre: alumno.nombre, apellido: alumno.apellido }
+          : { id: alumno_id, nombre: 'Alumno', apellido: '' },
+        respuestas,
+        submitted_at: r.submitted_at || new Date().toISOString()
+      });
+    } catch (_) { /* socket no crítico */ }
+
     res.status(201).json({ message: 'Encuesta enviada exitosamente', id: r.id });
   } catch (error) {
     console.error('Error al enviar encuesta:', error);

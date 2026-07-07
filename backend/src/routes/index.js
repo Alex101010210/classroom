@@ -12,6 +12,7 @@ const taskRoutes           = require('./task.routes');
 const avisosRoutes         = require('./avisos.routes');
 const foroRoutes           = require('./foro.routes');
 const postForoRoutes       = require('./postForo.routes');
+const analyticsRoutes      = require('./analytics.routes');
 const { authenticateToken } = require('../middleware/auth.middleware');
 const respuestasController = require('../controllers/respuestasController');
 
@@ -30,6 +31,7 @@ router.use('/polls',                     pollRoutes);
 router.use('/encuestas',                 encuestaRoutes);
 router.use('/examenes',                  examenRoutes);
 router.use('/foros',                     foroRoutes);
+router.use('/analytics',                 analyticsRoutes);
 router.use('/foros/:foroId/posts',       postForoRoutes);
 
 // GET /api/mis-resultados — historial del alumno autenticado

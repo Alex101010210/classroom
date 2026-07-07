@@ -114,11 +114,12 @@ exports.getExamenesByClaseAlumno = async (req, res) => {
     const respondidos = ids.length > 0
       ? await RespuestaExamen.findAll({ where: { examen_id: ids, alumno_id }, attributes: ['examen_id'] })
       : [];
-    const respondidoSet = new Set(respondidos.map(r => r.examen_id));
+    // Normalizar a String para evitar mismatch bigint(string) vs integer(number)
+    const respondidoSet = new Set(respondidos.map(r => String(r.examen_id)));
 
     const result = examenes.map(e => ({
       ...e.toJSON(),
-      ya_respondido: respondidoSet.has(e.id)
+      ya_respondido: respondidoSet.has(String(e.id))
     }));
 
     res.json({ examenes: result });
