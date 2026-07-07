@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faUserPlus, faClipboardList, faTrash, faPlus, faFileAlt, faPollH, faEye, faBullhorn, faChartBar } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faUserPlus, faClipboardList, faTrash, faPlus, faFileAlt, faPollH, faEye, faBullhorn, faChartBar, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { classService, enrollmentService, encuestaService, examenService, taskService, StudentEnrollment, EncuestaDB, ExamenDB, TaskData } from '../../services/api';
 import './ClassDetail.css';
 
@@ -12,6 +12,13 @@ interface ClassData {
   color_class?: string;
 }
 
+interface TaskForm {
+  titulo_tarea: string;
+  descrip_tarea: string;
+  fecha_limite: string;
+  puntos_max_tarea: string;
+  entrega_tardia: boolean;
+}
 
 const ClassDetail: React.FC = () => {
   const navigate = useNavigate();
@@ -30,6 +37,29 @@ const ClassDetail: React.FC = () => {
 
   const [isLoading, setIsLoading] = useState(true);
   const [pageError, setPageError] = useState('');
+
+  // Modal agregar tarea
+  const [showAddTaskModal, setShowAddTaskModal] = useState(false);
+  const [isSubmittingTask, setIsSubmittingTask] = useState(false);
+  const [taskError, setTaskError] = useState('');
+  const [taskForm, setTaskForm] = useState<TaskForm>({
+    titulo_tarea: '',
+    descrip_tarea: '',
+    fecha_limite: '',
+    puntos_max_tarea: '100',
+    entrega_tardia: false,
+  });
+
+  // Límites de fecha: hoy (sin pasado) y máximo 3 años
+  const now = new Date();
+  const minDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+    .toISOString()
+    .slice(0, 16);
+  const maxDate = new Date(now);
+  maxDate.setFullYear(maxDate.getFullYear() + 3);
+  const maxDateTime = new Date(maxDate.getTime() - maxDate.getTimezoneOffset() * 60000)
+    .toISOString()
+    .slice(0, 16);
 
   // Cargar datos de la clase
   const loadClass = useCallback(async () => {
@@ -97,6 +127,48 @@ const ClassDetail: React.FC = () => {
   }, [loadClass, loadStudents, loadExams, loadPolls, loadTasks]);
 
   const handleBack = () => navigate('/teacher/dashboard');
+
+  // Handlers de acción rápida
+  const handleAddTask = () => setShowAddTaskModal(true);
+
+  const handleAddExamen = () => {
+    if (!classData) return;
+    navigate('/teacher/examen', { state: { subject: classData } });
+  };
+
+  const handleAddEncuesta = () => {
+    if (!classData) return;
+    navigate('/teacher/encuestas', { state: { subject: classData } });
+  };
+
+  const submitAddTask = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!classId) return;
+    setTaskError('');
+    setIsSubmittingTask(true);
+    try {
+      const created = await taskService.createTask(classId, {
+        titulo_tarea: taskForm.titulo_tarea.trim(),
+        descrip_tarea: taskForm.descrip_tarea.trim() || undefined,
+        fecha_limite: taskForm.fecha_limite,
+        puntos_max_tarea: parseInt(taskForm.puntos_max_tarea, 10) || 100,
+        entrega_tardia: taskForm.entrega_tardia,
+      });
+      setTasks(prev => [...prev, created]);
+      setShowAddTaskModal(false);
+      setTaskForm({ titulo_tarea: '', descrip_tarea: '', fecha_limite: '', puntos_max_tarea: '100', entrega_tardia: false });
+    } catch (err: any) {
+      setTaskError(err.response?.data?.message || 'Error al guardar la tarea');
+    } finally {
+      setIsSubmittingTask(false);
+    }
+  };
+
+  const closeTaskModal = () => {
+    setShowAddTaskModal(false);
+    setTaskError('');
+    setTaskForm({ titulo_tarea: '', descrip_tarea: '', fecha_limite: '', puntos_max_tarea: '100', entrega_tardia: false });
+  };
 
   // Inscribir alumno por email
   const handleEnrollStudent = async (e: React.FormEvent) => {
@@ -317,6 +389,10 @@ const ClassDetail: React.FC = () => {
               <FontAwesomeIcon icon={faClipboardList} />
               Tareas Asignadas
             </h2>
+            <button className="btn-section-action" onClick={handleAddTask}>
+              <FontAwesomeIcon icon={faPlus} />
+              Agregar Tarea
+            </button>
           </div>
 
           {tasks.length === 0 ? (
@@ -377,6 +453,10 @@ const ClassDetail: React.FC = () => {
               <FontAwesomeIcon icon={faFileAlt} />
               Exámenes
             </h2>
+            <button className="btn-section-action btn-section-action--exam" onClick={handleAddExamen}>
+              <FontAwesomeIcon icon={faPlus} />
+              Agregar Examen
+            </button>
           </div>
 
           {exams.length === 0 ? (
@@ -400,7 +480,10 @@ const ClassDetail: React.FC = () => {
                       </button>
                       <div className="exam-card-meta-right">
                         {exam.deadline && (
-                          <span className="exam-deadline-badge" title="Fecha límite">
+                          <span
+                            className={`exam-deadline-badge${new Date(exam.deadline) < new Date() ? ' exam-deadline-badge--expired' : ''}`}
+                            title="Fecha límite"
+                          >
                             🕐 {new Date(exam.deadline).toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' })}
                           </span>
                         )}
@@ -443,6 +526,10 @@ const ClassDetail: React.FC = () => {
               <FontAwesomeIcon icon={faPollH} />
               Encuestas Asignadas
             </h2>
+            <button className="btn-section-action btn-section-action--poll" onClick={handleAddEncuesta}>
+              <FontAwesomeIcon icon={faPlus} />
+              Agregar Encuesta
+            </button>
           </div>
 
           {polls.length === 0 ? (
@@ -491,6 +578,98 @@ const ClassDetail: React.FC = () => {
           )}
         </section>
       </div>
+
+      {/* Modal: Agregar Tarea */}
+      {showAddTaskModal && (
+        <div className="modal-overlay" onClick={closeTaskModal}>
+          <div className="modal-content modal-large" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Agregar Tarea — {classData?.nombre_class}</h2>
+              <button className="close-button" onClick={closeTaskModal}>
+                <FontAwesomeIcon icon={faTimes} />
+              </button>
+            </div>
+            <form onSubmit={submitAddTask}>
+              <div className="form-group">
+                <label htmlFor="taskName">Título de la Tarea</label>
+                <input
+                  type="text"
+                  id="taskName"
+                  value={taskForm.titulo_tarea}
+                  onChange={(e) => setTaskForm({ ...taskForm, titulo_tarea: e.target.value })}
+                  placeholder="Ej: Tarea de Matemáticas"
+                  required
+                  disabled={isSubmittingTask}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="taskDescription">Descripción</label>
+                <textarea
+                  id="taskDescription"
+                  value={taskForm.descrip_tarea}
+                  onChange={(e) => setTaskForm({ ...taskForm, descrip_tarea: e.target.value })}
+                  placeholder="Describe la tarea..."
+                  rows={4}
+                  disabled={isSubmittingTask}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="taskDeadline">Fecha Límite</label>
+                <input
+                  type="datetime-local"
+                  id="taskDeadline"
+                  value={taskForm.fecha_limite}
+                  onChange={(e) => setTaskForm({ ...taskForm, fecha_limite: e.target.value })}
+                  min={minDateTime}
+                  max={maxDateTime}
+                  required
+                  disabled={isSubmittingTask}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="taskPoints">Puntos Máximos</label>
+                <input
+                  type="number"
+                  id="taskPoints"
+                  min={1}
+                  max={1000}
+                  value={taskForm.puntos_max_tarea}
+                  onChange={(e) => setTaskForm({ ...taskForm, puntos_max_tarea: e.target.value })}
+                  required
+                  disabled={isSubmittingTask}
+                />
+              </div>
+
+              <div className="form-group form-group-inline">
+                <input
+                  type="checkbox"
+                  id="taskLate"
+                  checked={taskForm.entrega_tardia}
+                  onChange={(e) => setTaskForm({ ...taskForm, entrega_tardia: e.target.checked })}
+                  disabled={isSubmittingTask}
+                />
+                <label htmlFor="taskLate">Permitir entrega tardía</label>
+              </div>
+
+              {taskError && (
+                <p style={{ color: 'red', fontSize: '0.9rem', marginTop: '4px' }}>{taskError}</p>
+              )}
+
+              <div className="modal-footer">
+                <button type="button" className="btn-cancel" onClick={closeTaskModal} disabled={isSubmittingTask}>
+                  Cancelar
+                </button>
+                <button type="submit" className="btn-submit" disabled={isSubmittingTask}>
+                  {isSubmittingTask ? 'Guardando...' : 'Guardar Tarea'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

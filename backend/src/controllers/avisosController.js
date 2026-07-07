@@ -40,7 +40,7 @@ exports.getAvisos = async (req, res) => {
     const userId = req.user.id;
     const rol = req.user.rol;
 
-    if (rol === 'maestro') {
+    if (rol === 0) {
       // Verificar que la clase pertenece al maestro
       const classData = await Class.findOne({ where: { id: classId, maestro_id: userId } });
       if (!classData) {

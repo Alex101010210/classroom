@@ -26,6 +26,55 @@ const PollsList: React.FC = () => {
   const [className, setClassName] = useState('');
   const [avisos, setAvisos] = useState<AvisoData[]>([]);
 
+  const fetchAll = async () => {
+    if (!classId) return;
+
+    avisoService.getByClase(classId)
+      .then(setAvisos)
+      .catch(() => setAvisos([]));
+
+    try {
+      const [encuestas, examenes] = await Promise.all([
+        encuestaService.getByClaseAlumno(classId),
+        examenService.getByClaseAlumno(classId),
+      ]);
+
+      const mapped: ActivityItem[] = [
+        ...encuestas.map(e => ({
+          id: e.id,
+          type: 'encuesta' as const,
+          title: e.titulo,
+          description: e.descripcion || '',
+          numPreguntas: e.preguntas?.length ?? 0,
+          status: (e.ya_respondida ? 'completed' : 'pending') as ItemStatus,
+        })),
+        ...examenes.map(e => ({
+          id: e.id,
+          type: 'examen' as const,
+          title: e.titulo,
+          description: e.descripcion || '',
+          numPreguntas: e.preguntas?.length ?? 0,
+          deadline: e.deadline,
+          color: e.color,
+          status: (e.ya_respondido
+            ? 'completed'
+            : e.deadline && new Date(e.deadline) < new Date()
+              ? 'expired'
+              : 'pending') as ItemStatus,
+        })),
+      ].sort((a, b) => {
+        if (a.status === b.status) return 0;
+        return a.status === 'pending' ? -1 : 1;
+      });
+
+      setItems(mapped);
+    } catch (err) {
+      console.error('Error al cargar actividades:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!classId) return;
 
@@ -34,55 +83,11 @@ const PollsList: React.FC = () => {
     const found = myClasses.find((c: any) => String(c.id) === String(classId));
     if (found) setClassName(found.nombre_class || '');
 
-    const fetchAll = async () => {
-      // Cargar avisos desde la API
-      avisoService.getByClase(classId)
-        .then(setAvisos)
-        .catch(() => setAvisos([]));
-
-      try {
-        const [encuestas, examenes] = await Promise.all([
-          encuestaService.getByClaseAlumno(classId),
-          examenService.getByClaseAlumno(classId),
-        ]);
-
-        const mapped: ActivityItem[] = [
-          ...encuestas.map(e => ({
-            id: e.id,
-            type: 'encuesta' as const,
-            title: e.titulo,
-            description: e.descripcion || '',
-            numPreguntas: e.preguntas?.length ?? 0,
-            status: (e.ya_respondida ? 'completed' : 'pending') as ItemStatus,
-          })),
-          ...examenes.map(e => ({
-            id: e.id,
-            type: 'examen' as const,
-            title: e.titulo,
-            description: e.descripcion || '',
-            numPreguntas: e.preguntas?.length ?? 0,
-            deadline: e.deadline,
-            color: e.color,
-            status: (e.ya_respondido
-              ? 'completed'
-              : e.deadline && new Date(e.deadline) < new Date()
-                ? 'expired'
-                : 'pending') as ItemStatus,
-          })),
-        ].sort((a, b) => {
-          if (a.status === b.status) return 0;
-          return a.status === 'pending' ? -1 : 1;
-        });
-
-        setItems(mapped);
-      } catch (err) {
-        console.error('Error al cargar actividades:', err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchAll();
+
+    const onFocus = () => fetchAll();
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
   }, [classId]);
 
   const handleClick = (item: ActivityItem) => {

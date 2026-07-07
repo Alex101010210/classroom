@@ -21,12 +21,20 @@ const StudentAvisos: React.FC = () => {
     if (found) setClassName(found.nombre_class || found.name || '');
   }, [classId]);
 
-  useEffect(() => {
+  const loadAvisos = () => {
     if (!classId) return;
     avisoService.getByClase(classId)
       .then(setAvisos)
       .catch(() => setError('No se pudieron cargar los avisos.'))
       .finally(() => setIsLoading(false));
+  };
+
+  useEffect(() => {
+    loadAvisos();
+
+    const onFocus = () => loadAvisos();
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
   }, [classId]);
 
   const formatFecha = (dateString: string) => {
