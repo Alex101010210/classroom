@@ -23,9 +23,8 @@ export interface RegisterData {
   rol: 'maestro' | 'alumno';
 }
 
-// --------------------------------------------
+
 // CLASES
-// --------------------------------------------
 
 export interface Class {
   id: string;
@@ -45,9 +44,7 @@ export interface CreateClassData {
   color_class?: string;
 }
 
-// --------------------------------------------
 // ENCUESTAS/POLLS
-// --------------------------------------------
 
 export interface Poll {
   id: string;
@@ -92,9 +89,7 @@ export interface CreatePollData {
   showResultsToStudents?: boolean;
 }
 
-// --------------------------------------------
 // RESPUESTAS DE ESTUDIANTES
-// --------------------------------------------
 
 export interface StudentResponse {
   id: string;
@@ -123,9 +118,7 @@ export interface SubmitResponseData {
   timeSpent?: number;
 }
 
-// --------------------------------------------
 // ENCUESTAS CON ESTADO (PARA ESTUDIANTES)
-// --------------------------------------------
 
 export interface PollWithStatus extends Poll {
   status: 'pending' | 'in-progress' | 'completed' | 'expired';
@@ -135,9 +128,7 @@ export interface PollWithStatus extends Poll {
   canRetake?: boolean;
 }
 
-// --------------------------------------------
 // RESULTADOS Y ANALYTICS
-// --------------------------------------------
 
 export interface PollResults {
   pollId: string;
@@ -168,9 +159,7 @@ export interface AnswerDistribution {
   percentage: number;
 }
 
-// --------------------------------------------
 // NOTIFICACIONES
-// --------------------------------------------
 
 export interface Notification {
   id: string;
@@ -183,9 +172,7 @@ export interface Notification {
   createdAt: Date;
 }
 
-// --------------------------------------------
 // FOROS
-// --------------------------------------------
 
 export interface ForumPost {
   id: string;
@@ -214,9 +201,7 @@ export interface ForumReply {
   updatedAt?: Date;
 }
 
-// --------------------------------------------
 // AVISOS/ANNOUNCEMENTS
-// --------------------------------------------
 
 export interface Announcement {
   id: string;
@@ -231,9 +216,7 @@ export interface Announcement {
   expiresAt?: Date;
 }
 
-// --------------------------------------------
 // SOCKET.IO EVENTS
-// --------------------------------------------
 
 export interface SocketEvents {
   // Eventos de encuestas
@@ -253,9 +236,7 @@ export interface SocketEvents {
   'announcement:new': (announcement: Announcement) => void;
 }
 
-// --------------------------------------------
 // API RESPONSES
-// --------------------------------------------
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -272,9 +253,7 @@ export interface PaginatedResponse<T> {
   totalPages: number;
 }
 
-// --------------------------------------------
 // FILTROS Y BÚSQUEDA
-// --------------------------------------------
 
 export interface PollFilters {
   classId?: string;
@@ -289,9 +268,7 @@ export interface StudentFilters {
   searchTerm?: string;
 }
 
-// --------------------------------------------
 // CONFIGURACIÓN
-// --------------------------------------------
 
 export interface AppConfig {
   apiUrl: string;
@@ -301,4 +278,3 @@ export interface AppConfig {
   pollTimeoutWarning: number; // minutos antes de mostrar advertencia
 }
 
-// Made with Bob

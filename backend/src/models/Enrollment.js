@@ -36,4 +36,3 @@ const Enrollment = sequelize.define('Enrollment', {
 
 module.exports = Enrollment;
 
-// Made with Bob
