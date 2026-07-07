@@ -100,6 +100,18 @@ const Examen: React.FC = () => {
         ? { ...q, options: q.options.filter(o => o.id !== optId), correctAnswers: q.correctAnswers.filter(id => id !== optId) }
         : q
     ));
+    
+  // Límites de fecha: hoy (sin pasado) y máximo 3 años hacia adelante
+  const now = new Date();
+  const minDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+    .toISOString()
+    .slice(0, 16); // "YYYY-MM-DDTHH:MM"
+  const maxDate = new Date(now);
+  maxDate.setFullYear(maxDate.getFullYear() + 3);
+  const maxDateTime = new Date(maxDate.getTime() - maxDate.getTimezoneOffset() * 60000)
+    .toISOString()
+    .slice(0, 16);
+
 
   // For 'multiple' / 'dropdown' only one correct answer; for 'checkbox' multiple allowed
   const toggleCorrect = (qId: string, optId: string, type: QuestionType) =>
@@ -295,6 +307,8 @@ const Examen: React.FC = () => {
                       className="ef-settings-input"
                       value={deadline}
                       onChange={e => setDeadline(e.target.value)}
+                      min={minDateTime}
+                      max={maxDateTime}
                     />
                     {deadline && (
                       <span className="ef-settings-hint">

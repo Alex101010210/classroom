@@ -19,6 +19,17 @@ const StudentForo: React.FC = () => {
     enlace: ''
   });
 
+  // Límites de fecha: hoy (sin pasado) y máximo 3 años hacia adelante — solo fecha (YYYY-MM-DD)
+  const now = new Date();
+  const minDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+    .toISOString()
+    .slice(0, 10); // "YYYY-MM-DD"
+  const maxDateObj = new Date(now);
+  maxDateObj.setFullYear(maxDateObj.getFullYear() + 3);
+  const maxDate = new Date(maxDateObj.getTime() - maxDateObj.getTimezoneOffset() * 60000)
+    .toISOString()
+    .slice(0, 10);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -180,6 +191,8 @@ const StudentForo: React.FC = () => {
                 name="fechaInicio"
                 value={formData.fechaInicio}
                 onChange={handleInputChange}
+                min={minDate}
+                max={maxDate}
                 required
               />
             </div>
@@ -191,6 +204,8 @@ const StudentForo: React.FC = () => {
                 name="fechaLimite"
                 value={formData.fechaLimite}
                 onChange={handleInputChange}
+                min={minDate}
+                max={maxDate}
                 required
               />
             </div>

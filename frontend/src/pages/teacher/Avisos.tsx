@@ -17,15 +17,15 @@ const Avisos: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  // Pre-llenar el nombre del maestro con el usuario actual
+  // Pre-llenar nombre del maestro y fijar fecha al día actual
   useEffect(() => {
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
     const user = authService.getCurrentUser();
-    if (user) {
-      setFormData(prev => ({
-        ...prev,
-        nombre_maestro: `${user.nombre} ${user.apellido || ''}`.trim()
-      }));
-    }
+    setFormData(prev => ({
+      ...prev,
+      fecha: today,
+      nombre_maestro: user ? `${user.nombre} ${user.apellido || ''}`.trim() : prev.nombre_maestro,
+    }));
 
     // Nombre de la clase desde localStorage
     const teacherClasses: any[] = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
@@ -54,7 +54,8 @@ const Avisos: React.FC = () => {
     try {
       const nuevo = await avisoService.create(classId, formData);
       setAvisos(prev => [nuevo, ...prev]);
-      setFormData(prev => ({ ...prev, fecha: '', mensaje: '' }));
+      const today = new Date().toISOString().split('T')[0];
+      setFormData(prev => ({ ...prev, fecha: today, mensaje: '' }));
     } catch {
       setError('Error al publicar el aviso. Intenta de nuevo.');
     } finally {
@@ -111,9 +112,10 @@ const Avisos: React.FC = () => {
                 id="fecha"
                 name="fecha"
                 value={formData.fecha}
-                onChange={handleChange}
+                readOnly
                 required
                 disabled={isSubmitting}
+                style={{ cursor: 'default', background: '#f0f0f0' }}
               />
             </div>
 
@@ -151,7 +153,10 @@ const Avisos: React.FC = () => {
               <button
                 type="button"
                 className="btn-cancel"
-                onClick={() => setFormData(prev => ({ ...prev, fecha: '', mensaje: '' }))}
+                onClick={() => {
+                  const today = new Date().toISOString().split('T')[0];
+                  setFormData(prev => ({ ...prev, fecha: today, mensaje: '' }));
+                }}
                 disabled={isSubmitting}
               >
                 Limpiar
