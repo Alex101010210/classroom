@@ -160,7 +160,7 @@ const Register: React.FC = () => {
                         onChange={(e) => setRol(e.target.value as 'maestro' | 'alumno')}
                         className="radio-input"
                       />
-                      <span>🎓 Maestro</span>
+                      <span> Maestro</span>
                     </label>
                     <label className="radio-label">
                       <input
@@ -171,7 +171,7 @@ const Register: React.FC = () => {
                         onChange={(e) => setRol(e.target.value as 'maestro' | 'alumno')}
                         className="radio-input"
                       />
-                      <span>📚 Alumno</span>
+                      <span> Alumno</span>
                     </label>
                   </div>
                 </div>
