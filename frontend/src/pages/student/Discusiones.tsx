@@ -177,12 +177,13 @@ const StudentDiscusiones: React.FC = () => {
           }
           return (
             <form className="comentario-form" onSubmit={handleEnviar}>
-              <textarea
+              <input
+                type="text"
                 value={nuevoComentario}
                 onChange={e => setNuevoComentario(e.target.value)}
                 placeholder="Escribe tu participación..."
-                rows={3}
                 required
+                autoComplete="off"
               />
               <button type="submit" className="btn-enviar" disabled={isSubmitting}>
                 <FontAwesomeIcon icon={faPaperPlane} />

@@ -9,6 +9,7 @@ import ForoDetail from './pages/teacher/ForoDetail';
 import StudentForo from './pages/student/Foro';
 import StudentForoDetail from './pages/student/ForoDetail';
 import Discusiones from './pages/teacher/Discusiones';
+import StudentDiscusiones from './pages/student/Discusiones';
 import Avisos from './pages/teacher/Avisos';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -73,6 +74,9 @@ function App() {
         } />
         <Route path="/student/foros-list" element={
           <ProtectedRoute><StudentForoDetail /></ProtectedRoute>
+        } />
+        <Route path="/student/discusiones/:foroId" element={
+          <ProtectedRoute><StudentDiscusiones /></ProtectedRoute>
         } />
         <Route path="/teacher/foro" element={<Foro />} />
         <Route path="/teacher/foros-list" element={<ForoDetail />} />

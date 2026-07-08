@@ -444,6 +444,26 @@
     align-items: flex-start;
     gap: 10px;
   }
+
+  /* Exam cards: stack title above badges on small screens */
+  .exam-card .task-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .exam-card-meta-right {
+    flex-wrap: wrap;
+    gap: 6px;
+    width: 100%;
+  }
+
+  .exam-deadline-badge,
+  .exam-attempt-badge,
+  .exam-pts-badge {
+    white-space: normal;
+    word-break: break-word;
+  }
 }
 
 @media (max-width: 480px) {
@@ -457,6 +477,22 @@
 
   .section-header h2 {
     font-size: 0.92rem;
+  }
+
+  /* Exam card title button fills full width */
+  .exam-card-title-row.exam-card-title-btn {
+    width: 100%;
+  }
+
+  .exam-card-meta-right {
+    gap: 5px;
+  }
+
+  .exam-pts-badge,
+  .exam-deadline-badge,
+  .exam-attempt-badge {
+    font-size: 0.73rem;
+    padding: 2px 8px;
   }
 }
 
